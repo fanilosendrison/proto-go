@@ -40,11 +40,15 @@ The normative invariant set is recorded in
 [`docs/specification/proto-go-spec.md`](docs/specification/proto-go-spec.md).
 
 The currently admitted invariant identifiers are `PROTO-GO-INV-001` through
-`PROTO-GO-INV-037`.
+`PROTO-GO-INV-042`.
 
 `PROTO-GO-INV-012` is superseded by ADR-006.
 
 `PROTO-GO-INV-024` is superseded by ADR-008.
+
+`PROTO-GO-INV-030` is superseded by ADR-009.
+
+`PROTO-GO-INV-032` is superseded by ADR-009.
 
 ADR-003 establishes that `proto-go` does not own validation policy:
 `READY FOR HANDOFF` requires every applicable governing validation obligation to
@@ -77,6 +81,16 @@ script invocations that emit machine-readable Continuation Artifacts.
 
 The `/go` skill owns Continuation Policy; the main agent executes authorized
 continuations and may later invoke the script again as a fresh invocation.
+
+ADR-009 extends artifact-driven progression across Admission and publication.
+Pre-Admission progression may invoke the terminating proto-go script before the
+Launch Contract is complete, and may establish that Launch Contract through
+script invocations and authorized continuations. `/go` may re-enter an
+outstanding continuation without creating a new logical objective. `READY FOR
+HANDOFF` remains intermediate; `PUBLISHED` remains the normal successful
+terminal outcome. Every main-agent/script control transfer requires sufficient
+machine-readable authoritative Progression Context, so correctness does not
+depend on conversational memory.
 
 Implementation must be derived from accepted product semantics rather than
 retroactively defining them.

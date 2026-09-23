@@ -61,19 +61,23 @@ session, agent, process, or mutable authoring-surface identity.
 The currently admitted normative invariant identifiers are:
 
 ```text
-PROTO-GO-INV-001 through PROTO-GO-INV-037
+PROTO-GO-INV-001 through PROTO-GO-INV-042
 ```
 
 `PROTO-GO-INV-012` is superseded by ADR-006 and is no longer normative.
 
 `PROTO-GO-INV-024` is superseded by ADR-008 and is no longer normative.
 
+`PROTO-GO-INV-030` is superseded by ADR-009 and is no longer normative.
+
+`PROTO-GO-INV-032` is superseded by ADR-009 and is no longer normative.
+
 `PROTO-GO-INV-025` remains normative.
 
 `PROTO-GO-INV-023` through `PROTO-GO-INV-025` are normative execution-model
 invariants.
 
-Do not create invariants beyond `PROTO-GO-INV-037` or alter the meaning, order, or
+Do not create invariants beyond `PROTO-GO-INV-042` or alter the meaning, order, or
 identifiers of the admitted invariants without explicit semantic authority.
 
 ADR-003 establishes the validation-authority boundary:
@@ -98,7 +102,7 @@ establishes that obligation set for the implementation occurrence.
 If the applicable governing validation-obligation set cannot be established
 with sufficient authority, do not establish `READY FOR HANDOFF`.
 
-The currently admitted invariant identifier space ends at `PROTO-GO-INV-037`.
+The currently admitted invariant identifier space ends at `PROTO-GO-INV-042`.
 
 Do not create or imply a later invariant without explicit semantic authority.
 
@@ -134,7 +138,7 @@ themselves constitute governing publication outcomes for a proper subset.
 
 Do not choose an atomic-publication implementation mechanism from this rule.
 
-The currently admitted invariant identifier space ends at `PROTO-GO-INV-037`.
+The currently admitted invariant identifier space ends at `PROTO-GO-INV-042`.
 
 Do not create or imply a later invariant without explicit semantic authority.
 
@@ -186,7 +190,7 @@ Retirement does not erase the historical readiness fact.
 Do not select a fencing implementation mechanism from this semantic rule.
 
 The currently admitted invariant identifier space ends at
-`PROTO-GO-INV-037`.
+`PROTO-GO-INV-042`.
 
 Do not create or imply a later invariant without explicit semantic authority.
 
@@ -219,6 +223,40 @@ format.
 
 Do not invent authority missing from the Launch Contract or later authorized
 authority resolution.
+
+ADR-009 extends artifact-driven progression across Admission and publication:
+
+```text
+/go
+→ pre-Admission artifact-driven progression
+→ admission-complete Launch Contract
+→ Admission
+→ artifact-driven progression
+→ READY (intermediate)
+→ continued progression / correction / new READY
+→ PUBLISHED (normal success)
+```
+
+Do not require Admission completeness before every pre-Admission script
+invocation.
+
+Do not depend on main-agent conversational memory to determine the current
+proto-go progression.
+
+Do not depend on a prior script process surviving to recover progression state.
+
+At every control transfer, ensure sufficient authoritative Progression Context
+is available or resolvable for the receiving actor.
+
+Do not equate Progression Context with a particular file, database, event log,
+snapshot, artifact chain, or workflow-engine state.
+
+Do not create a new logical objective merely because an outstanding
+continuation is re-entered through another /go invocation.
+
+Do not treat READY FOR HANDOFF as normal proto-go completion.
+
+Do not invent a fixed universal stage pipeline.
 
 ## Authority by responsibility
 
