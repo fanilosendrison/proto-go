@@ -39,6 +39,7 @@ READY FOR HANDOFF
 ≠ successful proto-go completion
 
 governing publication outcome reached
++ all applicable proto-go-owned closure obligations satisfied
 = normal successful proto-go completion
 ```
 
@@ -228,6 +229,8 @@ Current execution ordering is:
 → fresh post-Admission script invocation
 → continued artifact-driven progression
 → PUBLISHED
+→ applicable proto-go-owned closure obligations
+→ normal successful completion
 ```
 
 Do not model Continuation Artifacts as arbitrary commands from the script.
@@ -255,7 +258,9 @@ ADR-009 extends artifact-driven progression across Admission and publication:
 → artifact-driven progression
 → READY (intermediate)
 → continued progression / correction / new READY
-→ PUBLISHED (normal success)
+→ PUBLISHED
+→ applicable proto-go-owned closure obligations
+→ normal successful completion
 ```
 
 Do not require Admission completeness before every pre-Admission script

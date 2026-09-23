@@ -18,8 +18,10 @@ This section is normative for the current product direction.
 
 It states the product outcome that lower-level design exists to serve.
 
-ADR-001 establishes publication as the normal successful terminal outcome of
-`proto-go` and makes `READY FOR HANDOFF` an internal durable lifecycle boundary.
+ADR-001 established publication as the normal successful terminal outcome of
+`proto-go` and made `READY FOR HANDOFF` an internal durable lifecycle boundary.
+ADR-013 later superseded ADR-001's terminality assertion while preserving that
+publication is mandatory for normal successful completion.
 
 ADR-002 establishes that one logical `proto-go` operation owns one
 `ManagedContribution` and that one `ManagedContribution` may span one or more
@@ -95,7 +97,7 @@ explicitly rather than being invented during implementation.
 whether implementation is permitted to occur outside `proto-go` belong to the
 surrounding harness and are not part of `proto-go` product semantics.
 
-## 0.1 Product definition: managed implementation-to-publication execution inside a coding-agent session
+## 0.1 Product definition: managed implementation-to-publication execution across eligible main-agent sessions
 
 `proto-go` is the **end-to-end implementation-to-publication procedure of the
 coding-agent Development System**.
@@ -880,7 +882,8 @@ The following terms are currently canonical.
 The logical end-to-end product occurrence initiated for one implementation
 request.
 
-Its normal successful terminal outcome is the governing publication outcome.
+Its normal successful terminal condition requires the governing publication
+outcome and satisfaction of all applicable proto-go-owned closure obligations.
 
 A logical `proto-go` operation is not defined by the lifetime of one chat session,
 agent process, operating-system process, or future execution-engine run.
@@ -940,8 +943,9 @@ readiness occurrence are not yet defined.
 The publication outcome required by the version-control policy governing the
 contribution.
 
-Reaching that outcome is the normal successful terminal condition of the logical
-`proto-go` operation.
+Reaching that outcome is required for the normal successful terminal condition
+of the logical `proto-go` operation, but it is not by itself sufficient while
+applicable proto-go-owned closure obligations remain.
 
 Route-specific publication semantics are not yet defined by this specification.
 
@@ -2203,7 +2207,8 @@ The currently established handoff contract is limited to the following:
 5. downstream mechanical blockage may return required authored work to the
    Development System while preserving the same logical `proto-go` objective;
 6. `proto-go` reaches normal successful completion only when the governing
-   publication outcome has been reached.
+   publication outcome has been reached and all applicable proto-go-owned
+   closure obligations have been satisfied.
 
 The exact handoff payload, API, identifier mapping, transport, process boundary,
 repository-local decomposition, downstream implementation, and publication-route
