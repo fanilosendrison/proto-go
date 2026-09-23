@@ -3,10 +3,14 @@
 > Working product specification derived from the current product discussion.
 >
 > This document intentionally starts from product intent before fixing
-> implementation mechanisms. Terms such as worktree, persistence engine,
-> registry, database, process model, agent topology, harness API, version-control
-> adapter, programming language, and runtime are deliberately left unspecified
-> unless the product contract later requires them.
+> implementation mechanisms. Managed Git authoring isolation is product-mandated:
+> proto-go provisions dedicated temporary detached Git worktrees. Their
+> filesystem path, naming, registry representation, cleanup implementation,
+> base-commit selection algorithm, and reconstruction mechanism remain
+> unspecified. Terms such as persistence engine, database, process model, agent
+> topology, harness API, version-control adapter, programming language, and
+> runtime remain deliberately unspecified unless the product contract later
+> requires them.
 
 # 0. Product intent — governing user experience
 
@@ -65,6 +69,24 @@ and requires sufficient machine-readable authoritative Progression Context at
 every main-agent/script control-transfer boundary. ADR-009 supersedes
 PROTO-GO-INV-030 and PROTO-GO-INV-032.
 
+ADR-010 requires proto-go-managed authored mutation to occur in dedicated
+temporary detached Git worktrees bound to one `ManagedContribution` and
+participating repository, provisioned automatically before the first managed
+authored mutation in that repository.
+
+ADR-011 makes proto-go progression session-agnostic and permits distinct
+progressions to advance concurrently while requiring at most one independent
+active main-agent controller per progression.
+
+ADR-012 makes `/go` procedural instructions loadable incrementally from a
+bounded bootstrap rather than requiring the complete instruction corpus
+upfront.
+
+ADR-013 generalizes artifact-driven continuation to actionable mechanical
+problems and proto-go-owned closure obligations, and supersedes the terminality
+assertions of `PROTO-GO-INV-008` and `PROTO-GO-INV-041` while preserving
+publication as necessary for normal successful completion.
+
 The current repository intentionally does not yet derive the complete invariant
 set or architecture from this Product Intent. Those derivations must occur
 explicitly rather than being invented during implementation.
@@ -93,6 +115,16 @@ ManagedContribution != Repository
 ```
 
 Repository boundaries do not determine contribution identity.
+
+Managed authored mutation is performed only in proto-go-managed authoring
+worktrees.
+
+For every participating repository in which the admitted contribution requires
+managed authored mutation, proto-go automatically establishes a dedicated
+temporary detached Git worktree before the first such mutation.
+
+The invoking checkout, the user's ordinary checkout, and another contribution's
+managed authoring worktree are not managed authoring surfaces.
 
 It exists so that, once the user and Development System have determined what
 should be implemented, that implementation can be carried through managed
@@ -218,10 +250,10 @@ mark the contribution as ready
 remember which session created it
 ```
 
-If the eventual architecture requires isolation, durable identity, lifecycle
-registration, version-control handoff metadata, or other pre-authoring state,
-`proto-go` must cause the required state to exist as part of the managed
-implementation lifecycle.
+`proto-go` automatically establishes the managed authoring worktree required for
+each participating repository, together with durable identity, lifecycle
+registration, version-control handoff metadata, and any other pre-authoring
+state required as part of the managed implementation lifecycle.
 
 Those mechanisms are product plumbing, not separate user-facing preparation
 steps.
@@ -255,6 +287,16 @@ concurrent implementation
 → shared mutable checkout
 → coordination by convention
 ```
+
+Distinct proto-go progressions may advance concurrently from different
+eligible main-agent sessions. `proto-go` must not globally serialize
+otherwise-independent `/go` progressions.
+
+That concurrency is distinct from independent simultaneous main-agent control
+of one progression: a single proto-go progression must not be independently
+advanced by more than one active main-agent procedural controller at a time.
+
+Distinct progressions must not share a managed authoring worktree.
 
 This requirement concerns authoring isolation.
 
@@ -334,6 +376,11 @@ downstream version-control progression
 Forgetting to invoke the downstream version-control command immediately after
 `proto-go` must not make successfully completed implementation work undiscoverable.
 
+A proto-go progression is not owned by the conversational session that started
+or previously advanced it. A later eligible main-agent session may continue the
+same relevant progression by resolving authoritative Progression Context and
+the contribution's managed authoring bindings.
+
 ## 0.7 Interrupted work remains incomplete
 
 If the implementation lifecycle is interrupted before its completion boundary,
@@ -357,10 +404,15 @@ proto-go
 A later Development System action may inspect, resume, repair, or abandon the
 interrupted contribution.
 
+Sequential takeover of the progression by another eligible main-agent session
+is permitted. It does not by itself change the lifecycle state of the
+contribution; only authoritative proto-go progression can establish readiness,
+retirement, or publication.
+
 Downstream publication machinery must not infer semantic completion from the
 mere survival of its files, commits, clean status, or process absence.
 
-## 0.8 Ready-for-handoff is internal; publication is the successful terminal outcome
+## 0.8 Ready-for-handoff is internal; publication is required for normal successful completion
 
 `READY FOR HANDOFF` means that the Development System considers the produced
 implementation contribution ready to cross into downstream version-control
@@ -414,11 +466,24 @@ further progress requires unresolved action, decision, permission, or authority
 outside the current Development System
 ```
 
-The normal successful terminal outcome of `proto-go` is the former.
+The former is required for normal successful completion.
+
+An established `PUBLISHED` fact may coexist with remaining proto-go-owned
+closure obligations. Normal successful completion additionally requires every
+applicable proto-go-owned closure obligation to be satisfied.
+
+After the governing publication outcome is established, proto-go performs or
+attempts its remaining proto-go-owned closure obligations, including normal
+automatic retirement and removal of temporary managed worktrees. A later local
+cleanup failure does not revert `PUBLISHED`; it is surfaced through
+artifact-driven continuation so the main agent can attempt repair.
 
 `proto-go` must not report success merely because implementation is complete,
 validation passed, `READY FOR HANDOFF` is durable, commits exist, or a downstream
 publication attempt occurred.
+
+Nor is an established publication outcome sufficient while applicable
+proto-go-owned closure obligations remain unsatisfied.
 
 The exact taxonomy and representation of non-success or blocked outcomes remain
 undecided.
@@ -492,6 +557,15 @@ treat a failed mechanical publication attempt as publication success
 define a universal built-in validation checklist as the authority for READY FOR HANDOFF
 declare READY FOR HANDOFF while the applicable governing validation-obligation set is unknown
 treat successful execution of only the validations it happened to discover as proof that no other governing obligation applies
+managed authoring mutates the invoking or current ordinary checkout
+managed authoring requires the user to create or select a worktree
+session replacement creates a second worktree for the same contribution and repository
+different progressions are globally serialized without semantic need
+one progression is independently driven by two main-agent controllers
+/go requires loading the full procedural instruction corpus upfront
+actionable script-detected problems terminate without giving an authorized main-agent continuation an opportunity to progress them
+PUBLISHED cleanup failure is silently ignored
+PUBLISHED is made false because local cleanup failed
 ```
 
 Likewise, a design is non-conformant if successful `proto-go` work can become
@@ -537,10 +611,15 @@ The product promise must remain stable.
 
 ## 0.11 Invocation and execution model
 
-proto-go is invoked from a main-agent session through the user-facing `/go`
-skill invocation.
+A `/go` invocation may originate from any eligible main-agent session.
 
 The `/go` skill governs the main agent's active proto-go progression.
+
+A `/go` invocation begins from a bounded bootstrap instruction set. The main
+agent must not be required to load the complete proto-go procedural instruction
+corpus before progression begins; additional authoritative procedural
+instructions are resolved and loaded only when they become applicable to the
+current progression state or authorized continuation.
 
 A `/go` invocation enters Invocation Preflight before any logical proto-go
 operation is admitted:
@@ -612,6 +691,23 @@ Admission
 fresh post-Admission proto-go script invocation
 ```
 
+After Admission, before the first managed authored mutation in a participating
+repository, proto-go provisions that repository's managed authoring worktree:
+
+```text
+ManagedContribution
++
+repository R
++
+determinate base commit C
+        ↓
+proto-go-created managed Git worktree
+        ↓
+detached HEAD at C
+        ↓
+managed authoring
+```
+
 A pre-Admission invocation is not resumed across Admission.
 
 Every script invocation terminates before any corresponding main-agent
@@ -623,6 +719,10 @@ information.
 The `/go` skill interprets that information under Continuation Policy.
 
 The main agent executes the authorized continuation.
+
+Continuation Policy also determines which additional procedural instructions
+are currently applicable; only those instructions need to be resolved or loaded
+for the authorized continuation.
 
 A continuation may later lead to another fresh script invocation:
 
@@ -670,11 +770,16 @@ The progression may continue through publication, authored correction,
 revalidation, additional readiness occurrences, and other authorized
 continuations as required.
 
-The normal successful terminal outcome is the governing publication outcome:
+The governing publication outcome is required for normal successful completion:
 
 ```text
 PUBLISHED
 ```
+
+Normal successful completion additionally requires that all applicable
+proto-go-owned closure obligations, including automatic temporary
+managed-worktree cleanup, are satisfied. A later local cleanup failure does not
+revert `PUBLISHED`; it is surfaced through artifact-driven continuation.
 
 The proto-go script is not the end-to-end workflow orchestrator.
 
@@ -751,6 +856,12 @@ ManagedContribution B
 The existence, name, identity, lifecycle, or representation of any subordinate
 repository-local object is not yet defined.
 
+Managed authoring uses a proto-go-created temporary detached Git worktree bound
+to one `ManagedContribution` and participating repository. That binding is a
+subordinate managed authoring resource; it does not define
+`ManagedContribution` identity and `ManagedContribution` must not be equated
+with a worktree.
+
 The Development System retains semantic and authored-development authority.
 
 A downstream version-control system retains authority for the mechanical
@@ -787,6 +898,17 @@ worktree, session, agent, process, or mutable authoring surface.
 
 The concrete representation of `ManagedContribution` identity is not yet
 defined.
+
+## Managed Authoring Worktree
+
+The proto-go-created temporary detached Git worktree bound to one
+`ManagedContribution` and participating repository for managed authoring.
+
+The binding belongs to the contribution and repository rather than to a
+conversational session, main-agent process, or script invocation.
+
+Its filesystem path, naming, registry representation, cleanup implementation,
+base-commit selection algorithm, and reconstruction mechanism are not defined.
 
 ## READY FOR HANDOFF
 
@@ -1057,24 +1179,27 @@ execution or session state disappears during downstream progression.
 
 The persistence mechanism is not defined by this invariant.
 
-## PROTO-GO-INV-008 — Publication is the only normal successful terminal outcome
+## PROTO-GO-INV-008 — Publication is the only normal successful terminal outcome — SUPERSEDED
 
-The normal successful terminal outcome of a logical `proto-go` operation MUST be the
-publication outcome required by the governing version-control policy.
+**Status:** Superseded by ADR-013.
 
-None of the following alone constitutes normal successful `proto-go` completion:
+This invariant previously asserted that the governing publication outcome was
+the normal successful terminal outcome of a logical `proto-go` operation, and
+that `proto-go` must not report normal success until that outcome had been
+reached.
 
-```text
-implementation complete
-validation complete
-READY FOR HANDOFF established
-local commit exists
-downstream publication requested
-downstream publication attempted
-```
+ADR-013 preserves publication as mandatory for normal successful completion. It
+supersedes the claim that publication itself necessarily exhausts all
+proto-go-owned work: normal successful completion additionally requires all
+applicable proto-go-owned closure obligations to be satisfied.
 
-`proto-go` MUST NOT report normal success until the governing publication outcome has
-been reached.
+The preserved and corrected requirement is represented by
+`PROTO-GO-INV-051`.
+
+`PROTO-GO-INV-008` is retained only to preserve invariant identity history.
+
+It is no longer a normative requirement and its identifier MUST NOT be reused
+for a different invariant.
 
 ## PROTO-GO-INV-009 — Mechanically blocked publication preserves the logical objective when authored progress remains available
 
@@ -1577,27 +1702,26 @@ This invariant does not define how the relevant progression is identified,
 correlated, rediscovered, persisted, transported across sessions, or selected
 when multiple progressions exist.
 
-## PROTO-GO-INV-041 — Artifact-driven progression spans the objective through publication
+## PROTO-GO-INV-041 — Artifact-driven progression spans the objective through publication — SUPERSEDED
 
-The `/go` artifact-driven continuation progression MUST remain capable of
-carrying the same logical proto-go objective through the lifecycle required to
-reach its governing publication outcome.
+**Status:** Superseded by ADR-013.
 
-`READY FOR HANDOFF` MUST NOT be treated as the normal successful terminal
-condition of that progression.
+This invariant previously asserted that the normal successful terminal
+condition of the artifact-driven proto-go progression was the governing
+publication outcome.
 
-Where continued progression requires additional mechanical execution,
-main-agent authored work, validation, user-authority resolution, publication
-progression, fencing, correction, or another authorized continuation, the same
-proto-go objective continues through fresh terminating script invocations and
-authorized main-agent continuations as applicable.
+ADR-013 extends artifact-driven progression through applicable proto-go-owned
+post-publication closure obligations. Publication remains required, but normal
+successful completion is reached only after publication and all applicable
+closure obligations have been satisfied.
 
-The normal successful terminal condition of the artifact-driven proto-go
-progression MUST be the governing publication outcome required by
-`PROTO-GO-INV-008`.
+The corrected continuation semantics are represented by
+`PROTO-GO-INV-052`.
 
-This invariant does not define a fixed universal sequence of intermediate
-stages.
+`PROTO-GO-INV-041` is retained only to preserve invariant identity history.
+
+It is no longer a normative requirement and its identifier MUST NOT be reused
+for a different invariant.
 
 ## PROTO-GO-INV-042 — Control transfer requires sufficient authoritative Progression Context
 
@@ -1626,6 +1750,184 @@ This invariant does not select a snapshot representation, event log, artifact
 chain, database, persistence mechanism, workflow engine, context reconstruction
 algorithm, or transport mechanism.
 
+## PROTO-GO-INV-043 — Managed authoring uses dedicated proto-go-created Git worktrees
+
+For every participating repository in which an admitted `ManagedContribution`
+requires managed authored mutation, proto-go MUST automatically establish a
+dedicated Git worktree for that `ManagedContribution` and repository before the
+first such mutation occurs.
+
+Managed authored mutation MUST NOT occur in the invoking checkout, an ordinary
+user checkout, or another `ManagedContribution`'s managed authoring worktree.
+
+Distinct concurrently authored `ManagedContribution` instances MUST NOT share
+the same managed authoring worktree.
+
+A repository dynamically entering the `ManagedContribution`'s authoring scope
+MUST receive its managed worktree before its first managed authored mutation.
+
+This invariant does not define worktree path, naming, registry representation,
+or provisioning command sequence.
+
+## PROTO-GO-INV-044 — Managed authoring worktrees are detached at determinate commits
+
+Each managed authoring worktree MUST be provisioned from a determinate Git
+commit.
+
+The managed authoring worktree MUST use detached HEAD while it serves as
+proto-go's managed authoring surface.
+
+Managed authoring MUST NOT rely on mutation of an ordinary checked-out branch
+as its authoring surface.
+
+This invariant does not define how the authoritative base commit is selected or
+how downstream publication later realizes the authored state through refs,
+branches, commits, or another version-control mechanism.
+
+## PROTO-GO-INV-045 — Managed worktree bindings follow the contribution lifecycle, not the session
+
+The authoritative managed-worktree binding belongs to the relevant
+`ManagedContribution` and participating repository rather than to a
+conversational session, main-agent process, or script invocation.
+
+Session replacement MUST NOT by itself create another managed authoring
+worktree for the same `ManagedContribution` and repository.
+
+The managed worktree MUST remain available as required across script
+termination, session replacement, `READY FOR HANDOFF`, publication attempts,
+readiness fencing, authored correction, revalidation, and later readiness
+occurrences.
+
+After `PUBLISHED` is established and the worktree is no longer required for
+authored progression, proto-go MUST attempt its normal automatic retirement and
+removal as a proto-go-owned closure obligation.
+
+Failure of that cleanup MUST NOT invalidate `PUBLISHED` and MUST be surfaced
+through the artifact-driven continuation semantics rather than silently ignored.
+
+No incidental event such as session loss, process loss, elapsed time, `READY`,
+or script termination MAY by itself authorize destruction of the worktree.
+
+This invariant does not define abandonment or garbage-collection semantics.
+
+## PROTO-GO-INV-046 — Invocation and continuation are session-agnostic
+
+A `/go` invocation MAY originate from any eligible main-agent session.
+
+A proto-go progression MUST NOT depend on continued existence of the session
+that initiated or previously advanced it.
+
+A later eligible main-agent session MAY continue the same relevant
+pre-Admission progression or, after Admission, the same logical proto-go
+operation and `ManagedContribution`.
+
+Such session transfer MUST preserve authoritative Progression Context and
+managed authoring bindings and MUST NOT by itself create a new logical
+objective, `ManagedContribution`, or authoring worktree.
+
+## PROTO-GO-INV-047 — Distinct proto-go progressions may advance concurrently
+
+Distinct proto-go progressions MUST be capable of advancing concurrently from
+different eligible main-agent sessions.
+
+proto-go MUST NOT require global serialization of otherwise-independent `/go`
+progressions merely because they affect the same repository or because another
+progression is active.
+
+This invariant does not guarantee conflict-free later integration or
+publication.
+
+## PROTO-GO-INV-048 — One progression has at most one independent active main-agent controller
+
+At any given time, one proto-go progression MUST NOT be independently advanced
+by more than one active main-agent procedural controller.
+
+Sequential transfer of control between sessions is permitted.
+
+This invariant does not prohibit one authoritative controller from causing
+parallel mechanical, validation, analysis, or other activities when otherwise
+permitted.
+
+This invariant does not select the mechanism that enforces single-controller
+authority.
+
+## PROTO-GO-INV-049 — `/go` procedural instructions are resolved incrementally
+
+A `/go` invocation MUST NOT require the main agent to load the complete
+proto-go procedural instruction corpus before progression begins.
+
+The main agent MUST be able to begin from a bounded bootstrap instruction set
+and resolve/load additional authoritative procedural instructions only as they
+become applicable to the current progression state or authorized continuation.
+
+Procedural instruction material not applicable to the current continuation MUST
+NOT be required merely because it may become relevant later.
+
+Incremental instruction loading MUST NOT transfer procedural authority to the
+proto-go script or Continuation Artifacts.
+
+The `/go` skill and its Continuation Policy remain the procedural authority.
+
+## PROTO-GO-INV-050 — Actionable mechanical conditions preserve the objective through main-agent continuation
+
+When a terminating proto-go script invocation establishes a mechanical problem,
+unsatisfied proto-go-owned obligation, or other continuation condition that
+prevents normal completion, it MUST return sufficient machine-readable
+Continuation Artifact information for the receiving main agent to understand
+the condition under the available Progression Context.
+
+If an authorized main-agent continuation exists that can make further progress
+toward resolving the condition, the same proto-go objective MUST remain in
+force.
+
+The originating script invocation MUST terminate before that main-agent
+continuation occurs.
+
+Any later mechanical retry MUST use a fresh script invocation.
+
+This invariant does not require every condition to be mechanically or
+authorially resolvable and does not define a complete blocked-state taxonomy.
+
+## PROTO-GO-INV-051 — Publication is necessary but not sufficient for normal successful completion
+
+The governing publication outcome MUST be established before a logical proto-go
+operation may report normal successful completion.
+
+`READY FOR HANDOFF`, implementation completion, validation completion, commits,
+or publication attempts remain insufficient.
+
+An established `PUBLISHED` fact MUST remain true even if a later proto-go-owned
+closure obligation fails.
+
+A logical proto-go operation MUST NOT report normal successful completion while
+an applicable proto-go-owned closure obligation remains unsatisfied.
+
+Therefore `PUBLISHED` is necessary for normal successful completion but is not
+by itself sufficient when such obligations remain.
+
+This invariant supersedes `PROTO-GO-INV-008`.
+
+## PROTO-GO-INV-052 — Artifact-driven progression continues through proto-go-owned closure obligations
+
+The `/go` artifact-driven progression MUST remain capable of continuing after
+the governing publication outcome when proto-go-owned closure obligations
+remain.
+
+Such continuation MUST use the same Progression Context, Continuation Artifact,
+terminating-script, Continuation Policy, and fresh-reentry semantics applicable
+elsewhere in proto-go.
+
+`PUBLISHED` MUST NOT be reverted merely because a later closure operation fails.
+
+The progression reaches normal successful completion only after `PUBLISHED` has
+been established and all applicable proto-go-owned closure obligations have
+been satisfied.
+
+This invariant does not define a canonical `CLOSING`, `COMPLETE`, or other
+lifecycle state representation.
+
+This invariant supersedes `PROTO-GO-INV-041`.
+
 # 5. Lifecycle semantics
 
 The artifact-driven proto-go progression begins before Admission and continues
@@ -1652,7 +1954,10 @@ possible correction / new READY
         ↺
 PUBLISHED
         ↓
-normal success
+applicable proto-go-owned closure obligations
+        ↺ if repairable
+        ↓
+normal successful completion
 ```
 
 `READY FOR HANDOFF` is not normal termination of the artifact-driven
@@ -1675,11 +1980,18 @@ READY FOR HANDOFF durably established
 downstream version-control progression
         ↓
 governing publication outcome
+        ↓
+applicable proto-go-owned closure obligations
+        ↓
+normal successful completion
 ```
 
 `READY FOR HANDOFF` is an internal durable lifecycle boundary.
 
-The governing publication outcome is the normal successful terminal outcome.
+The governing publication outcome is required for normal successful terminal
+completion. Normal successful completion additionally requires every applicable
+proto-go-owned closure obligation, such as managed worktree cleanup, to be
+satisfied.
 
 If downstream progression becomes mechanically blocked while authored progress
 remains within Development System authority, the logical `proto-go` objective
@@ -1764,34 +2076,57 @@ future semantic rule says otherwise.
 
 # 6. Isolation semantics
 
-Concurrent `ManagedContribution` instances require isolated ordinary mutable
-authoring surfaces.
+Managed authored mutation requires isolated ordinary mutable authoring
+surfaces, as required by `PROTO-GO-INV-005`.
 
-This specification currently requires the isolation property expressed by
-`PROTO-GO-INV-005`.
+This specification selects dedicated Git worktrees as the managed authoring
+isolation mechanism.
 
-It does not yet select the mechanism that provides that property.
+For each participating repository in which an admitted `ManagedContribution`
+requires managed authored mutation, proto-go provisions a dedicated temporary
+Git worktree before the first managed authored mutation in that repository.
 
-In particular, this section does not yet require:
+The worktree belongs to:
 
 ```text
-Git worktrees
-branches
-copies
-containers
-virtual filesystems
-sandboxes
+ManagedContribution × participating repository
 ```
 
-or any other concrete isolation mechanism.
+It does not belong to a conversational session, main-agent process, script
+invocation, or transient controller.
 
-Dynamic repository admission does not weaken the isolation requirement.
+The managed authoring worktree is created from a determinate Git commit and
+uses detached HEAD while it serves as proto-go's managed authoring surface.
 
-A newly participating repository must enter the contribution's managed
-authoring authority before its first managed authoring mutation.
+Managed authoring must remain detached from an ordinary checked-out branch.
 
-The concrete mechanism establishing that authority and isolation remains
-undecided.
+The invoking checkout, the user's ordinary checkout, and another
+`ManagedContribution`'s managed authoring worktree are not managed authoring
+surfaces.
+
+Distinct concurrently authored `ManagedContribution` instances must not share
+the same managed authoring worktree.
+
+A repository dynamically added to an existing `ManagedContribution` receives
+its own managed worktree before the first managed authored mutation in that
+repository.
+
+The worktree binding follows the contribution and repository rather than the
+session. Session replacement must not by itself create a replacement worktree
+for the same `ManagedContribution` and repository.
+
+This worktree selection strengthens the isolation requirement expressed by
+`PROTO-GO-INV-005`; it does not supersede that invariant.
+
+Git-worktree isolation provides managed authoring isolation only. It does not by
+itself solve every shared-Git-repository concurrency concern such as refs,
+downstream publication, or convergence. Those downstream concerns are not
+assigned to proto-go merely because worktrees are selected for authoring
+isolation.
+
+The worktree filesystem path, naming, registry representation, base-commit
+selection algorithm, reconstruction mechanism, forced-removal policy, and
+garbage-collection semantics remain undecided.
 
 # 7. Completion and validation semantics
 
@@ -1914,7 +2249,21 @@ a new applicable readiness occurrence.
 
 # 9. Failure, interruption, and recovery semantics
 
-Not yet derived.
+The following failure, interruption, and recovery semantics are currently
+established:
+
+* session loss does not by itself terminate a proto-go progression;
+* sequential session takeover of the same progression is permitted;
+* incidental events such as session loss, process loss, script termination,
+  elapsed time, or `READY` must not by themselves authorize destruction of a
+  managed authoring worktree;
+* an actionable problem detected by a terminating script invocation may
+  continue through an authorized main-agent continuation under the same
+  proto-go objective;
+* a post-`PUBLISHED` closure failure preserves the established `PUBLISHED` fact
+  and may continue through artifact-driven repair.
+
+Abandonment semantics and a complete recovery taxonomy are not yet defined.
 
 # 10. Concurrency semantics
 
@@ -1944,6 +2293,17 @@ authored state bound by that occurrence.
 
 This does not impose a repository-wide prohibition on unrelated concurrent work.
 
+Distinct proto-go progressions may run concurrently. That inter-progression
+concurrency is permitted and ordinary.
+
+Independent simultaneous main-agent control of one progression is prohibited:
+at most one independent active main-agent controller may advance a given
+progression at a time.
+
+Neither rule prohibits internal concurrency caused by one authoritative
+controller, such as parallel mechanical, validation, or analysis activities
+when otherwise permitted.
+
 # 11. Harness-integration boundary
 
 proto-go is invoked within a main-agent session through the user-facing `/go`
@@ -1951,6 +2311,11 @@ skill.
 
 The `/go` skill supplies the procedure governing the main agent's active
 proto-go progression.
+
+`/go` procedural authority may be loaded incrementally. The main agent begins
+from a bounded bootstrap instruction set and resolves or loads additional
+authoritative procedural instructions only as they become applicable to the
+current progression state or authorized continuation.
 
 The first mechanical transition after Admission invokes the proto-go script as a
 terminating call.
