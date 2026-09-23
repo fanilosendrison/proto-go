@@ -7,6 +7,7 @@
 | [ADR-003](adr-003-keep-validation-policy-outside-proto-go-and-fail-closed-on-unknown-obligations.md) | Keep validation policy outside `proto-go` and fail closed on unknown obligations | Accepted |
 | [ADR-004](adr-004-allow-managed-contribution-repository-scope-to-expand-during-authoring.md) | Allow ManagedContribution repository scope to expand during authoring | Accepted |
 | [ADR-005](adr-005-make-each-readiness-occurrence-an-indivisible-publication-unit.md) | Make each readiness occurrence an indivisible publication unit | Accepted |
+| [ADR-006](adr-006-define-main-agent-skill-orchestration-and-terminating-script-execution.md) | Define main-agent skill orchestration and terminating script execution | Accepted |
 
 The current normative product meaning is projected in
 [`../specification/proto-go-spec.md`](../specification/proto-go-spec.md).
