@@ -38,16 +38,24 @@ occurrence form one indivisible logical publication unit with all-or-none
 governing publication semantics.
 
 ADR-006 establishes proto-go's execution model: a user invokes `/go` from a
-main-agent session, the `/go` skill governs the main agent's procedure, the
-first procedural step is a terminating invocation of the proto-go script, and
-the main agent continues only after that invocation returns. ADR-006 supersedes
-the execution-engine-independence assertion previously recorded as
+main-agent session, the `/go` skill governs the main agent's procedure, and the
+main agent continues only after a terminating proto-go script invocation
+returns. ADR-006 originally recorded that script invocation as the first
+procedural step; ADR-008 supersedes that ordering. ADR-006 supersedes the
+execution-engine-independence assertion previously recorded as
 `PROTO-GO-INV-012`.
 
 ADR-007 establishes that a readiness occurrence must lose effective publication
 authority and be fenced from crossing the governing publication boundary before
 managed authored mutation resumes. Historical readiness remains valid, but a
 retired readiness occurrence cannot later publish.
+
+ADR-008 establishes Invocation Preflight and Admission before mechanical
+execution, requires an admission-complete machine-readable Launch Contract as
+the initial authority root of the logical proto-go operation, and establishes
+artifact-driven main-agent continuation between fresh terminating proto-go
+script invocations. ADR-008 supersedes PROTO-GO-INV-024 while preserving
+PROTO-GO-INV-025.
 
 The current repository intentionally does not yet derive the complete invariant
 set or architecture from this Product Intent. Those derivations must occur
@@ -524,37 +532,75 @@ The product promise must remain stable.
 proto-go is invoked from a main-agent session through the user-facing `/go`
 skill invocation.
 
-The `/go` skill supplies the procedure followed by that main agent.
-
-The beginning of an ordinary proto-go operation is:
+A `/go` invocation enters Invocation Preflight before any logical proto-go
+operation is admitted:
 
 ```text
-user implementation request + /go
+/go invocation
         ↓
-/go skill governs main agent
-        ↓
-main agent invokes proto-go script
-        ↓
-proto-go script runs to completion
-        ↓
-proto-go script returns outputs
-        ↓
-main agent continues proto-go procedure
+Invocation Preflight
 ```
 
-The proto-go script invocation is terminating.
+Invocation Preflight is controlled by the main agent under the `/go` skill.
 
-While that script invocation is active, it cannot suspend into authored work by
-the main agent and later resume the same invocation.
+Invocation Preflight resolves the intent, governing authority basis, and
+required launch premises needed for Admission.
 
-The script is therefore not the end-to-end proto-go workflow orchestrator.
+Invocation Preflight may loop with the user until the required admission
+information and authority are established.
+
+An admission-complete machine-readable Launch Contract is required before
+Admission.
+
+Admission begins the logical proto-go operation.
+
+After Admission, the first mechanical transition is a fresh terminating
+invocation of the proto-go script:
+
+```text
+Admission
+        ↓
+fresh terminating proto-go script invocation
+```
+
+A completed proto-go script invocation emits machine-readable Continuation
+Artifact information and terminates.
+
+The `/go` skill interprets Continuation Artifacts under Continuation Policy.
+
+The main agent performs the authorized continuation.
+
+A continuation may lead to a fresh later script invocation:
+
+```text
+fresh script invocation
+        ↓
+Continuation Artifact
+        ↓
+script terminates
+        ↓
+/go Continuation Policy
+        ↓
+authorized main-agent continuation
+        ↓
+optional fresh script invocation
+```
+
+A later invocation is never a resumption of an earlier invocation:
+
+```text
+later invocation != resumption of earlier invocation
+```
+
+The proto-go script is therefore not the end-to-end proto-go workflow
+orchestrator.
 
 The main agent, governed by the `/go` skill, performs the active procedural
 orchestration.
 
 This execution-model requirement does not define the script's pathname,
-language, CLI, output representation, persistence mechanism, authoring-isolation
-mechanism, or recovery behavior.
+language, CLI, invocation-input format, output representation, persistence
+mechanism, authoring-isolation mechanism, or recovery behavior.
 
 # 1. Purpose
 
@@ -739,8 +785,8 @@ the semantics established by the normative proto-go specification.
 
 ## proto-go script
 
-The mechanical script whose terminating invocation is the first procedural step
-of proto-go after `/go` invocation.
+The mechanical script whose terminating invocation is the first mechanical
+transition after Admission of a logical proto-go operation.
 
 The main agent invokes the script, the script runs to completion, and its outputs
 return to the main agent before subsequent proto-go procedure steps continue.
@@ -749,6 +795,58 @@ The script is not the end-to-end proto-go workflow orchestrator.
 
 Its pathname, implementation language, CLI, output schema, and internal
 architecture are not yet defined.
+
+## Invocation Preflight
+
+The main-agent-controlled phase entered by a `/go` invocation before admission
+of a logical proto-go operation.
+
+During Invocation Preflight, the main agent resolves the intent, governing
+authority basis, and launch premises required to establish an admission-complete
+Launch Contract.
+
+Invocation Preflight may include repeated clarification with the user.
+
+Invocation Preflight itself is not yet the admitted logical proto-go operation.
+
+## Admission
+
+The semantic boundary at which an admission-complete Launch Contract has been
+established and the logical proto-go operation is allowed to begin.
+
+Before Admission, an attempted `/go` invocation has not yet admitted its
+ManagedContribution.
+
+Admission does not itself imply authoring, readiness, or publication.
+
+## Launch Contract
+
+The machine-readable representation of the resolved implementation intent,
+governing authority basis, and launch premises with which one logical proto-go
+operation is admitted.
+
+The Launch Contract is the initial authority root of that operation.
+
+It is not defined as equivalent to script arguments, one concrete serialized
+document, or one persistence record.
+
+## Continuation Artifact
+
+Machine-readable result information emitted by a completed proto-go script
+invocation and consumed under `/go` continuation policy to determine the
+applicable next main-agent continuation.
+
+A Continuation Artifact carries mechanical facts or continuation conditions.
+
+It is not itself procedural authority.
+
+## Continuation Policy
+
+The `/go`-owned rules and bounded heuristics that map recognized Continuation
+Artifact facts or conditions to authorized main-agent continuation behavior.
+
+Continuation Policy remains subordinate to normative proto-go Product Intent
+and applicable governing authority.
 
 # 4. Required properties and invariants
 
@@ -1073,16 +1171,24 @@ proto-go progression.
 The main agent executes the procedure subject to the normative proto-go Product
 Intent; it does not acquire authority to invent missing product semantics.
 
-## PROTO-GO-INV-024 — First procedural step is a terminating proto-go-script invocation
+## PROTO-GO-INV-024 — First procedural step is a terminating proto-go-script invocation — SUPERSEDED
 
-The first procedural step performed by the main agent after `/go` invocation
-MUST be invocation of the proto-go script.
+**Status:** Superseded by ADR-008.
 
-That script invocation MUST run to completion and return its outputs before the
-main agent continues subsequent proto-go procedure steps.
+This invariant previously asserted that invocation of the proto-go script was
+the first procedural step after `/go` invocation.
 
-This invariant does not define the script's pathname, CLI, language, output
-schema, or internal implementation.
+ADR-008 supersedes that ordering by establishing Invocation Preflight and
+Admission before the first mechanical proto-go script transition.
+
+The terminating-script requirement itself remains part of the current Product
+Intent and is represented by the later normative invariants introduced by
+ADR-008 together with `PROTO-GO-INV-025`.
+
+`PROTO-GO-INV-024` is retained only to preserve invariant identity history.
+
+It is no longer a normative requirement and its identifier MUST NOT be reused
+for a different invariant.
 
 ## PROTO-GO-INV-025 — Active script execution cannot contain a suspended main-agent continuation
 
@@ -1146,7 +1252,176 @@ No lock, lease, generation, token, cancellation mechanism, compare-and-swap
 operation, Git-ref protocol, persistence engine, or downstream protocol is
 selected here.
 
+## PROTO-GO-INV-029 — Invocation preflight precedes operation admission
+
+A `/go` invocation MUST enter main-agent Invocation Preflight before a logical
+proto-go operation is admitted.
+
+Invocation Preflight MUST resolve the intent, governing authority basis, and
+launch premises required for Admission.
+
+Invocation Preflight MAY perform multiple main-agent/user clarification turns
+before Admission.
+
+An incomplete `/go` invocation MUST NOT by itself cause a logical proto-go
+operation or `ManagedContribution` to be admitted.
+
+This invariant does not define preflight persistence or recovery.
+
+## PROTO-GO-INV-030 — Admission requires a machine-readable Launch Contract
+
+Before a logical proto-go operation is admitted, the main agent MUST establish
+a machine-readable Launch Contract representing the resolved implementation
+intent, governing authority basis, and launch premises required to govern that
+operation.
+
+A logical proto-go operation MUST NOT be admitted without such a Launch
+Contract.
+
+This invariant does not define the Launch Contract serialization, schema,
+storage, transport, or persistence representation.
+
+## PROTO-GO-INV-031 — The Launch Contract is the initial authority root
+
+The admitted Launch Contract MUST form the initial authority root of the logical
+proto-go operation.
+
+Normative contracts, obligations, or semantic decisions used by proto-go during
+the operation MUST derive from:
+
+- authority represented by the admitted Launch Contract;
+- authoritative facts resolved under that authority; or
+- explicit additional authority obtained through an authorized continuation.
+
+The main agent, proto-go script, and downstream mechanical systems MUST NOT
+invent missing semantic authority merely because progression requires it.
+
+This invariant does not define how later authority additions or amendments are
+represented.
+
+## PROTO-GO-INV-032 — Missing admission authority fails closed
+
+If information or authority required to admit the logical proto-go operation
+cannot be established with sufficient authority, proto-go MUST NOT admit the
+operation and MUST NOT invoke the proto-go script for that operation.
+
+The main agent MUST first resolve what can be established from sufficiently
+authoritative available context.
+
+When a remaining Admission requirement requires user authority, the main agent
+MUST obtain the necessary clarification or decision from the user before
+Admission.
+
+Invocation Preflight MAY repeat until the Admission requirements are satisfied
+or the attempted invocation does not proceed.
+
+This invariant does not define cancellation or abandonment semantics for an
+incomplete Invocation Preflight.
+
+## PROTO-GO-INV-033 — First mechanical transition after admission is a fresh terminating script invocation
+
+After Admission of a logical proto-go operation, its first mechanical transition
+MUST be a fresh invocation of the proto-go script.
+
+That invocation MUST consume machine-readable invocation input derived from the
+admitted Launch Contract and applicable authoritative operation state.
+
+The invocation MUST terminate before any main-agent continuation based on its
+results occurs.
+
+This invariant does not define the script pathname, language, CLI, invocation
+input schema, transport, or internal implementation.
+
+## PROTO-GO-INV-034 — Completed script invocation emits machine-readable continuation artifacts
+
+Each completed proto-go script invocation MUST emit machine-readable result
+artifact information sufficient for the `/go` procedure to classify the
+mechanical result and determine the applicable continuation rule.
+
+Such result artifact information is canonicalized as one or more Continuation
+Artifacts.
+
+This invariant does not define their number, serialization, schema, enum values,
+storage, filenames, or transport.
+
+## PROTO-GO-INV-035 — Continuation artifacts do not hold procedural authority
+
+A Continuation Artifact MUST NOT itself acquire authority to command arbitrary
+main-agent behavior.
+
+The `/go` skill MUST define the Continuation Policy that interprets recognized
+Continuation Artifact facts or conditions and determines the permitted or
+required main-agent continuation.
+
+The main agent MUST execute continuation under that `/go` policy and applicable
+governing authority rather than treating script output as independent
+procedural authority.
+
+Continuation Policy MAY contain predefined heuristics, but those heuristics
+MUST NOT authorize invention of missing product semantics or missing authority.
+
+## PROTO-GO-INV-036 — Main-agent continuation occurs only after script termination
+
+Any main-agent continuation caused by the results of a proto-go script
+invocation MUST occur only after that invocation has terminated.
+
+Such continuation MAY include authored work, context resolution, user
+interaction, authority acquisition, or construction of machine-readable input
+for later mechanical progression when permitted by the governing `/go`
+Continuation Policy.
+
+No such continuation MAY be modeled as suspension into the main agent followed
+by resumption of the same script invocation.
+
+This invariant preserves and generalizes the terminating boundary already
+required by `PROTO-GO-INV-025`.
+
+## PROTO-GO-INV-037 — Mechanical re-entry uses a fresh script invocation
+
+After an authorized main-agent continuation, proto-go MAY perform another
+mechanical transition by invoking the proto-go script again with newly derived
+machine-readable invocation input.
+
+Every such invocation MUST be a fresh invocation.
+
+A later invocation MUST NOT be treated as resumption of an earlier terminated
+invocation.
+
+A single logical proto-go operation MAY therefore contain multiple terminating
+proto-go script invocations separated by authorized main-agent continuations.
+
+This invariant does not define workflow persistence, process supervision, or
+recovery mechanics.
+
 # 5. Lifecycle semantics
+
+A `/go` invocation enters Invocation Preflight before a logical proto-go
+operation is admitted:
+
+```text
+/go invocation
+        ↓
+Invocation Preflight
+        ↓
+admission-complete Launch Contract
+        ↓
+Admission
+        ↓
+logical proto-go operation / ManagedContribution lifecycle
+```
+
+After Admission, mechanical progression may consist of repeated transitions:
+
+```text
+fresh script invocation
+→ Continuation Artifact
+→ script terminates
+→ authorized main-agent continuation
+→ optional fresh script invocation
+```
+
+Each script invocation terminates before the corresponding main-agent
+continuation begins.
 
 The currently established lifecycle ordering is limited to:
 
@@ -1439,7 +1714,8 @@ skill.
 The `/go` skill supplies the procedure governing the main agent's active
 proto-go progression.
 
-The first procedural step invokes the proto-go script as a terminating call.
+The first mechanical transition after Admission invokes the proto-go script as a
+terminating call.
 
 After that call returns, the main agent continues the procedure using the state
 and outputs produced by the script.
