@@ -44,6 +44,11 @@ the main agent continues only after that invocation returns. ADR-006 supersedes
 the execution-engine-independence assertion previously recorded as
 `PROTO-GO-INV-012`.
 
+ADR-007 establishes that a readiness occurrence must lose effective publication
+authority and be fenced from crossing the governing publication boundary before
+managed authored mutation resumes. Historical readiness remains valid, but a
+retired readiness occurrence cannot later publish.
+
 The current repository intentionally does not yet derive the complete invariant
 set or architecture from this Product Intent. Those derivations must occur
 explicitly rather than being invented during implementation.
@@ -1091,6 +1096,56 @@ Main-agent authored work required by proto-go MUST occur while the main agent
 holds procedural control under the `/go` skill, outside an active proto-go
 script invocation.
 
+## PROTO-GO-INV-026 — Authored resumption retires prior readiness publication authority
+
+Before managed authored mutation resumes after a `READY FOR HANDOFF` occurrence,
+that readiness occurrence MUST cease to authorize future crossing of the
+governing publication boundary for its bound authored state.
+
+Retiring that publication authority MUST occur before the first subsequent
+managed authored mutation.
+
+Retirement of publication authority MUST NOT retroactively invalidate the
+historical fact that the readiness occurrence was validly established.
+
+A retired readiness occurrence MUST NOT later be reactivated as publication
+authority. A later eligible authored state requires a new applicable readiness
+occurrence.
+
+This invariant does not define how publication authority or its retirement is
+represented.
+
+## PROTO-GO-INV-027 — Retired readiness cannot later publish
+
+Once the publication authority of a readiness occurrence has been retired,
+downstream progression originating from that readiness occurrence MUST NOT
+subsequently cause its bound logical publication unit to reach the governing
+publication outcome.
+
+Preparatory effects created before retirement MAY remain.
+
+Such preparatory effects MUST NOT retain effective authority capable of
+publishing the retired readiness occurrence.
+
+This invariant does not require destruction, rollback, or garbage collection of
+preparatory effects.
+
+## PROTO-GO-INV-028 — Publication authority is fenced before authored resumption
+
+Managed authored mutation MUST NOT resume after a publication-authorizing
+readiness occurrence until proto-go has established that progression authorized
+by that readiness occurrence can no longer cross the governing publication
+boundary.
+
+A local lifecycle-state change is insufficient when already-originated
+downstream progression could still later cross that boundary.
+
+The fencing mechanism is not defined by this invariant.
+
+No lock, lease, generation, token, cancellation mechanism, compare-and-swap
+operation, Git-ref protocol, persistence engine, or downstream protocol is
+selected here.
+
 # 5. Lifecycle semantics
 
 The currently established lifecycle ordering is limited to:
@@ -1158,6 +1213,38 @@ READY #1 does not authorize S2
         ↓
 new applicable readiness required
 ```
+
+Before that authored mutation may resume, the publication authority of the
+prior readiness occurrence must first be retired and fenced:
+
+```text
+READY #1
+        ↓
+downstream progression cannot continue mechanically
+        ↓
+authored correction required
+        ↓
+retire publication authority of READY #1
+        ↓
+establish READY #1 can no longer cross governing publication boundary
+        ↓
+authored mutation may resume
+        ↓
+state S2
+        ↓
+new applicable readiness required
+```
+
+The historical fact that `READY #1` was validly established remains true.
+
+What changes is its authority to reach publication.
+
+At any time, no more than one readiness occurrence of the same
+`ManagedContribution` may retain effective authority to reach the governing
+publication outcome.
+
+This requirement does not define a concrete lifecycle-state representation or
+fencing mechanism.
 
 The logical `ManagedContribution` itself remains the same unless some separate
 future semantic rule says otherwise.
@@ -1290,6 +1377,27 @@ publication boundary while the remainder has not.
 A route unable to preserve the required all-or-none governing publication
 semantics must not be used to begin an irreversible partial governing
 publication.
+
+If downstream progression for a readiness occurrence requires authored
+correction or convergence, proto-go must retire and fence that readiness
+occurrence's publication authority before authored mutation resumes.
+
+After fencing:
+
+```text
+historical readiness
+→ remains true
+
+future publication authority from that readiness
+→ absent
+```
+
+Already-created downstream preparation may remain, but it must not retain
+effective authority to cross the governing publication boundary for the retired
+readiness occurrence.
+
+A later authored state that becomes eligible for downstream progression requires
+a new applicable readiness occurrence.
 
 # 9. Failure, interruption, and recovery semantics
 
