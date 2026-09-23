@@ -62,12 +62,18 @@ session, agent, process, or mutable authoring-surface identity.
 The currently admitted normative invariant identifiers are:
 
 ```text
-PROTO-GO-INV-001 through PROTO-GO-INV-052
+PROTO-GO-INV-001 through PROTO-GO-INV-058
 ```
 
 `PROTO-GO-INV-008` is superseded by ADR-013 and is no longer normative.
 
 `PROTO-GO-INV-012` is superseded by ADR-006 and is no longer normative.
+
+`PROTO-GO-INV-020` is superseded by ADR-014 and is no longer normative.
+
+`PROTO-GO-INV-021` is superseded by ADR-014 and is no longer normative.
+
+`PROTO-GO-INV-022` is superseded by ADR-014 and is no longer normative.
 
 `PROTO-GO-INV-024` is superseded by ADR-008 and is no longer normative.
 
@@ -85,7 +91,7 @@ invariants.
 `PROTO-GO-INV-024` is retained only as superseded invariant history under
 ADR-008.
 
-Do not create invariants beyond `PROTO-GO-INV-052` or alter the meaning, order, or
+Do not create invariants beyond `PROTO-GO-INV-058` or alter the meaning, order, or
 identifiers of the admitted invariants without explicit semantic authority.
 
 ADR-003 establishes the validation-authority boundary:
@@ -110,7 +116,7 @@ establishes that obligation set for the implementation occurrence.
 If the applicable governing validation-obligation set cannot be established
 with sufficient authority, do not establish `READY FOR HANDOFF`.
 
-The currently admitted invariant identifier space ends at `PROTO-GO-INV-052`.
+The currently admitted invariant identifier space ends at `PROTO-GO-INV-058`.
 
 Do not create or imply a later invariant without explicit semantic authority.
 
@@ -131,22 +137,26 @@ participation.
 Do not treat `READY FOR HANDOFF` as a permanent boolean authorizing future
 mutations.
 
-ADR-005 establishes:
+ADR-005 established one indivisible logical publication unit. ADR-014
+supersedes that all-or-none cross-repository publication-visibility semantics.
+
+Current semantics:
 
 ```text
-one READY FOR HANDOFF occurrence
-→ one logical publication unit
+one READY occurrence
+→ aggregate Repository Publication Obligations
 
-proper subset published independently
-→ forbidden
+repository-local obligations
+→ may be satisfied independently
+
+proper subset satisfied
+→ ManagedContribution NOT PUBLISHED
+
+all obligations of effective READY satisfied
+→ PUBLISHED may be established
 ```
 
-Progressive preparation is permitted only when the preparatory effects do not
-themselves constitute governing publication outcomes for a proper subset.
-
-Do not choose an atomic-publication implementation mechanism from this rule.
-
-The currently admitted invariant identifier space ends at `PROTO-GO-INV-052`.
+The currently admitted invariant identifier space ends at `PROTO-GO-INV-058`.
 
 Do not create or imply a later invariant without explicit semantic authority.
 
@@ -179,29 +189,39 @@ invariants.
 `PROTO-GO-INV-024` is retained only as superseded invariant history under
 ADR-008.
 
-ADR-007 establishes the authored-resumption publication fence:
+ADR-007 establishes the authored-resumption publication fence, as narrowed by
+ADR-015:
 
 ```text
 publication-authorizing READY
           ↓
 authored correction required
           ↓
-retire publication authority
+retire prior READY global completion authority
           ↓
-establish old READY cannot cross publication boundary
+prohibit new repository publication initiation under prior READY
           ↓
 only then resume authored mutation
 ```
 
-Do not allow an old readiness occurrence to remain capable of publication while
-new authored work is being produced for the same `ManagedContribution`.
+Already-originated repository-local publication may still complete after
+retirement; it must not be cancelled or fenced as a precondition to authored
+resumption.
+
+A retired READY cannot establish ManagedContribution PUBLISHED, cannot initiate
+new publication work, and is never reactivated.
 
 Retirement does not erase the historical readiness fact.
 
+A later READY evaluates its own publication obligations against current
+authoritative publication reality.
+
 Do not select a fencing implementation mechanism from this semantic rule.
 
+Do not invent distributed atomicity, rollback, or mandatory cancellation.
+
 The currently admitted invariant identifier space ends at
-`PROTO-GO-INV-052`.
+`PROTO-GO-INV-058`.
 
 Do not create or imply a later invariant without explicit semantic authority.
 
