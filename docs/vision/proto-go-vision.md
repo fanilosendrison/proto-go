@@ -38,9 +38,9 @@ version-control progression system.
 
 Neither relationship defines `proto-go` Product Intent.
 
-The current `proto-go` must satisfy its Product Intent without depending on
-Turnlock, GCP, Ruu, or another future component gaining capabilities that do not
-exist.
+The current product shape intentionally places active procedural orchestration
+in the main agent under the `/go` skill. Mechanical scripts are terminating
+capabilities used by that procedure rather than resumable workflow engines.
 
 Future integrations must conform to `proto-go`; `proto-go` semantics must not be written
 as promises that only become true after a future integration exists.
