@@ -144,7 +144,7 @@ Ruu
 git-commits-push
 dotagents
 permission-enforcer
-the obsolete previous proto-go workflow
+the obsolete previous /go workflow
 ```
 
 Do not copy their architecture into `proto-go` unless a later accepted `proto-go`
