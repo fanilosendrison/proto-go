@@ -1,0 +1,268 @@
+---
+okf_version: "1.0"
+kind: "KnowledgeAsset"
+asset_type: "agent-directives"
+domain: "proto-go"
+severity: "strict"
+name: "proto-go repository agent directives"
+---
+
+# proto-go repository directives
+
+Use this file as the operational map for the `proto-go` repository.
+
+The repository is currently specification-first.
+
+Do not infer implementation architecture from the repository name, from the old
+`proto-go`, or from adjacent projects.
+
+## Product boundary
+
+`proto-go` is currently defined by the Product Intent in:
+
+```text
+docs/specification/proto-go-spec.md
+```
+
+The surrounding coding harness owns policy about whether implementation is
+permitted outside `proto-go`.
+
+That policy is not part of `proto-go` Product Intent.
+
+Do not add a product invariant stating that `proto-go` is the only way code may be
+modified merely because the current harness enforces such a rule externally.
+
+ADR-001 establishes a separate product boundary:
+
+```text
+READY FOR HANDOFF
+≠ successful proto-go completion
+
+governing publication outcome reached
+= normal successful proto-go completion
+```
+
+The current `proto-go` must satisfy this contract independently of Turnlock.
+
+Do not weaken current `proto-go` semantics because Turnlock does not currently
+provide a desired orchestration capability.
+
+Do not strengthen `proto-go` by importing hypothetical future Turnlock behavior.
+
+A future Turnlock integration may implement accepted `proto-go` semantics only after
+those semantics exist independently.
+
+ADR-002 establishes that:
+
+```text
+one logical proto-go operation
+→ exactly one ManagedContribution
+
+one ManagedContribution
+→ one or more repositories
+
+ManagedContribution
+!= Repository
+```
+
+Do not define contribution identity in terms of repository, branch, worktree,
+session, agent, process, or mutable authoring-surface identity.
+
+The currently admitted normative invariant range is:
+
+```text
+PROTO-GO-INV-001 through PROTO-GO-INV-022
+```
+
+Do not create invariants beyond `PROTO-GO-INV-012` or alter the meaning, order, or
+identifiers of the admitted invariants without explicit semantic authority.
+
+ADR-003 establishes the validation-authority boundary:
+
+```text
+governing authorities
+→ define applicable validation obligations
+
+proto-go
+→ identifies applicable obligations
+→ executes / causes their execution
+→ establishes satisfaction
+→ may establish READY only when the governing obligation set is sufficiently known
+```
+
+Do not introduce a universal `proto-go` validation checklist as normative authority.
+
+Do not infer that a passing test suite, lint run, typecheck, review, or other
+fixed set of checks is sufficient for readiness unless governing authority
+establishes that obligation set for the implementation occurrence.
+
+If the applicable governing validation-obligation set cannot be established
+with sufficient authority, do not establish `READY FOR HANDOFF`.
+
+The currently admitted invariant range ends at `PROTO-GO-INV-015`.
+
+Do not create or imply a later invariant without explicit semantic authority.
+
+ADR-004 establishes:
+
+```text
+ManagedContribution repository scope
+→ may expand during authoring
+
+new repository
+→ must enter managed authoring authority
+→ before first managed mutation
+```
+
+A readiness occurrence applies to a determinate authored state and repository
+participation.
+
+Do not treat `READY FOR HANDOFF` as a permanent boolean authorizing future
+mutations.
+
+ADR-005 establishes:
+
+```text
+one READY FOR HANDOFF occurrence
+→ one logical publication unit
+
+proper subset published independently
+→ forbidden
+```
+
+Progressive preparation is permitted only when the preparatory effects do not
+themselves constitute governing publication outcomes for a proper subset.
+
+Do not choose an atomic-publication implementation mechanism from this rule.
+
+The currently admitted invariant range ends at `PROTO-GO-INV-022`.
+
+Do not create or imply a later invariant without explicit semantic authority.
+
+## Authority by responsibility
+
+1. `docs/specification/proto-go-spec.md`
+   defines current normative product meaning, canonical terminology, and stable
+   `PROTO-GO-INV-NNN` invariant identities.
+
+2. Accepted ADRs under `docs/adr/`
+   record explicit decisions and amendments.
+
+3. `docs/vision/proto-go-vision.md`
+   is non-normative.
+
+4. `docs/repository-governance/`
+   governs repository procedure only.
+
+5. Future formal artifacts may check accepted semantics for their declared
+   scope but do not replace normative Product Intent.
+
+6. Future implementation and tests must conform to accepted authority and must
+   not create missing product semantics.
+
+Report inconsistencies between authoritative sources.
+
+Do not silently choose the interpretation most convenient for implementation.
+
+## Required reading
+
+Before changing product semantics, deriving architecture, or preparing
+implementation work, read:
+
+1. `README.md`
+2. `docs/specification/proto-go-spec.md`
+3. `docs/adr/README.md`
+4. `docs/adr/index.md`
+5. `docs/repository-governance/proto-go-discovery-classification.md`
+6. `docs/repository-governance/proto-go-engineering.md`
+
+## Discovery handling
+
+Every material discovery that affects product meaning must follow:
+
+```text
+docs/repository-governance/proto-go-discovery-classification.md
+```
+
+A missing semantic decision is not permission to improvise.
+
+## Current implementation prohibition
+
+At the current repository state, do not create:
+
+```text
+src/
+bin/
+tests/
+formal/
+qualification/
+scripts/
+package manifests
+runtime configuration
+database schemas
+worktree registries
+public APIs
+```
+
+unless a later explicit task is backed by sufficient accepted upstream
+authority.
+
+Do not select a programming language.
+
+Do not select a persistence engine.
+
+Do not select a worktree topology.
+
+Do not select a registry representation.
+
+Do not select a concrete Turnlock workflow.
+
+Do not select GCP or Ruu integration mechanics.
+
+## ADR discipline
+
+Do not create an ADR speculatively.
+
+An ADR requires an actual identified decision.
+
+A semantic ADR requires explicit product-owner resolution.
+
+An architecture ADR requires sufficient upstream semantics to constrain the
+decision.
+
+## Repository naming
+
+Use lowercase kebab-case for ordinary new files and directories except standard
+entry points such as:
+
+```text
+AGENTS.md
+README.md
+```
+
+The repository directory name `proto-go` does not select the Go programming language.
+
+## Current target structure
+
+The current authorized tree is:
+
+```text
+proto-go/
+├── .gitignore
+├── AGENTS.md
+├── README.md
+└── docs/
+    ├── adr/
+    │   ├── README.md
+    │   └── index.md
+    ├── repository-governance/
+    │   ├── proto-go-discovery-classification.md
+    │   └── proto-go-engineering.md
+    ├── specification/
+    │   └── proto-go-spec.md
+    └── vision/
+        └── proto-go-vision.md
+```
+
+Do not expand this structure merely because a likely future directory can be
+anticipated.
