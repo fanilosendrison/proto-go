@@ -5,6 +5,11 @@ coding-agent Development System.
 
 The user-facing invocation of proto-go is `/go`.
 
+proto-go is executed as a main-agent-orchestrated skill procedure. The `/go`
+skill governs the main agent, whose first procedural step invokes the proto-go
+script as a terminating call. The main agent continues the procedure only after
+that script invocation has completed and returned its outputs.
+
 The repository is currently in the product-definition phase.
 
 Its authoritative starting point is:
@@ -24,8 +29,7 @@ formal model is established merely by this repository layout.
 
 The current Product Intent does establish that `READY FOR HANDOFF` is an
 internal durable lifecycle boundary and that the normal successful terminal
-outcome of `proto-go` is publication. The current `proto-go` must satisfy that contract
-without depending on Turnlock.
+outcome of `proto-go` is publication. The current `proto-go` must satisfy that contract.
 
 ADR-002 further establishes that one logical `proto-go` operation owns one
 `ManagedContribution`, and that a `ManagedContribution` may span one or more
@@ -34,7 +38,8 @@ repositories without repository boundaries defining its identity.
 The normative invariant set is recorded in
 [`docs/specification/proto-go-spec.md`](docs/specification/proto-go-spec.md).
 
-The currently admitted range is `PROTO-GO-INV-001` through `PROTO-GO-INV-022`.
+The currently admitted invariant identifiers are `PROTO-GO-INV-001` through
+`PROTO-GO-INV-025`, with `PROTO-GO-INV-012` superseded by ADR-006.
 
 ADR-003 establishes that `proto-go` does not own validation policy:
 `READY FOR HANDOFF` requires every applicable governing validation obligation to

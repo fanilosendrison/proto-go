@@ -42,16 +42,6 @@ governing publication outcome reached
 = normal successful proto-go completion
 ```
 
-The current `proto-go` must satisfy this contract independently of Turnlock.
-
-Do not weaken current `proto-go` semantics because Turnlock does not currently
-provide a desired orchestration capability.
-
-Do not strengthen `proto-go` by importing hypothetical future Turnlock behavior.
-
-A future Turnlock integration may implement accepted `proto-go` semantics only after
-those semantics exist independently.
-
 ADR-002 establishes that:
 
 ```text
@@ -68,13 +58,18 @@ ManagedContribution
 Do not define contribution identity in terms of repository, branch, worktree,
 session, agent, process, or mutable authoring-surface identity.
 
-The currently admitted normative invariant range is:
+The currently admitted normative invariant identifiers are:
 
 ```text
-PROTO-GO-INV-001 through PROTO-GO-INV-022
+PROTO-GO-INV-001 through PROTO-GO-INV-025
 ```
 
-Do not create invariants beyond `PROTO-GO-INV-022` or alter the meaning, order, or
+`PROTO-GO-INV-012` is superseded by ADR-006 and is no longer normative.
+
+`PROTO-GO-INV-023` through `PROTO-GO-INV-025` are normative execution-model
+invariants.
+
+Do not create invariants beyond `PROTO-GO-INV-025` or alter the meaning, order, or
 identifiers of the admitted invariants without explicit semantic authority.
 
 ADR-003 establishes the validation-authority boundary:
@@ -99,7 +94,7 @@ establishes that obligation set for the implementation occurrence.
 If the applicable governing validation-obligation set cannot be established
 with sufficient authority, do not establish `READY FOR HANDOFF`.
 
-The currently admitted invariant range ends at `PROTO-GO-INV-022`.
+The currently admitted invariant identifier space ends at `PROTO-GO-INV-025`.
 
 Do not create or imply a later invariant without explicit semantic authority.
 
@@ -135,9 +130,35 @@ themselves constitute governing publication outcomes for a proper subset.
 
 Do not choose an atomic-publication implementation mechanism from this rule.
 
-The currently admitted invariant range ends at `PROTO-GO-INV-022`.
+The currently admitted invariant identifier space ends at `PROTO-GO-INV-025`.
 
 Do not create or imply a later invariant without explicit semantic authority.
+
+ADR-006 establishes the proto-go execution boundary:
+
+```text
+user invokes /go in main-agent session
+        ↓
+/go skill governs main agent
+        ↓
+first procedural step invokes proto-go script
+        ↓
+script runs to completion
+        ↓
+script returns outputs
+        ↓
+main agent continues proto-go procedure
+```
+
+Do not model the proto-go script as the end-to-end workflow orchestrator.
+
+Do not design a script step that suspends into main-agent authored work and then
+resumes the same script invocation.
+
+`PROTO-GO-INV-012` is superseded and no longer normative.
+
+The currently normative execution-model invariants are
+`PROTO-GO-INV-023` through `PROTO-GO-INV-025`.
 
 ## Authority by responsibility
 
