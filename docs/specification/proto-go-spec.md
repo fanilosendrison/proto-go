@@ -50,12 +50,11 @@ authority and be fenced from crossing the governing publication boundary before
 managed authored mutation resumes. Historical readiness remains valid, but a
 retired readiness occurrence cannot later publish.
 
-ADR-008 establishes Invocation Preflight and Admission before mechanical
-execution, requires an admission-complete machine-readable Launch Contract as
-the initial authority root of the logical proto-go operation, and establishes
-artifact-driven main-agent continuation between fresh terminating proto-go
-script invocations. ADR-008 supersedes PROTO-GO-INV-024 while preserving
-PROTO-GO-INV-025.
+ADR-008 establishes Invocation Preflight, Admission, Launch Contract authority,
+terminating script invocations, and artifact-driven main-agent continuation.
+ADR-008 originally placed Admission before mechanical script execution;
+ADR-009 supersedes that pre-Admission ordering. ADR-008 supersedes
+PROTO-GO-INV-024 while preserving PROTO-GO-INV-025.
 
 ADR-009 corrects ADR-008's pre-Admission ordering by allowing Invocation
 Preflight itself to use terminating proto-go script invocations and
@@ -541,6 +540,8 @@ The product promise must remain stable.
 proto-go is invoked from a main-agent session through the user-facing `/go`
 skill invocation.
 
+The `/go` skill governs the main agent's active proto-go progression.
+
 A `/go` invocation enters Invocation Preflight before any logical proto-go
 operation is admitted:
 
@@ -550,43 +551,95 @@ operation is admitted:
 Invocation Preflight
 ```
 
-Invocation Preflight is controlled by the main agent under the `/go` skill.
+Invocation Preflight is itself artifact-driven.
 
-Invocation Preflight resolves the intent, governing authority basis, and
-required launch premises needed for Admission.
+The main agent derives the best currently available machine-readable invocation
+input from the user request, authoritative context, and relevant established
+proto-go state.
 
-Invocation Preflight may loop with the user until the required admission
-information and authority are established.
+A fresh terminating proto-go script invocation may then occur before Admission:
+
+```text
+Invocation Preflight
+        ↓
+current machine-readable input
++
+sufficient authoritative Progression Context
+        ↓
+fresh proto-go script invocation
+        ↓
+mechanical observation / legal progression
+        ↓
+Continuation Artifact
+        ↓
+script terminates
+        ↓
+/go Continuation Policy
+        ↓
+authorized main-agent continuation
+        ↺
+```
+
+The continuation may include context resolution, user interaction, authority
+acquisition, authored work where semantically permitted, or construction of new
+machine-readable invocation input.
+
+If Admission information or authority remains incomplete, Admission is
+forbidden, but another pre-Admission script invocation is not thereby
+forbidden.
+
+Invocation Preflight may therefore contain repeated terminating script
+invocations, Continuation Artifacts, main-agent continuations, and user
+clarification.
 
 An admission-complete machine-readable Launch Contract is required before
 Admission.
 
-Admission begins the logical proto-go operation.
+Launch Contract completeness may be established through that pre-Admission
+artifact-driven progression.
 
-After Admission, the first mechanical transition is a fresh terminating
-invocation of the proto-go script:
+Admission begins the logical proto-go operation and its
+`ManagedContribution`.
+
+After Admission, the first mechanical transition of the admitted logical
+proto-go operation is a fresh terminating proto-go script invocation:
 
 ```text
+admission-complete Launch Contract
+        ↓
 Admission
         ↓
-fresh terminating proto-go script invocation
+fresh post-Admission proto-go script invocation
 ```
 
-A completed proto-go script invocation emits machine-readable Continuation
-Artifact information and terminates.
+A pre-Admission invocation is not resumed across Admission.
 
-The `/go` skill interprets Continuation Artifacts under Continuation Policy.
+Every script invocation terminates before any corresponding main-agent
+continuation occurs.
 
-The main agent performs the authorized continuation.
+A completed script invocation emits machine-readable Continuation Artifact
+information.
 
-A continuation may lead to a fresh later script invocation:
+The `/go` skill interprets that information under Continuation Policy.
+
+The main agent executes the authorized continuation.
+
+A continuation may later lead to another fresh script invocation:
 
 ```text
+sufficient authoritative Progression Context
++
+current invocation input
+        ↓
 fresh script invocation
         ↓
 Continuation Artifact
         ↓
 script terminates
+        ↓
+sufficient authoritative Progression Context
++
+Continuation Artifact
         ↓
 /go Continuation Policy
         ↓
@@ -601,15 +654,40 @@ A later invocation is never a resumption of an earlier invocation:
 later invocation != resumption of earlier invocation
 ```
 
-The proto-go script is therefore not the end-to-end proto-go workflow
-orchestrator.
+Every transfer of active proto-go control between the main agent and a script
+invocation must provide or make resolvable sufficient machine-readable
+authoritative Progression Context for the receiving actor to continue correctly.
 
-The main agent, governed by the `/go` skill, performs the active procedural
-orchestration.
+Correct progression must not depend on implicit conversational memory or on a
+previous script process remaining alive.
 
-This execution-model requirement does not define the script's pathname,
-language, CLI, invocation-input format, output representation, persistence
-mechanism, authoring-isolation mechanism, or recovery behavior.
+The artifact-driven progression spans the normal end-to-end proto-go objective.
+
+`READY FOR HANDOFF` is an internal intermediate lifecycle boundary and does not
+normally terminate the progression.
+
+The progression may continue through publication, authored correction,
+revalidation, additional readiness occurrences, and other authorized
+continuations as required.
+
+The normal successful terminal outcome is the governing publication outcome:
+
+```text
+PUBLISHED
+```
+
+The proto-go script is not the end-to-end workflow orchestrator.
+
+The main agent, governed by the `/go` skill, executes the active procedural
+continuations.
+
+This execution model does not define a fixed universal sequence of numbered
+stages.
+
+It also does not define the script pathname, language, CLI, invocation-input
+format, Continuation Artifact schema, Progression Context representation,
+persistence mechanism, correlation mechanism, authoring-isolation mechanism,
+workflow engine, or recovery architecture.
 
 # 1. Purpose
 

@@ -74,8 +74,11 @@ PROTO-GO-INV-001 through PROTO-GO-INV-042
 
 `PROTO-GO-INV-025` remains normative.
 
-`PROTO-GO-INV-023` through `PROTO-GO-INV-025` are normative execution-model
+`PROTO-GO-INV-023` and `PROTO-GO-INV-025` remain normative execution-model
 invariants.
+
+`PROTO-GO-INV-024` is retained only as superseded invariant history under
+ADR-008.
 
 Do not create invariants beyond `PROTO-GO-INV-042` or alter the meaning, order, or
 identifiers of the admitted invariants without explicit semantic authority.
@@ -165,8 +168,11 @@ resumes the same script invocation.
 
 `PROTO-GO-INV-012` is superseded and no longer normative.
 
-The currently normative execution-model invariants are
-`PROTO-GO-INV-023` through `PROTO-GO-INV-025`.
+`PROTO-GO-INV-023` and `PROTO-GO-INV-025` remain normative execution-model
+invariants.
+
+`PROTO-GO-INV-024` is retained only as superseded invariant history under
+ADR-008.
 
 ADR-007 establishes the authored-resumption publication fence:
 
@@ -194,19 +200,30 @@ The currently admitted invariant identifier space ends at
 
 Do not create or imply a later invariant without explicit semantic authority.
 
-ADR-008 establishes the Invocation Preflight and Launch Contract boundary:
+ADR-008 established:
 
 ```text
-/go
-→ Invocation Preflight
-→ admission-complete Launch Contract
-→ Admission
-→ fresh terminating script invocation
+fresh terminating script invocation
 → Continuation Artifact
 → script termination
 → /go Continuation Policy
 → authorized main-agent continuation
 → optional fresh script invocation
+```
+
+ADR-009 supersedes ADR-008's pre-Admission ordering.
+
+Current execution ordering is:
+
+```text
+/go
+→ Invocation Preflight
+→ pre-Admission artifact-driven progression
+→ admission-complete Launch Contract
+→ Admission
+→ fresh post-Admission script invocation
+→ continued artifact-driven progression
+→ PUBLISHED
 ```
 
 Do not model Continuation Artifacts as arbitrary commands from the script.

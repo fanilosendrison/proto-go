@@ -6,10 +6,13 @@ coding-agent Development System.
 The user-facing invocation of proto-go is `/go`.
 
 proto-go is executed as a main-agent-orchestrated skill procedure. The `/go`
-skill governs the main agent. A `/go` invocation enters Invocation Preflight and
-Admission before the first mechanical transition, which is a fresh terminating
-proto-go script invocation. The main agent continues the procedure only after
-that script invocation has completed and returned its outputs.
+skill governs the main agent. A `/go` invocation enters Invocation Preflight,
+which may itself contain terminating proto-go script invocations,
+Continuation Artifacts, and authorized main-agent continuations before an
+admission-complete Launch Contract exists. Admission begins the logical
+proto-go operation; its first mechanical transition is then a fresh terminating
+proto-go script invocation. Every script invocation terminates before the
+corresponding main-agent continuation occurs.
 
 The repository is currently in the product-definition phase.
 
@@ -73,8 +76,10 @@ remains valid, but retired readiness cannot later reach publication.
 
 `/go` first enters Invocation Preflight.
 
-The main agent establishes an admission-complete machine-readable Launch
-Contract before a logical proto-go operation is admitted.
+An admission-complete machine-readable Launch Contract must exist before a
+logical proto-go operation is admitted. Its completeness may be established
+through pre-Admission artifact-driven progression involving terminating script
+invocations and authorized main-agent continuations.
 
 After Admission, mechanical progression occurs through terminating proto-go
 script invocations that emit machine-readable Continuation Artifacts.
