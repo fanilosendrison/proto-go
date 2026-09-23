@@ -39,9 +39,11 @@ mutation. It also establishes the resulting readiness-occurrence semantics: each
 readiness occurrence applies to a determinate authored state and repository
 participation.
 
-ADR-005 establishes that the managed effects bound by one `READY FOR HANDOFF`
+ADR-005 established that the managed effects bound by one `READY FOR HANDOFF`
 occurrence form one indivisible logical publication unit with all-or-none
-governing publication semantics.
+governing publication semantics. ADR-014 supersedes that all-or-none
+cross-repository publication-visibility semantics in favor of aggregate
+publication completion.
 
 ADR-006 establishes proto-go's execution model: a user invokes `/go` from a
 main-agent session, the `/go` skill governs the main agent's procedure, and the
@@ -54,7 +56,10 @@ execution-engine-independence assertion previously recorded as
 ADR-007 establishes that a readiness occurrence must lose effective publication
 authority and be fenced from crossing the governing publication boundary before
 managed authored mutation resumes. Historical readiness remains valid, but a
-retired readiness occurrence cannot later publish.
+retired readiness occurrence cannot later publish. ADR-015 narrows that fencing
+to the ManagedContribution-level publication boundary and to new publication
+initiation; already-originated repository-local publication may complete after
+retirement.
 
 ADR-008 establishes Invocation Preflight, Admission, Launch Contract authority,
 terminating script invocations, and artifact-driven main-agent continuation.
@@ -88,6 +93,20 @@ ADR-013 generalizes artifact-driven continuation to actionable mechanical
 problems and proto-go-owned closure obligations, and supersedes the terminality
 assertions of `PROTO-GO-INV-008` and `PROTO-GO-INV-041` while preserving
 publication as necessary for normal successful completion.
+
+ADR-014 makes multi-repository publication an aggregate completion condition:
+one readiness occurrence defines a complete set of independently satisfiable
+Repository Publication Obligations, and the `ManagedContribution` may establish
+`PUBLISHED` only when an effective publication-authorizing readiness occurrence
+exists and every obligation established for it is authoritatively satisfied.
+Cross-repository atomic publication visibility is not required.
+
+ADR-015 allows repository-local publication operations already originated
+before readiness retirement to complete afterward without being cancelled,
+fenced, or awaited as a precondition to authored resumption. Retirement
+prevents the retired readiness occurrence from establishing the
+`ManagedContribution`'s `PUBLISHED` fact and from initiating new publication
+work.
 
 The current repository intentionally does not yet derive the complete invariant
 set or architecture from this Product Intent. Those derivations must occur
@@ -480,6 +499,13 @@ An established `PUBLISHED` fact may coexist with remaining proto-go-owned
 closure obligations. Normal successful completion additionally requires every
 applicable proto-go-owned closure obligation to be satisfied.
 
+For a `ManagedContribution` spanning several repositories, repository-local
+publication outcomes may occur independently and at different times. The
+`ManagedContribution` establishes `PUBLISHED` only when an effective
+publication-authorizing readiness occurrence exists and every Repository
+Publication Obligation established for it is authoritatively satisfied. No
+cross-repository atomic publication visibility is required.
+
 After the governing publication outcome is established, proto-go performs or
 attempts its remaining proto-go-owned closure obligations, including normal
 automatic retirement and removal of temporary managed worktrees. A later local
@@ -574,6 +600,21 @@ one progression is independently driven by two main-agent controllers
 actionable script-detected problems terminate without giving an authorized main-agent continuation an opportunity to progress them
 PUBLISHED cleanup failure is silently ignored
 PUBLISHED is made false because local cleanup failed
+a proper subset of repository publication obligations is treated as ManagedContribution PUBLISHED
+repository A publication is treated as partial proto-go success
+an implementation requires cross-repository atomic publication visibility even though no governing policy separately requires it
+a retired readiness initiates new repository-local publication work
+a retired readiness becomes PUBLISHED merely because all of its already-originated repository operations later finish
+repository-local publication facts are erased merely because their originating readiness was retired
+a later readiness blindly inherits prior obligation satisfaction without checking its own exact authored-state and publication requirement
+```
+
+The following are conformant and must not be classified as non-conformant:
+
+```text
+repository A is published while B remains unpublished
+an already-originated repository publication completes after readiness retirement
+a later readiness finds an identical publication obligation already satisfied by authoritative current reality
 ```
 
 Likewise, a design is non-conformant if successful `proto-go` work can become
@@ -871,6 +912,12 @@ subordinate managed authoring resource; it does not define
 `ManagedContribution` identity and `ManagedContribution` must not be equated
 with a worktree.
 
+One readiness occurrence establishes the complete set of Repository
+Publication Obligations applicable to its bound authored state and repository
+participation. Those repository-local obligations may be satisfied
+independently; the `ManagedContribution` establishes `PUBLISHED` only when an
+effective readiness occurrence exists and all of its obligations are satisfied.
+
 The Development System retains semantic and authored-development authority.
 
 A downstream version-control system retains authority for the mechanical
@@ -945,10 +992,32 @@ occurrence authorized.
 The concrete identifier, storage representation, and handoff representation of a
 readiness occurrence are not yet defined.
 
+## Repository Publication Obligation
+
+A governing repository-local publication requirement established for one
+readiness occurrence, one participating repository, the determinate authored
+state bound for that repository, and the applicable governing publication
+requirement.
+
+Obligation identity and satisfaction are distinct from readiness identity.
+
+Satisfaction is determined against authoritative publication reality.
+
+A repository-local publication fact is not itself `ManagedContribution`
+`PUBLISHED`, and partial obligation satisfaction is not partial proto-go
+success.
+
+Its serialization and persistence model are not defined by this specification.
+
 ## Governing publication outcome
 
 The publication outcome required by the version-control policy governing the
 contribution.
+
+For a multi-repository `ManagedContribution`, reaching that outcome requires an
+effective publication-authorizing readiness occurrence and authoritative
+satisfaction of every Repository Publication Obligation established for that
+occurrence.
 
 Reaching that outcome is required for the normal successful terminal condition
 of the logical `proto-go` operation, but it is not by itself sufficient while
@@ -1371,40 +1440,63 @@ authority for the moving target.
 This invariant does not prohibit downstream mechanical version-control
 realization of the bound authored state.
 
-## PROTO-GO-INV-020 — One readiness occurrence forms one logical publication unit
+## PROTO-GO-INV-020 — One readiness occurrence forms one logical publication unit — SUPERSEDED
 
-All managed effects bound by one `READY FOR HANDOFF` occurrence MUST form one
-indivisible logical publication unit for governing publication semantics.
+**Status:** Superseded by ADR-014.
 
-The publication unit follows the readiness occurrence rather than independent
-repository-local `proto-go` completion.
+This invariant previously treated the managed effects bound by one readiness
+occurrence as one indivisible logical publication unit for governing publication
+semantics.
 
-This invariant does not introduce a separate canonical product object.
+ADR-014 replaces that indivisible publication unit with an aggregate set of
+independently satisfiable Repository Publication Obligations. A proper subset
+may reach its repository-local publication outcome while the
+`ManagedContribution` remains not `PUBLISHED`.
 
-## PROTO-GO-INV-021 — No proper subset may independently reach governing publication
+The corrected requirement is represented by `PROTO-GO-INV-053`.
 
-No proper subset of the managed effects belonging to one logical publication
-unit MAY independently reach its governing publication outcome while the
-remainder of that unit has not.
+`PROTO-GO-INV-020` is retained only to preserve invariant identity history.
 
-Progressive preparation MAY occur when those preparatory effects do not
-independently constitute governing publication outcomes.
+It is no longer a normative requirement and its identifier MUST NOT be reused
+for a different invariant.
 
-This invariant applies to governing publication semantics, not to every
-mechanical intermediate operation.
+## PROTO-GO-INV-021 — No proper subset may independently reach governing publication — SUPERSEDED
 
-## PROTO-GO-INV-022 — Incapable routes must not begin irreversible partial publication
+**Status:** Superseded by ADR-014.
 
-`proto-go` MUST NOT begin a publication transition that can irreversibly expose a
-partial governing publication outcome when the selected downstream route cannot
-preserve the all-or-none governing publication semantics required for the
-logical publication unit.
+This invariant previously prohibited any proper subset of the managed effects
+belonging to one logical publication unit from independently reaching its
+governing publication outcome while the remainder had not.
 
-Inability of a route to preserve that property MUST NOT silently degrade the
-publication contract to best-effort repository-local publication.
+ADR-014 explicitly permits proper subsets of repository-local publication
+obligations to be satisfied while the `ManagedContribution` remains not
+`PUBLISHED`.
 
-This invariant does not select the mechanism by which a conforming route
-provides the required publication semantics.
+The corrected requirement is represented by `PROTO-GO-INV-054`.
+
+`PROTO-GO-INV-021` is retained only to preserve invariant identity history.
+
+It is no longer a normative requirement and its identifier MUST NOT be reused
+for a different invariant.
+
+## PROTO-GO-INV-022 — Incapable routes must not begin irreversible partial publication — SUPERSEDED
+
+**Status:** Superseded by ADR-014.
+
+This invariant previously required a downstream route to preserve all-or-none
+cross-repository governing publication semantics and prohibited beginning an
+irreversible partial governing publication when a route could not do so.
+
+ADR-014 removes cross-repository all-or-none publication visibility as a
+Product Intent requirement. No route-capability requirement replaces it.
+
+The corrected requirements are represented by `PROTO-GO-INV-054` and
+`PROTO-GO-INV-055`.
+
+`PROTO-GO-INV-022` is retained only to preserve invariant identity history.
+
+It is no longer a normative requirement and its identifier MUST NOT be reused
+for a different invariant.
 
 ## PROTO-GO-INV-023 — Main-agent skill orchestration
 
@@ -1939,6 +2031,99 @@ lifecycle state representation.
 
 This invariant supersedes `PROTO-GO-INV-041`.
 
+## PROTO-GO-INV-053 — One readiness occurrence defines aggregate repository publication obligations
+
+Each publication-authorizing `READY FOR HANDOFF` occurrence MUST establish the
+complete set of Repository Publication Obligations applicable to the
+repository participation and determinate authored state bound by that
+readiness occurrence.
+
+Those obligations collectively define the publication-completion condition
+for that readiness occurrence.
+
+This invariant does not require repository-local publication outcomes to occur
+atomically and does not define the concrete representation or identifier of an
+obligation.
+
+## PROTO-GO-INV-054 — Repository publication obligations may be satisfied independently
+
+Repository Publication Obligations belonging to one readiness occurrence MAY
+reach their governing repository-local publication outcomes independently and
+at different times.
+
+Satisfaction of a proper subset MUST NOT by itself establish `PUBLISHED` for
+the `ManagedContribution`.
+
+A repository-local publication outcome MUST NOT be treated as a partial
+successful completion of the logical proto-go operation.
+
+This invariant does not prescribe sequential or parallel publication.
+
+## PROTO-GO-INV-055 — PUBLISHED requires one effective readiness with all publication obligations satisfied
+
+A `ManagedContribution` MUST NOT establish `PUBLISHED` unless an effective
+publication-authorizing readiness occurrence exists and every Repository
+Publication Obligation established for that readiness occurrence is
+authoritatively satisfied.
+
+A retired readiness occurrence MUST NOT establish `PUBLISHED` even if every
+repository-local publication outcome formerly associated with it later becomes
+satisfied.
+
+This invariant does not define how effective readiness authority or obligation
+satisfaction is represented.
+
+## PROTO-GO-INV-056 — Each new readiness evaluates its own publication obligations against current authoritative reality
+
+A later readiness occurrence MUST establish its own Repository Publication
+Obligations for its own bound authored state and governing publication
+requirements.
+
+Publication-obligation satisfaction MUST NOT be inherited merely because an
+earlier readiness occurrence had a similar obligation.
+
+If current authoritative publication reality already satisfies the later
+readiness occurrence's exact repository-local publication requirement, that
+later obligation MAY already be satisfied without repeating the publication
+mechanically.
+
+A prior publication fact MUST NOT satisfy a later obligation when the bound
+authored state or governing publication requirement differs materially.
+
+## PROTO-GO-INV-057 — Readiness retirement forbids new repository publication initiation
+
+Before managed authored mutation resumes after a publication-authorizing
+readiness occurrence, that readiness occurrence MUST be retired as required by
+the existing authored-resumption semantics.
+
+After retirement, no new repository-local publication operation MAY be
+initiated under authority derived from that retired readiness occurrence.
+
+The retired readiness occurrence MUST remain incapable of establishing the
+`ManagedContribution`'s `PUBLISHED` fact and MUST NOT later be reactivated.
+
+This invariant does not require cancellation of repository-local publication
+operations already originated before retirement.
+
+## PROTO-GO-INV-058 — Already-originated repository publication may complete after readiness retirement
+
+Retirement of a readiness occurrence MUST NOT require proto-go to cancel,
+fence, roll back, or wait for repository-local publication operations that
+were already originated under that readiness occurrence before retirement.
+
+Such already-originated operations MAY complete after retirement.
+
+Any repository-local publication outcome thereby authoritatively established
+MUST remain a valid historical publication fact.
+
+Such a fact MUST NOT by itself restore the retired readiness occurrence's
+authority or permit that retired readiness occurrence to establish
+`ManagedContribution` `PUBLISHED`.
+
+This invariant does not prohibit an implementation from opportunistically
+cancelling an in-flight operation when otherwise safe; cancellation is simply
+not a Product Intent prerequisite for authored resumption.
+
 # 5. Lifecycle semantics
 
 The artifact-driven proto-go progression begins before Admission and continues
@@ -2050,8 +2235,10 @@ READY #1 does not authorize S2
 new applicable readiness required
 ```
 
-Before that authored mutation may resume, the publication authority of the
-prior readiness occurrence must first be retired and fenced:
+Before that authored mutation may resume, the prior readiness occurrence must
+first be retired from establishing the `ManagedContribution`'s global
+`PUBLISHED` fact, and new repository-local publication initiation under it must
+be prohibited:
 
 ```text
 READY #1
@@ -2060,9 +2247,9 @@ downstream progression cannot continue mechanically
         ↓
 authored correction required
         ↓
-retire publication authority of READY #1
+retire READY #1 global publication-completion authority
         ↓
-establish READY #1 can no longer cross governing publication boundary
+prohibit new repository-local publication initiation under READY #1
         ↓
 authored mutation may resume
         ↓
@@ -2075,6 +2262,16 @@ The historical fact that `READY #1` was validly established remains true.
 
 What changes is its authority to reach publication.
 
+Already-originated repository-local publication operations under `READY #1` may
+complete after retirement without being cancelled, fenced, rolled back, or
+awaited as a precondition to authored resumption. Any repository-local
+publication outcome they authoritatively establish remains a valid historical
+publication fact, but it does not restore `READY #1`'s authority.
+
+Retirement does not erase readiness. It prevents the retired readiness
+occurrence from establishing the `ManagedContribution`'s global `PUBLISHED`
+fact, forbids new publication initiation under it, and is never reversed.
+
 At any time, no more than one readiness occurrence of the same
 `ManagedContribution` may retain effective authority to reach the governing
 publication outcome.
@@ -2084,6 +2281,61 @@ fencing mechanism.
 
 The logical `ManagedContribution` itself remains the same unless some separate
 future semantic rule says otherwise.
+
+For example:
+
+```text
+READY #1:
+  A@SA
+  B@SB
+  C@SC
+
+publication:
+  A@SA → satisfied
+  B@SB → blocked
+  C@SC → in flight
+
+B requires authored correction
+↓
+retire READY #1
+↓
+READY #1 may initiate no new publication work
+↓
+author B:
+  SB → SB2
+
+while authoring:
+  C@SC → published
+
+current publication reality:
+  A@SA = published
+  C@SC = published
+
+↓
+validate resulting complete contribution state
+↓
+READY #2:
+  A@SA
+  B@SB2
+  C@SC
+
+evaluate READY #2 obligations against current reality:
+
+A@SA → already satisfied, if exact requirement matches
+B@SB2 → unsatisfied
+C@SC → already satisfied, if exact requirement matches
+
+↓
+publish B@SB2
+↓
+all publication obligations of effective READY #2 satisfied
+↓
+ManagedContribution PUBLISHED
+```
+
+`READY #2` does not inherit `READY #1`'s obligations. It independently
+evaluates its own Repository Publication Obligations against current
+authoritative publication reality.
 
 # 6. Isolation semantics
 
@@ -2227,34 +2479,40 @@ The downstream system must progress the authored state bound by that readiness
 occurrence rather than an authored target that continues changing underneath the
 handoff.
 
-The managed effects bound by that readiness occurrence form one logical
-publication unit.
+The readiness occurrence establishes the complete set of Repository
+Publication Obligations applicable to its bound authored state and repository
+participation.
 
-Downstream progression may prepare parts of that unit independently where
-permitted, but no proper subset may independently cross its governing
-publication boundary while the remainder has not.
+Repository-local publication outcomes may occur independently and at different
+times. A proper subset of those obligations may be satisfied while the
+`ManagedContribution` remains not `PUBLISHED`.
 
-A route unable to preserve the required all-or-none governing publication
-semantics must not be used to begin an irreversible partial governing
-publication.
+The `ManagedContribution` may establish `PUBLISHED` only when an effective
+publication-authorizing readiness occurrence exists and every Repository
+Publication Obligation established for it is authoritatively satisfied.
 
 If downstream progression for a readiness occurrence requires authored
-correction or convergence, proto-go must retire and fence that readiness
-occurrence's publication authority before authored mutation resumes.
+correction or convergence, proto-go must retire that readiness occurrence's
+publication-completion authority before authored mutation resumes and must
+prohibit new repository-local publication initiation under it.
 
-After fencing:
+After retirement:
 
 ```text
 historical readiness
 → remains true
 
-future publication authority from that readiness
+future ability to establish ManagedContribution PUBLISHED
 → absent
+
+new repository-local publication initiation under that readiness
+→ forbidden
 ```
 
-Already-created downstream preparation may remain, but it must not retain
-effective authority to cross the governing publication boundary for the retired
-readiness occurrence.
+Repository-local publication operations already originated before retirement
+may complete after retirement. Their repository-local publication facts remain
+authoritative, but they cannot restore the retired readiness occurrence's
+authority or establish the `ManagedContribution`'s `PUBLISHED` fact.
 
 A later authored state that becomes eligible for downstream progression requires
 a new applicable readiness occurrence.
@@ -2304,6 +2562,11 @@ For one readiness occurrence, downstream progression must observe the determinat
 authored state bound by that occurrence.
 
 This does not impose a repository-wide prohibition on unrelated concurrent work.
+
+Repository-local publication outcomes for one readiness occurrence may occur
+concurrently and independently, provided each operates on the authored state
+bound for its repository. Independent repository-local publication outcomes do
+not by themselves establish the `ManagedContribution`'s `PUBLISHED` fact.
 
 Distinct proto-go progressions may run concurrently. That inter-progression
 concurrency is permitted and ordinary.
