@@ -52,11 +52,17 @@ The normative invariant set is recorded in
 [`docs/specification/proto-go-spec.md`](docs/specification/proto-go-spec.md).
 
 The currently admitted invariant identifiers are `PROTO-GO-INV-001` through
-`PROTO-GO-INV-052`.
+`PROTO-GO-INV-058`.
 
 `PROTO-GO-INV-008` is superseded by ADR-013.
 
 `PROTO-GO-INV-012` is superseded by ADR-006.
+
+`PROTO-GO-INV-020` is superseded by ADR-014.
+
+`PROTO-GO-INV-021` is superseded by ADR-014.
+
+`PROTO-GO-INV-022` is superseded by ADR-014.
 
 `PROTO-GO-INV-024` is superseded by ADR-008.
 
@@ -79,13 +85,16 @@ A `READY FOR HANDOFF` occurrence applies to a determinate authored state and
 repository participation; later authored mutation requires a new applicable
 readiness occurrence.
 
-ADR-005 establishes that the effects bound by one readiness occurrence form one
-indivisible logical publication unit. Progressive preparation is permitted, but
-a proper subset must not independently reach its governing publication outcome.
+ADR-005 established that the effects bound by one readiness occurrence form one
+indivisible logical publication unit. ADR-014 supersedes that all-or-none
+cross-repository publication-visibility semantics in favor of aggregate
+publication completion.
 
 ADR-007 establishes that publication authority from a readiness occurrence must
-be retired and fenced before authored mutation resumes. Historical readiness
-remains valid, but retired readiness cannot later reach publication.
+be retired before authored mutation resumes. Historical readiness remains
+valid. ADR-015 narrows the fencing to the ManagedContribution-level publication
+boundary and to new publication initiation: already-originated repository-local
+publication may complete after retirement.
 
 `/go` first enters Invocation Preflight.
 
@@ -129,6 +138,19 @@ authoritative historical fact that a later cleanup failure must not revert, and
 normal successful completion requires both publication and satisfaction of all
 applicable closure obligations. Automatic managed-worktree cleanup is one such
 closure obligation.
+
+ADR-014 makes multi-repository publication an aggregate completion condition:
+one readiness occurrence defines a complete set of independently satisfiable
+Repository Publication Obligations, and the `ManagedContribution` establishes
+`PUBLISHED` only when an effective readiness occurrence exists and all of its
+publication obligations are satisfied. Cross-repository atomic publication
+visibility is not required.
+
+ADR-015 allows repository-local publication operations already originated before
+readiness retirement to complete afterward. Retirement prevents the retired
+readiness occurrence from establishing `PUBLISHED` and from initiating new
+publication work, but does not require cancellation or fencing of
+already-originated repository-local publication.
 
 Implementation must be derived from accepted product semantics rather than
 retroactively defining them.
