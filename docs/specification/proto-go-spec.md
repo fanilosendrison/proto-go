@@ -138,9 +138,10 @@ A `proto-go` operation owns the user-facing implementation objective from the
 beginning of managed authoring until the contribution either:
 
 - reaches the publication outcome required by the governing version-control
-  policy; or
-- cannot reach that outcome because further progress requires unresolved action,
-  decision, permission, or authority outside the current Development System.
+  policy and satisfies all applicable proto-go-owned closure obligations; or
+- cannot satisfy those requirements because further progress requires
+  unresolved action, decision, permission, or authority outside the current
+  Development System.
 
 Implementation completion is an internal lifecycle boundary, not the normal
 successful terminal outcome of `proto-go`.
@@ -169,6 +170,8 @@ durable READY FOR HANDOFF boundary
 downstream version-control progression
         ↓
 publication outcome required by governing policy
+        ↓
+applicable proto-go-owned closure obligations
         ↓
 successful proto-go completion
 ```
@@ -212,6 +215,9 @@ If mechanical publication requires authored correction or convergence:
   and downstream publication is retried.
 
 When the governing publication outcome is reached:
+  PUBLISHED is established.
+
+When all applicable proto-go-owned closure obligations are also satisfied:
   proto-go succeeds.
 
 Incomplete work is not mistaken for completed work.
@@ -598,7 +604,8 @@ If authored correction or convergence is required and remains within the
   and publication is retried.
 
 A reports successful proto-go completion only after the governing publication
-outcome is reached.
+outcome is reached and all applicable proto-go-owned closure obligations are
+satisfied.
 
 B remains recognizable as incomplete work and is untouched.
 
