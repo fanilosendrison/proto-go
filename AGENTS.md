@@ -61,8 +61,10 @@ session, agent, process, or mutable authoring-surface identity.
 The currently admitted normative invariant identifiers are:
 
 ```text
-PROTO-GO-INV-001 through PROTO-GO-INV-042
+PROTO-GO-INV-001 through PROTO-GO-INV-052
 ```
+
+`PROTO-GO-INV-008` is superseded by ADR-013 and is no longer normative.
 
 `PROTO-GO-INV-012` is superseded by ADR-006 and is no longer normative.
 
@@ -72,6 +74,8 @@ PROTO-GO-INV-001 through PROTO-GO-INV-042
 
 `PROTO-GO-INV-032` is superseded by ADR-009 and is no longer normative.
 
+`PROTO-GO-INV-041` is superseded by ADR-013 and is no longer normative.
+
 `PROTO-GO-INV-025` remains normative.
 
 `PROTO-GO-INV-023` and `PROTO-GO-INV-025` remain normative execution-model
@@ -80,7 +84,7 @@ invariants.
 `PROTO-GO-INV-024` is retained only as superseded invariant history under
 ADR-008.
 
-Do not create invariants beyond `PROTO-GO-INV-042` or alter the meaning, order, or
+Do not create invariants beyond `PROTO-GO-INV-052` or alter the meaning, order, or
 identifiers of the admitted invariants without explicit semantic authority.
 
 ADR-003 establishes the validation-authority boundary:
@@ -105,7 +109,7 @@ establishes that obligation set for the implementation occurrence.
 If the applicable governing validation-obligation set cannot be established
 with sufficient authority, do not establish `READY FOR HANDOFF`.
 
-The currently admitted invariant identifier space ends at `PROTO-GO-INV-042`.
+The currently admitted invariant identifier space ends at `PROTO-GO-INV-052`.
 
 Do not create or imply a later invariant without explicit semantic authority.
 
@@ -141,7 +145,7 @@ themselves constitute governing publication outcomes for a proper subset.
 
 Do not choose an atomic-publication implementation mechanism from this rule.
 
-The currently admitted invariant identifier space ends at `PROTO-GO-INV-042`.
+The currently admitted invariant identifier space ends at `PROTO-GO-INV-052`.
 
 Do not create or imply a later invariant without explicit semantic authority.
 
@@ -196,7 +200,7 @@ Retirement does not erase the historical readiness fact.
 Do not select a fencing implementation mechanism from this semantic rule.
 
 The currently admitted invariant identifier space ends at
-`PROTO-GO-INV-042`.
+`PROTO-GO-INV-052`.
 
 Do not create or imply a later invariant without explicit semantic authority.
 
@@ -275,6 +279,57 @@ Do not treat READY FOR HANDOFF as normal proto-go completion.
 
 Do not invent a fixed universal stage pipeline.
 
+ADR-011 makes progression session-agnostic and single-controller:
+
+```text
+/go may originate from any eligible main-agent session
+progression may transfer sequentially between sessions
+distinct progressions may advance concurrently
+one progression → at most one independent active main-agent controller
+```
+
+Do not require global serialization of otherwise-independent progressions.
+
+Do not allow two main-agent controllers to independently advance the same
+progression.
+
+ADR-012 makes `/go` procedural instructions loadable incrementally:
+
+```text
+bounded bootstrap
+→ resolve applicable procedural instructions only as needed
+```
+
+Do not require loading the complete procedural instruction corpus before
+progression begins.
+
+Do not transfer procedural authority to the proto-go script or Continuation
+Artifacts.
+
+ADR-013 generalizes actionable-condition continuation and closes terminal
+semantics:
+
+```text
+actionable problem / unsatisfied proto-go-owned obligation
+→ Continuation Artifact
+→ script terminates
+→ authorized main-agent continuation opportunity
+→ fresh script invocation
+
+PUBLISHED
+→ required for normal successful completion
+→ not sufficient while proto-go-owned closure obligations remain
+```
+
+Do not allow an actionable script-detected problem to be silently terminal when
+an authorized main-agent continuation can make further progress.
+
+Do not revert an established `PUBLISHED` fact because a later local cleanup
+failed.
+
+Do not report normal successful completion while applicable proto-go-owned
+closure obligations, including managed-worktree cleanup, remain unsatisfied.
+
 ## Authority by responsibility
 
 1. `docs/specification/proto-go-spec.md`
@@ -347,7 +402,14 @@ Do not select a programming language.
 
 Do not select a persistence engine.
 
-Do not select a worktree topology.
+Git worktree authoring isolation is product-mandated.
+
+Managed authored mutation must occur in the proto-go-managed detached worktree,
+not in the invoking or current ordinary checkout.
+
+Do not invent unspecified details such as worktree filesystem path, naming,
+registry representation, base-commit selection algorithm, reconstruction
+mechanism, forced-removal policy, or garbage collection.
 
 Do not select a registry representation.
 
