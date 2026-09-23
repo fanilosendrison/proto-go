@@ -61,15 +61,19 @@ session, agent, process, or mutable authoring-surface identity.
 The currently admitted normative invariant identifiers are:
 
 ```text
-PROTO-GO-INV-001 through PROTO-GO-INV-028
+PROTO-GO-INV-001 through PROTO-GO-INV-037
 ```
 
 `PROTO-GO-INV-012` is superseded by ADR-006 and is no longer normative.
 
+`PROTO-GO-INV-024` is superseded by ADR-008 and is no longer normative.
+
+`PROTO-GO-INV-025` remains normative.
+
 `PROTO-GO-INV-023` through `PROTO-GO-INV-025` are normative execution-model
 invariants.
 
-Do not create invariants beyond `PROTO-GO-INV-028` or alter the meaning, order, or
+Do not create invariants beyond `PROTO-GO-INV-037` or alter the meaning, order, or
 identifiers of the admitted invariants without explicit semantic authority.
 
 ADR-003 establishes the validation-authority boundary:
@@ -94,7 +98,7 @@ establishes that obligation set for the implementation occurrence.
 If the applicable governing validation-obligation set cannot be established
 with sufficient authority, do not establish `READY FOR HANDOFF`.
 
-The currently admitted invariant identifier space ends at `PROTO-GO-INV-028`.
+The currently admitted invariant identifier space ends at `PROTO-GO-INV-037`.
 
 Do not create or imply a later invariant without explicit semantic authority.
 
@@ -130,7 +134,7 @@ themselves constitute governing publication outcomes for a proper subset.
 
 Do not choose an atomic-publication implementation mechanism from this rule.
 
-The currently admitted invariant identifier space ends at `PROTO-GO-INV-028`.
+The currently admitted invariant identifier space ends at `PROTO-GO-INV-037`.
 
 Do not create or imply a later invariant without explicit semantic authority.
 
@@ -141,7 +145,7 @@ user invokes /go in main-agent session
         ↓
 /go skill governs main agent
         ↓
-first procedural step invokes proto-go script
+first mechanical transition after Admission invokes proto-go script
         ↓
 script runs to completion
         ↓
@@ -182,9 +186,39 @@ Retirement does not erase the historical readiness fact.
 Do not select a fencing implementation mechanism from this semantic rule.
 
 The currently admitted invariant identifier space ends at
-`PROTO-GO-INV-028`.
+`PROTO-GO-INV-037`.
 
 Do not create or imply a later invariant without explicit semantic authority.
+
+ADR-008 establishes the Invocation Preflight and Launch Contract boundary:
+
+```text
+/go
+→ Invocation Preflight
+→ admission-complete Launch Contract
+→ Admission
+→ fresh terminating script invocation
+→ Continuation Artifact
+→ script termination
+→ /go Continuation Policy
+→ authorized main-agent continuation
+→ optional fresh script invocation
+```
+
+Do not model Continuation Artifacts as arbitrary commands from the script.
+
+Do not give the script procedural authority over the main agent.
+
+Do not perform a main-agent continuation while the originating script
+invocation is active.
+
+Do not model a later script invocation as resumption of an earlier invocation.
+
+Do not equate Launch Contract with one concrete serialization or script-argument
+format.
+
+Do not invent authority missing from the Launch Contract or later authorized
+authority resolution.
 
 ## Authority by responsibility
 
