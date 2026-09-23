@@ -6,8 +6,9 @@ coding-agent Development System.
 The user-facing invocation of proto-go is `/go`.
 
 proto-go is executed as a main-agent-orchestrated skill procedure. The `/go`
-skill governs the main agent, whose first procedural step invokes the proto-go
-script as a terminating call. The main agent continues the procedure only after
+skill governs the main agent. A `/go` invocation enters Invocation Preflight and
+Admission before the first mechanical transition, which is a fresh terminating
+proto-go script invocation. The main agent continues the procedure only after
 that script invocation has completed and returned its outputs.
 
 The repository is currently in the product-definition phase.
@@ -39,7 +40,11 @@ The normative invariant set is recorded in
 [`docs/specification/proto-go-spec.md`](docs/specification/proto-go-spec.md).
 
 The currently admitted invariant identifiers are `PROTO-GO-INV-001` through
-`PROTO-GO-INV-028`, with `PROTO-GO-INV-012` superseded by ADR-006.
+`PROTO-GO-INV-037`.
+
+`PROTO-GO-INV-012` is superseded by ADR-006.
+
+`PROTO-GO-INV-024` is superseded by ADR-008.
 
 ADR-003 establishes that `proto-go` does not own validation policy:
 `READY FOR HANDOFF` requires every applicable governing validation obligation to
@@ -61,6 +66,17 @@ a proper subset must not independently reach its governing publication outcome.
 ADR-007 establishes that publication authority from a readiness occurrence must
 be retired and fenced before authored mutation resumes. Historical readiness
 remains valid, but retired readiness cannot later reach publication.
+
+`/go` first enters Invocation Preflight.
+
+The main agent establishes an admission-complete machine-readable Launch
+Contract before a logical proto-go operation is admitted.
+
+After Admission, mechanical progression occurs through terminating proto-go
+script invocations that emit machine-readable Continuation Artifacts.
+
+The `/go` skill owns Continuation Policy; the main agent executes authorized
+continuations and may later invoke the script again as a fresh invocation.
 
 Implementation must be derived from accepted product semantics rather than
 retroactively defining them.
