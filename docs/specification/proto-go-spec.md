@@ -37,6 +37,13 @@ ADR-005 establishes that the managed effects bound by one `READY FOR HANDOFF`
 occurrence form one indivisible logical publication unit with all-or-none
 governing publication semantics.
 
+ADR-006 establishes proto-go's execution model: a user invokes `/go` from a
+main-agent session, the `/go` skill governs the main agent's procedure, the
+first procedural step is a terminating invocation of the proto-go script, and
+the main agent continues only after that invocation returns. ADR-006 supersedes
+the execution-engine-independence assertion previously recorded as
+`PROTO-GO-INV-012`.
+
 The current repository intentionally does not yet derive the complete invariant
 set or architecture from this Product Intent. Those derivations must occur
 explicitly rather than being invented during implementation.
@@ -117,12 +124,6 @@ authored correction or convergence work.
 
 In that case, the main agent may perform the required authored work, revalidate
 affected implementation work when necessary, and retry downstream progression.
-
-The current `proto-go` must realize these semantics without depending on
-Turnlock.
-
-Turnlock may later be one implementation mechanism only if it preserves this
-already-defined Product Intent.
 
 ## 0.2 The product promise
 
@@ -507,13 +508,48 @@ B remains recognizable as incomplete work and is untouched.
 If A's originating session disappears after READY FOR HANDOFF but before
 publication, A's ready contribution remains durably distinguishable from B's
 incomplete contribution.
-
-No product guarantee in this scenario depends on Turnlock.
 ```
 
 The architecture used to satisfy this contract may evolve.
 
 The product promise must remain stable.
+
+## 0.11 Invocation and execution model
+
+proto-go is invoked from a main-agent session through the user-facing `/go`
+skill invocation.
+
+The `/go` skill supplies the procedure followed by that main agent.
+
+The beginning of an ordinary proto-go operation is:
+
+```text
+user implementation request + /go
+        ↓
+/go skill governs main agent
+        ↓
+main agent invokes proto-go script
+        ↓
+proto-go script runs to completion
+        ↓
+proto-go script returns outputs
+        ↓
+main agent continues proto-go procedure
+```
+
+The proto-go script invocation is terminating.
+
+While that script invocation is active, it cannot suspend into authored work by
+the main agent and later resume the same invocation.
+
+The script is therefore not the end-to-end proto-go workflow orchestrator.
+
+The main agent, governed by the `/go` skill, performs the active procedural
+orchestration.
+
+This execution-model requirement does not define the script's pathname,
+language, CLI, output representation, persistence mechanism, authoring-isolation
+mechanism, or recovery behavior.
 
 # 1. Purpose
 
@@ -685,6 +721,30 @@ progression assigned to it after the relevant `proto-go` handoff boundary.
 
 Its concrete implementation and API are not yet selected by this specification.
 
+## `/go` skill
+
+The user-facing skill invoked from a main-agent session to initiate a logical
+proto-go operation.
+
+The skill supplies the procedure governing the main agent's active proto-go
+progression.
+
+The skill is not itself defined as the Product Intent authority; it must execute
+the semantics established by the normative proto-go specification.
+
+## proto-go script
+
+The mechanical script whose terminating invocation is the first procedural step
+of proto-go after `/go` invocation.
+
+The main agent invokes the script, the script runs to completion, and its outputs
+return to the main agent before subsequent proto-go procedure steps continue.
+
+The script is not the end-to-end proto-go workflow orchestrator.
+
+Its pathname, implementation language, CLI, output schema, and internal
+architecture are not yet defined.
+
 # 4. Required properties and invariants
 
 The following invariants are normative consequences of the accepted Product
@@ -850,20 +910,21 @@ indistinguishable from incomplete or unrelated work.
 
 This invariant does not define storage or recovery mechanisms.
 
-## PROTO-GO-INV-012 — Product semantics are execution-engine independent
+## PROTO-GO-INV-012 — Product semantics are execution-engine independent — SUPERSEDED
 
-`proto-go` Product Intent and the semantics required by this specification MUST NOT
-depend on any particular execution engine.
+**Status:** Superseded by ADR-006.
 
-In particular, current product conformance MUST NOT require Turnlock to exist or
-to acquire future capabilities.
+This invariant previously asserted that proto-go Product Intent and required
+semantics were independent of a particular execution engine.
 
-A future execution engine MAY implement `proto-go` only if it preserves the
-already-established `proto-go` semantics.
+ADR-006 supersedes that assertion by establishing a specific main-agent,
+`/go`-skill, and terminating-script execution model as part of proto-go Product
+Intent.
 
-Execution mechanisms implement product authority.
+`PROTO-GO-INV-012` is retained only to preserve invariant identity history.
 
-They do not create it.
+It is no longer a normative requirement and its identifier MUST NOT be reused
+for a different invariant.
 
 ## PROTO-GO-INV-013 — Validation policy authority remains outside `proto-go`
 
@@ -995,6 +1056,40 @@ publication contract to best-effort repository-local publication.
 
 This invariant does not select the mechanism by which a conforming route
 provides the required publication semantics.
+
+## PROTO-GO-INV-023 — Main-agent skill orchestration
+
+A proto-go operation MUST be initiated through the user-facing `/go` invocation
+in a main-agent session.
+
+The `/go` skill MUST supply the procedure governing that main agent's active
+proto-go progression.
+
+The main agent executes the procedure subject to the normative proto-go Product
+Intent; it does not acquire authority to invent missing product semantics.
+
+## PROTO-GO-INV-024 — First procedural step is a terminating proto-go-script invocation
+
+The first procedural step performed by the main agent after `/go` invocation
+MUST be invocation of the proto-go script.
+
+That script invocation MUST run to completion and return its outputs before the
+main agent continues subsequent proto-go procedure steps.
+
+This invariant does not define the script's pathname, CLI, language, output
+schema, or internal implementation.
+
+## PROTO-GO-INV-025 — Active script execution cannot contain a suspended main-agent continuation
+
+An active proto-go script invocation MUST NOT require suspension into a
+main-agent authored continuation followed by resumption of that same script
+execution.
+
+The proto-go script MUST NOT own end-to-end proto-go orchestration.
+
+Main-agent authored work required by proto-go MUST occur while the main agent
+holds procedural control under the `/go` skill, outside an active proto-go
+script invocation.
 
 # 5. Lifecycle semantics
 
@@ -1230,10 +1325,26 @@ This does not impose a repository-wide prohibition on unrelated concurrent work.
 
 # 11. Harness-integration boundary
 
-Not yet derived.
+proto-go is invoked within a main-agent session through the user-facing `/go`
+skill.
 
-The surrounding harness's permission-enforcement policy is external to `proto-go`
-product semantics.
+The `/go` skill supplies the procedure governing the main agent's active
+proto-go progression.
+
+The first procedural step invokes the proto-go script as a terminating call.
+
+After that call returns, the main agent continues the procedure using the state
+and outputs produced by the script.
+
+This product-level execution boundary does not make all surrounding harness
+policy part of proto-go.
+
+In particular, the surrounding harness's permission-enforcement policy about
+whether implementation is allowed outside proto-go remains external to
+proto-go Product Intent.
+
+The concrete skill-discovery, installation, harness, process, and recovery
+mechanisms remain undecided.
 
 # 12. Version-control-system boundary
 
