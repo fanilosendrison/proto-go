@@ -11,6 +11,10 @@
 | [ADR-007](adr-007-fence-prior-readiness-publication-authority-before-authored-resumption.md) | Fence prior readiness publication authority before authored resumption | Accepted |
 | [ADR-008](adr-008-establish-launch-contract-and-artifact-driven-continuation.md) | Establish Launch Contract and artifact-driven continuation | Accepted |
 | [ADR-009](adr-009-extend-artifact-driven-progression-across-admission-and-publication.md) | Extend artifact-driven progression across admission and publication | Accepted |
+| [ADR-010](adr-010-require-temporary-detached-git-worktrees-for-managed-authoring.md) | Require temporary detached Git worktrees for managed authoring | Accepted |
+| [ADR-011](adr-011-make-progression-session-agnostic-and-single-controller.md) | Make proto-go progression session-agnostic and single-controller | Accepted |
+| [ADR-012](adr-012-load-go-procedural-instructions-incrementally.md) | Load /go procedural instructions incrementally | Accepted |
+| [ADR-013](adr-013-continue-progression-through-actionable-problems-and-terminal-cleanup.md) | Continue progression through actionable problems and terminal cleanup | Accepted |
 
 The current normative product meaning is projected in
 [`../specification/proto-go-spec.md`](../specification/proto-go-spec.md).
@@ -19,3 +23,7 @@ Accepted ADRs record explicit product or architectural decisions.
 
 The normative specification must remain synchronized with accepted semantic
 decisions.
+
+ADR-013 supersedes only the terminality portions of ADR-001 and ADR-009 and the
+normative invariants `PROTO-GO-INV-008` and `PROTO-GO-INV-041`. The historical
+ADR files remain unchanged.
