@@ -28,12 +28,21 @@ Its authoritative starting point is:
   procedure and engineering governance.
 
 No implementation architecture, programming language, runtime, persistence
-mechanism, worktree mechanism, registry format, version-control adapter, or
-formal model is established merely by this repository layout.
+mechanism, registry format, version-control adapter, or formal model is
+established merely by this repository layout.
+
+The current Product Intent does select managed Git authoring isolation:
+proto-go automatically provisions dedicated temporary detached Git worktrees
+for managed authoring. Lower-level worktree topology and representation, such
+as filesystem path, naming, registry, base-commit selection, cleanup
+implementation, and reconstruction, remain undecided.
 
 The current Product Intent does establish that `READY FOR HANDOFF` is an
-internal durable lifecycle boundary and that the normal successful terminal
-outcome of `proto-go` is publication. The current `proto-go` must satisfy that contract.
+internal durable lifecycle boundary and that publication is mandatory for
+normal successful completion of `proto-go`. Normal successful completion
+additionally requires every applicable proto-go-owned closure obligation,
+including automatic temporary managed-worktree cleanup, to be satisfied.
+The current `proto-go` must satisfy that contract.
 
 ADR-002 further establishes that one logical `proto-go` operation owns one
 `ManagedContribution`, and that a `ManagedContribution` may span one or more
@@ -43,7 +52,9 @@ The normative invariant set is recorded in
 [`docs/specification/proto-go-spec.md`](docs/specification/proto-go-spec.md).
 
 The currently admitted invariant identifiers are `PROTO-GO-INV-001` through
-`PROTO-GO-INV-042`.
+`PROTO-GO-INV-052`.
+
+`PROTO-GO-INV-008` is superseded by ADR-013.
 
 `PROTO-GO-INV-012` is superseded by ADR-006.
 
@@ -52,6 +63,8 @@ The currently admitted invariant identifiers are `PROTO-GO-INV-001` through
 `PROTO-GO-INV-030` is superseded by ADR-009.
 
 `PROTO-GO-INV-032` is superseded by ADR-009.
+
+`PROTO-GO-INV-041` is superseded by ADR-013.
 
 ADR-003 establishes that `proto-go` does not own validation policy:
 `READY FOR HANDOFF` requires every applicable governing validation obligation to
@@ -92,10 +105,30 @@ Pre-Admission progression may invoke the terminating proto-go script before the
 Launch Contract is complete, and may establish that Launch Contract through
 script invocations and authorized continuations. `/go` may re-enter an
 outstanding continuation without creating a new logical objective. `READY FOR
-HANDOFF` remains intermediate; `PUBLISHED` remains the normal successful
-terminal outcome. Every main-agent/script control transfer requires sufficient
+HANDOFF` remains intermediate; `PUBLISHED` remains required for normal
+successful completion. Every main-agent/script control transfer requires sufficient
 machine-readable authoritative Progression Context, so correctness does not
 depend on conversational memory.
+
+ADR-010 requires managed authored mutation to occur in automatically
+provisioned dedicated temporary detached Git worktrees bound to one
+`ManagedContribution` and participating repository. The invoking checkout and
+other contributions' worktrees are not managed authoring surfaces.
+
+ADR-011 makes progression session-agnostic: `/go` may originate from any
+eligible main-agent session, a progression may be continued sequentially from
+another session, distinct progressions may advance concurrently, and at most
+one independent main-agent controller may advance one progression at a time.
+
+ADR-012 makes `/go` procedural instructions loadable incrementally from a
+bounded bootstrap; unrelated instruction material is not required upfront.
+
+ADR-013 generalizes artifact-driven continuation to actionable mechanical
+problems and proto-go-owned closure obligations. `PUBLISHED` is an
+authoritative historical fact that a later cleanup failure must not revert, and
+normal successful completion requires both publication and satisfaction of all
+applicable closure obligations. Automatic managed-worktree cleanup is one such
+closure obligation.
 
 Implementation must be derived from accepted product semantics rather than
 retroactively defining them.
