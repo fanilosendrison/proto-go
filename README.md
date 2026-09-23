@@ -39,7 +39,7 @@ The normative invariant set is recorded in
 [`docs/specification/proto-go-spec.md`](docs/specification/proto-go-spec.md).
 
 The currently admitted invariant identifiers are `PROTO-GO-INV-001` through
-`PROTO-GO-INV-025`, with `PROTO-GO-INV-012` superseded by ADR-006.
+`PROTO-GO-INV-028`, with `PROTO-GO-INV-012` superseded by ADR-006.
 
 ADR-003 establishes that `proto-go` does not own validation policy:
 `READY FOR HANDOFF` requires every applicable governing validation obligation to
@@ -57,6 +57,10 @@ readiness occurrence.
 ADR-005 establishes that the effects bound by one readiness occurrence form one
 indivisible logical publication unit. Progressive preparation is permitted, but
 a proper subset must not independently reach its governing publication outcome.
+
+ADR-007 establishes that publication authority from a readiness occurrence must
+be retired and fenced before authored mutation resumes. Historical readiness
+remains valid, but retired readiness cannot later reach publication.
 
 Implementation must be derived from accepted product semantics rather than
 retroactively defining them.

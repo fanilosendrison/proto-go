@@ -61,7 +61,7 @@ session, agent, process, or mutable authoring-surface identity.
 The currently admitted normative invariant identifiers are:
 
 ```text
-PROTO-GO-INV-001 through PROTO-GO-INV-025
+PROTO-GO-INV-001 through PROTO-GO-INV-028
 ```
 
 `PROTO-GO-INV-012` is superseded by ADR-006 and is no longer normative.
@@ -69,7 +69,7 @@ PROTO-GO-INV-001 through PROTO-GO-INV-025
 `PROTO-GO-INV-023` through `PROTO-GO-INV-025` are normative execution-model
 invariants.
 
-Do not create invariants beyond `PROTO-GO-INV-025` or alter the meaning, order, or
+Do not create invariants beyond `PROTO-GO-INV-028` or alter the meaning, order, or
 identifiers of the admitted invariants without explicit semantic authority.
 
 ADR-003 establishes the validation-authority boundary:
@@ -94,7 +94,7 @@ establishes that obligation set for the implementation occurrence.
 If the applicable governing validation-obligation set cannot be established
 with sufficient authority, do not establish `READY FOR HANDOFF`.
 
-The currently admitted invariant identifier space ends at `PROTO-GO-INV-025`.
+The currently admitted invariant identifier space ends at `PROTO-GO-INV-028`.
 
 Do not create or imply a later invariant without explicit semantic authority.
 
@@ -130,7 +130,7 @@ themselves constitute governing publication outcomes for a proper subset.
 
 Do not choose an atomic-publication implementation mechanism from this rule.
 
-The currently admitted invariant identifier space ends at `PROTO-GO-INV-025`.
+The currently admitted invariant identifier space ends at `PROTO-GO-INV-028`.
 
 Do not create or imply a later invariant without explicit semantic authority.
 
@@ -159,6 +159,32 @@ resumes the same script invocation.
 
 The currently normative execution-model invariants are
 `PROTO-GO-INV-023` through `PROTO-GO-INV-025`.
+
+ADR-007 establishes the authored-resumption publication fence:
+
+```text
+publication-authorizing READY
+          ↓
+authored correction required
+          ↓
+retire publication authority
+          ↓
+establish old READY cannot cross publication boundary
+          ↓
+only then resume authored mutation
+```
+
+Do not allow an old readiness occurrence to remain capable of publication while
+new authored work is being produced for the same `ManagedContribution`.
+
+Retirement does not erase the historical readiness fact.
+
+Do not select a fencing implementation mechanism from this semantic rule.
+
+The currently admitted invariant identifier space ends at
+`PROTO-GO-INV-028`.
+
+Do not create or imply a later invariant without explicit semantic authority.
 
 ## Authority by responsibility
 
