@@ -9,6 +9,7 @@
 | [ADR-005](adr-005-make-each-readiness-occurrence-an-indivisible-publication-unit.md) | Make each readiness occurrence an indivisible publication unit | Accepted |
 | [ADR-006](adr-006-define-main-agent-skill-orchestration-and-terminating-script-execution.md) | Define main-agent skill orchestration and terminating script execution | Accepted |
 | [ADR-007](adr-007-fence-prior-readiness-publication-authority-before-authored-resumption.md) | Fence prior readiness publication authority before authored resumption | Accepted |
+| [ADR-008](adr-008-establish-launch-contract-and-artifact-driven-continuation.md) | Establish Launch Contract and artifact-driven continuation | Accepted |
 
 The current normative product meaning is projected in
 [`../specification/proto-go-spec.md`](../specification/proto-go-spec.md).
