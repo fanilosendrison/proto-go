@@ -57,6 +57,15 @@ artifact-driven main-agent continuation between fresh terminating proto-go
 script invocations. ADR-008 supersedes PROTO-GO-INV-024 while preserving
 PROTO-GO-INV-025.
 
+ADR-009 corrects ADR-008's pre-Admission ordering by allowing Invocation
+Preflight itself to use terminating proto-go script invocations and
+artifact-driven main-agent continuations before an admission-complete Launch
+Contract exists. It establishes `/go` re-entry into outstanding continuations,
+extends artifact-driven progression through the governing publication outcome,
+and requires sufficient machine-readable authoritative Progression Context at
+every main-agent/script control-transfer boundary. ADR-009 supersedes
+PROTO-GO-INV-030 and PROTO-GO-INV-032.
+
 The current repository intentionally does not yet derive the complete invariant
 set or architecture from this Product Intent. Those derivations must occur
 explicitly rather than being invented during implementation.
@@ -798,14 +807,18 @@ architecture are not yet defined.
 
 ## Invocation Preflight
 
-The main-agent-controlled phase entered by a `/go` invocation before admission
-of a logical proto-go operation.
+The `/go`-governed phase before Admission of a logical proto-go operation.
 
-During Invocation Preflight, the main agent resolves the intent, governing
-authority basis, and launch premises required to establish an admission-complete
-Launch Contract.
+During Invocation Preflight, the main agent derives the best currently
+available machine-readable invocation input from the user request,
+authoritative context, and relevant established proto-go state.
 
-Invocation Preflight may include repeated clarification with the user.
+Invocation Preflight may contain repeated terminating proto-go script
+invocations, Continuation Artifacts, authorized main-agent continuations, and
+user clarification.
+
+Invocation Preflight continues until an admission-complete Launch Contract can
+be established or the attempted progression does not proceed.
 
 Invocation Preflight itself is not yet the admitted logical proto-go operation.
 
@@ -821,11 +834,15 @@ Admission does not itself imply authoring, readiness, or publication.
 
 ## Launch Contract
 
-The machine-readable representation of the resolved implementation intent,
-governing authority basis, and launch premises with which one logical proto-go
-operation is admitted.
+The machine-readable representation of sufficiently resolved implementation
+intent, governing authority basis, and launch premises with which one logical
+proto-go operation is admitted.
 
-The Launch Contract is the initial authority root of that operation.
+The Launch Contract may be established through pre-Admission artifact-driven
+progression.
+
+The Launch Contract is the initial authority root of the admitted logical
+proto-go operation.
 
 It is not defined as equivalent to script arguments, one concrete serialized
 document, or one persistence record.
@@ -847,6 +864,21 @@ Artifact facts or conditions to authorized main-agent continuation behavior.
 
 Continuation Policy remains subordinate to normative proto-go Product Intent
 and applicable governing authority.
+
+## Progression Context
+
+The machine-readable authoritative context sufficient for an actor receiving
+proto-go control to continue the relevant progression correctly without
+depending on implicit conversational memory.
+
+Progression Context represents the current authoritative progression state and
+the relevant provenance, authority, contracts, established facts, and prior
+continuation information necessary for correct subsequent progression.
+
+It does not require retention or replay of irrelevant complete history.
+
+Its concrete representation, storage, transport, persistence, reconstruction,
+snapshotting, event history, and ownership are not defined.
 
 # 4. Required properties and invariants
 
@@ -1268,18 +1300,28 @@ operation or `ManagedContribution` to be admitted.
 
 This invariant does not define preflight persistence or recovery.
 
-## PROTO-GO-INV-030 — Admission requires a machine-readable Launch Contract
+## PROTO-GO-INV-030 — Admission requires a machine-readable Launch Contract — SUPERSEDED
 
-Before a logical proto-go operation is admitted, the main agent MUST establish
-a machine-readable Launch Contract representing the resolved implementation
-intent, governing authority basis, and launch premises required to govern that
-operation.
+**Status:** Superseded by ADR-009.
 
-A logical proto-go operation MUST NOT be admitted without such a Launch
-Contract.
+This invariant previously required the main agent to establish an
+admission-complete machine-readable Launch Contract before the logical proto-go
+operation was admitted.
 
-This invariant does not define the Launch Contract serialization, schema,
-storage, transport, or persistence representation.
+The requirement that Admission requires an admission-complete Launch Contract
+remains part of current Product Intent.
+
+ADR-009 supersedes the previous allocation and ordering by allowing Launch
+Contract completeness to be established through pre-Admission artifact-driven
+progression involving terminating proto-go script invocations and authorized
+main-agent continuations.
+
+The corrected requirement is represented by `PROTO-GO-INV-039`.
+
+`PROTO-GO-INV-030` is retained only to preserve invariant identity history.
+
+It is no longer a normative requirement and its identifier MUST NOT be reused
+for a different invariant.
 
 ## PROTO-GO-INV-031 — The Launch Contract is the initial authority root
 
@@ -1299,24 +1341,29 @@ invent missing semantic authority merely because progression requires it.
 This invariant does not define how later authority additions or amendments are
 represented.
 
-## PROTO-GO-INV-032 — Missing admission authority fails closed
+## PROTO-GO-INV-032 — Missing admission authority fails closed — SUPERSEDED
 
-If information or authority required to admit the logical proto-go operation
-cannot be established with sufficient authority, proto-go MUST NOT admit the
-operation and MUST NOT invoke the proto-go script for that operation.
+**Status:** Superseded by ADR-009.
 
-The main agent MUST first resolve what can be established from sufficiently
-authoritative available context.
+This invariant previously required missing information or authority needed for
+Admission both to prevent Admission and to prevent invocation of the proto-go
+script.
 
-When a remaining Admission requirement requires user authority, the main agent
-MUST obtain the necessary clarification or decision from the user before
-Admission.
+ADR-009 preserves the fail-closed Admission boundary but supersedes the
+prohibition on pre-Admission script execution.
 
-Invocation Preflight MAY repeat until the Admission requirements are satisfied
-or the attempted invocation does not proceed.
+Missing Admission information or authority still prevents Admission.
 
-This invariant does not define cancellation or abandonment semantics for an
-incomplete Invocation Preflight.
+It does not by itself prevent a terminating proto-go script invocation during
+Invocation Preflight.
+
+The corrected semantics are represented by `PROTO-GO-INV-038` and
+`PROTO-GO-INV-039`.
+
+`PROTO-GO-INV-032` is retained only to preserve invariant identity history.
+
+It is no longer a normative requirement and its identifier MUST NOT be reused
+for a different invariant.
 
 ## PROTO-GO-INV-033 — First mechanical transition after admission is a fresh terminating script invocation
 
@@ -1393,35 +1440,148 @@ proto-go script invocations separated by authorized main-agent continuations.
 This invariant does not define workflow persistence, process supervision, or
 recovery mechanics.
 
+## PROTO-GO-INV-038 — Pre-admission progression may invoke the proto-go script
+
+During Invocation Preflight, the main agent MUST derive the best currently
+available machine-readable invocation input from the user request, sufficiently
+authoritative available context, and relevant already-established proto-go
+state.
+
+Invocation Preflight MAY invoke the proto-go script before Admission and before
+an admission-complete Launch Contract exists.
+
+Each such pre-Admission script invocation MUST remain terminating and MUST
+return Continuation Artifact information before any resulting main-agent
+continuation occurs.
+
+Missing Admission information or authority MUST prevent Admission, but MUST NOT
+by itself prohibit a pre-Admission proto-go script invocation.
+
+This invariant does not define the invocation-input schema, correlation
+mechanism, persistence mechanism, or pre-Admission state representation.
+
+## PROTO-GO-INV-039 — Admission requires a Launch Contract established through authoritative progression
+
+A logical proto-go operation MUST NOT be admitted until an admission-complete
+machine-readable Launch Contract has been established.
+
+The Launch Contract MAY be established through repeated pre-Admission
+progression consisting of terminating proto-go script invocations,
+Continuation Artifacts, authorized main-agent continuations, authoritative
+context resolution, and user clarification where required.
+
+The Launch Contract MUST represent sufficiently resolved implementation intent,
+governing authority basis, and launch premises for Admission.
+
+Neither the main agent nor the proto-go script MAY invent missing semantic
+authority in order to make the Launch Contract complete.
+
+This invariant does not define which component stores the Launch Contract, its
+schema, serialization, persistence representation, or versioning model.
+
+## PROTO-GO-INV-040 — `/go` re-entry continues an outstanding authorized progression
+
+When `/go` is invoked in response to an outstanding authorized proto-go
+continuation, that invocation MUST continue the relevant existing progression
+rather than create a distinct logical proto-go objective merely because `/go`
+was invoked again.
+
+Before Admission, such re-entry continues the relevant pre-Admission
+progression without retroactively creating a ManagedContribution.
+
+After Admission, such re-entry MUST preserve the same logical proto-go operation
+and ManagedContribution.
+
+Every resulting proto-go script execution remains a fresh terminating
+invocation.
+
+This invariant does not define how the relevant progression is identified,
+correlated, rediscovered, persisted, transported across sessions, or selected
+when multiple progressions exist.
+
+## PROTO-GO-INV-041 — Artifact-driven progression spans the objective through publication
+
+The `/go` artifact-driven continuation progression MUST remain capable of
+carrying the same logical proto-go objective through the lifecycle required to
+reach its governing publication outcome.
+
+`READY FOR HANDOFF` MUST NOT be treated as the normal successful terminal
+condition of that progression.
+
+Where continued progression requires additional mechanical execution,
+main-agent authored work, validation, user-authority resolution, publication
+progression, fencing, correction, or another authorized continuation, the same
+proto-go objective continues through fresh terminating script invocations and
+authorized main-agent continuations as applicable.
+
+The normal successful terminal condition of the artifact-driven proto-go
+progression MUST be the governing publication outcome required by
+`PROTO-GO-INV-008`.
+
+This invariant does not define a fixed universal sequence of intermediate
+stages.
+
+## PROTO-GO-INV-042 — Control transfer requires sufficient authoritative Progression Context
+
+Every transfer of active proto-go control between the main agent and a
+proto-go script invocation MUST provide or make resolvable sufficient
+machine-readable authoritative Progression Context for the receiving actor to
+continue the relevant progression correctly.
+
+For a proto-go script invocation, the available Progression Context together
+with current machine-readable invocation input MUST be sufficient to establish
+the relevant current progression state and determine the mechanical transitions
+currently permitted.
+
+For a main-agent continuation, the available Progression Context together with
+the resulting Continuation Artifact MUST be sufficient to establish the
+relevant prior state, the mechanical progression just performed, the
+authoritative facts established, and the continuation condition now applicable.
+
+Correct proto-go progression MUST NOT depend on implicit conversational memory
+of the main agent, the originating session, or a prior script process.
+
+This requirement does not require retention or replay of irrelevant complete
+history.
+
+This invariant does not select a snapshot representation, event log, artifact
+chain, database, persistence mechanism, workflow engine, context reconstruction
+algorithm, or transport mechanism.
+
 # 5. Lifecycle semantics
 
-A `/go` invocation enters Invocation Preflight before a logical proto-go
-operation is admitted:
+The artifact-driven proto-go progression begins before Admission and continues
+through the governing publication outcome:
 
 ```text
-/go invocation
+/go
         ↓
-Invocation Preflight
-        ↓
+pre-Admission artifact-driven progression
+        ↺
 admission-complete Launch Contract
         ↓
 Admission
         ↓
-logical proto-go operation / ManagedContribution lifecycle
+ManagedContribution
+        ↓
+artifact-driven progression
+        ↺
+READY
+        ↓
+artifact-driven progression continues
+        ↺
+possible correction / new READY
+        ↺
+PUBLISHED
+        ↓
+normal success
 ```
 
-After Admission, mechanical progression may consist of repeated transitions:
+`READY FOR HANDOFF` is not normal termination of the artifact-driven
+progression.
 
-```text
-fresh script invocation
-→ Continuation Artifact
-→ script terminates
-→ authorized main-agent continuation
-→ optional fresh script invocation
-```
-
-Each script invocation terminates before the corresponding main-agent
-continuation begins.
+Each script invocation remains terminating, and each main-agent continuation
+occurs only after the corresponding script invocation has terminated.
 
 The currently established lifecycle ordering is limited to:
 
