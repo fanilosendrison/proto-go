@@ -24,7 +24,7 @@ formal model is established merely by this repository layout.
 
 The current Product Intent does establish that `READY FOR HANDOFF` is an
 internal durable lifecycle boundary and that the normal successful terminal
-outcome of `proto-go` is publication. The current proto must satisfy that contract
+outcome of `proto-go` is publication. The current `proto-go` must satisfy that contract
 without depending on Turnlock.
 
 ADR-002 further establishes that one logical `proto-go` operation owns one
