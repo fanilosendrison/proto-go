@@ -14,7 +14,7 @@ Use this file as the operational map for the `proto-go` repository.
 The repository is currently specification-first.
 
 Do not infer implementation architecture from the repository name, from the old
-`proto-go`, or from adjacent projects.
+`/go`, or from adjacent projects.
 
 ## Product boundary
 
@@ -74,7 +74,7 @@ The currently admitted normative invariant range is:
 PROTO-GO-INV-001 through PROTO-GO-INV-022
 ```
 
-Do not create invariants beyond `PROTO-GO-INV-012` or alter the meaning, order, or
+Do not create invariants beyond `PROTO-GO-INV-022` or alter the meaning, order, or
 identifiers of the admitted invariants without explicit semantic authority.
 
 ADR-003 establishes the validation-authority boundary:
@@ -99,7 +99,7 @@ establishes that obligation set for the implementation occurrence.
 If the applicable governing validation-obligation set cannot be established
 with sufficient authority, do not establish `READY FOR HANDOFF`.
 
-The currently admitted invariant range ends at `PROTO-GO-INV-015`.
+The currently admitted invariant range ends at `PROTO-GO-INV-022`.
 
 Do not create or imply a later invariant without explicit semantic authority.
 
