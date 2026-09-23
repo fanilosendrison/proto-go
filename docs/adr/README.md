@@ -9,7 +9,7 @@ The normative Product Intent currently lives in:
 ../specification/proto-go-spec.md
 ```
 
-No numbered ADR exists yet.
+Numbered ADRs are listed in [`index.md`](index.md).
 
 Do not create an ADR merely because an implementation choice is convenient.
 
