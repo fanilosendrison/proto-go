@@ -45,13 +45,13 @@ governing publication semantics. ADR-014 supersedes that all-or-none
 cross-repository publication-visibility semantics in favor of aggregate
 publication completion.
 
-ADR-006 establishes proto-go's execution model: a user invokes `/go` from a
-main-agent session, the `/go` skill governs the main agent's procedure, and the
-main agent continues only after a terminating proto-go script invocation
-returns. ADR-006 originally recorded that script invocation as the first
-procedural step; ADR-008 supersedes that ordering. ADR-006 supersedes the
+ADR-006 originally established main-agent skill orchestration and terminating
+proto-go script execution as proto-go's execution model. ADR-017 supersedes
+that execution model. `/go` remains the user-facing invocation, and the
+proto-go workflow owns its domain progression while proto-runtime provides
+generic execution continuity. ADR-006's supersession of the
 execution-engine-independence assertion previously recorded as
-`PROTO-GO-INV-012`.
+`PROTO-GO-INV-012` is unaffected; that identity remains superseded.
 
 ADR-007 establishes that a readiness occurrence must lose effective publication
 authority and be fenced from crossing the governing publication boundary before
@@ -61,38 +61,45 @@ to the ManagedContribution-level publication boundary and to new publication
 initiation; already-originated repository-local publication may complete after
 retirement.
 
-ADR-008 establishes Invocation Preflight, Admission, Launch Contract authority,
-terminating script invocations, and artifact-driven main-agent continuation.
-ADR-008 originally placed Admission before mechanical script execution;
-ADR-009 supersedes that pre-Admission ordering. ADR-008 supersedes
-PROTO-GO-INV-024 while preserving PROTO-GO-INV-025.
+ADR-008 established Invocation Preflight, Admission, Launch Contract authority,
+and fail-closed Admission. ADR-017 preserves those business boundaries and
+supersedes the terminating-script invocation, Continuation Artifact,
+Continuation Policy, and artifact-driven main-agent continuation mechanics.
+ADR-008 superseded `PROTO-GO-INV-024`; ADR-009 later corrected its
+pre-Admission ordering. Those identities remain superseded.
 
-ADR-009 corrects ADR-008's pre-Admission ordering by allowing Invocation
-Preflight itself to use terminating proto-go script invocations and
-artifact-driven main-agent continuations before an admission-complete Launch
-Contract exists. It establishes `/go` re-entry into outstanding continuations,
-extends artifact-driven progression through the governing publication outcome,
-and requires sufficient machine-readable authoritative Progression Context at
-every main-agent/script control-transfer boundary. ADR-009 supersedes
-PROTO-GO-INV-030 and PROTO-GO-INV-032.
+ADR-009 corrected ADR-008's pre-Admission ordering by allowing Invocation
+Preflight to progress before an admission-complete Launch Contract exists. It
+established state/authority-driven progression, re-entry continuing the same
+logical objective, `READY FOR HANDOFF` as intermediate, and progression through
+the governing publication outcome. ADR-017 preserves those semantics and
+supersedes Progression Context and the script/artifact runtime mechanics.
+ADR-009 superseded `PROTO-GO-INV-030` and `PROTO-GO-INV-032`; those identities
+remain superseded.
 
 ADR-010 requires proto-go-managed authored mutation to occur in dedicated
 temporary detached Git worktrees bound to one `ManagedContribution` and
 participating repository, provisioned automatically before the first managed
 authored mutation in that repository.
 
-ADR-011 makes proto-go progression session-agnostic and permits distinct
-progressions to advance concurrently while requiring at most one independent
-active main-agent controller per progression.
+ADR-011 permitted distinct proto-go progressions to advance concurrently and
+established that a progression is not owned by the conversational session that
+initiated it. ADR-017 preserves the user-visible concurrency and
+business-identity consequences; generic session-transfer and controller
+coordination are provided by proto-runtime.
 
-ADR-012 makes `/go` procedural instructions loadable incrementally from a
-bounded bootstrap rather than requiring the complete instruction corpus
-upfront.
+ADR-012 required `/go` procedural instructions to be loadable incrementally
+from a bounded bootstrap. ADR-017 supersedes that requirement as proto-go
+Product Intent; instruction loading and execution continuity belong to
+proto-runtime and the surrounding harness.
 
-ADR-013 generalizes artifact-driven continuation to actionable mechanical
-problems and proto-go-owned closure obligations, and supersedes the terminality
-assertions of `PROTO-GO-INV-008` and `PROTO-GO-INV-041` while preserving
-publication as necessary for normal successful completion.
+ADR-013 generalized continuation to actionable mechanical problems and
+proto-go-owned closure obligations, and established that `PUBLISHED` is
+authoritative historical truth and that normal successful completion requires
+publication plus satisfaction of all applicable proto-go-owned closure
+obligations. ADR-017 preserves those semantics and supersedes the
+artifact/script/main-agent continuation mechanism. ADR-013's supersession of
+`PROTO-GO-INV-008` and `PROTO-GO-INV-041` remains historical.
 
 ADR-014 makes multi-repository publication an aggregate completion condition:
 one readiness occurrence defines a complete set of independently satisfiable
@@ -112,10 +119,17 @@ ADR-016 establishes that `proto-go`'s implementation-to-publication procedure
 must support local procedural evolution and remain explicitly identifiable as a
 composition of independently understandable procedural responsibilities, so
 that a procedural change whose semantic effect is local does not force
-unrelated changes across the rest of the procedure merely because of how
-control is transferred between the main agent, mechanical execution, sessions,
-or other execution mechanisms. It does not select a concrete composition
-representation.
+unrelated changes across the rest of the procedure. ADR-017 places that
+requirement in the new execution boundary and adds that proto-go's business
+workflow must not emerge implicitly from generic runtime plumbing. It does not
+select a concrete composition representation.
+
+ADR-017 establishes that proto-go is the implementation-to-publication workflow
+that owns domain semantics and progression decisions, while proto-runtime
+provides generic execution continuity and control-transfer mechanics. proto-go
+no longer owns generic workflow-execution machinery. proto-ruu is the
+specialized routine-Git-versioning workflow used by proto-go through an
+explicit ownership boundary.
 
 The current repository intentionally does not yet derive the complete invariant
 set or architecture from this Product Intent. Those derivations must occur
@@ -125,10 +139,13 @@ explicitly rather than being invented during implementation.
 whether implementation is permitted to occur outside `proto-go` belong to the
 surrounding harness and are not part of `proto-go` product semantics.
 
-## 0.1 Product definition: managed implementation-to-publication execution across eligible main-agent sessions
+## 0.1 Product definition: managed implementation-to-publication workflow
 
 `proto-go` is the **end-to-end implementation-to-publication procedure of the
 coding-agent Development System**.
+
+Its execution is provided by proto-runtime; the proto-go workflow owns its
+domain semantics and progression decisions.
 
 One logical `proto-go` operation owns exactly one `ManagedContribution`.
 
@@ -324,13 +341,10 @@ concurrent implementation
 → coordination by convention
 ```
 
-Distinct proto-go progressions may advance concurrently from different
-eligible main-agent sessions. `proto-go` must not globally serialize
-otherwise-independent `/go` progressions.
-
-That concurrency is distinct from independent simultaneous main-agent control
-of one progression: a single proto-go progression must not be independently
-advanced by more than one active main-agent procedural controller at a time.
+Distinct proto-go progressions may advance concurrently. `proto-go` must not
+require global serialization of otherwise-independent `/go` progressions.
+Generic session coordination and control ownership for those progressions are
+provided by proto-runtime and are not proto-go Product Intent.
 
 Distinct progressions must not share a managed authoring worktree.
 
@@ -412,10 +426,13 @@ downstream version-control progression
 Forgetting to invoke the downstream version-control command immediately after
 `proto-go` must not make successfully completed implementation work undiscoverable.
 
-A proto-go progression is not owned by the conversational session that started
-or previously advanced it. A later eligible main-agent session may continue the
-same relevant progression by resolving authoritative Progression Context and
-the contribution's managed authoring bindings.
+A proto-go progression's business identity is not owned by the conversational
+session that started or previously advanced it. The lifecycle facts, readiness
+state, and managed authoring bindings required for continued proto-go
+progression must survive loss or replacement of any execution context. The
+generic mechanism by which a later execution context discovers and continues
+an active workflow execution is provided by proto-runtime and is not selected
+here.
 
 ## 0.7 Interrupted work remains incomplete
 
@@ -440,10 +457,10 @@ proto-go
 A later Development System action may inspect, resume, repair, or abandon the
 interrupted contribution.
 
-Sequential takeover of the progression by another eligible main-agent session
+Continued progression of the same contribution by a later execution context
 is permitted. It does not by itself change the lifecycle state of the
-contribution; only authoritative proto-go progression can establish readiness,
-retirement, or publication.
+contribution; only authoritative proto-go workflow progression can establish
+readiness, retirement, or publication.
 
 Downstream publication machinery must not infer semantic completion from the
 mere survival of its files, commits, clean status, or process absence.
@@ -518,8 +535,9 @@ cross-repository atomic publication visibility is required.
 After the governing publication outcome is established, proto-go performs or
 attempts its remaining proto-go-owned closure obligations, including normal
 automatic retirement and removal of temporary managed worktrees. A later local
-cleanup failure does not revert `PUBLISHED`; it is surfaced through
-artifact-driven continuation so the main agent can attempt repair.
+cleanup failure does not revert `PUBLISHED`; it is surfaced as an actionable
+proto-go condition so repair can be attempted within the same proto-go
+objective.
 
 `proto-go` must not report success merely because implementation is complete,
 validation passed, `READY FOR HANDOFF` is durable, commits exist, or a downstream
@@ -604,9 +622,7 @@ managed authoring mutates the invoking or current ordinary checkout
 managed authoring requires the user to create or select a worktree
 session replacement creates a second worktree for the same contribution and repository
 different progressions are globally serialized without semantic need
-one progression is independently driven by two main-agent controllers
-/go requires loading the full procedural instruction corpus upfront
-actionable script-detected problems terminate without giving an authorized main-agent continuation an opportunity to progress them
+actionable proto-go conditions terminate without allowing the same proto-go objective to continue when authorized progress remains possible
 PUBLISHED cleanup failure is silently ignored
 PUBLISHED is made false because local cleanup failed
 a proper subset of repository publication obligations is treated as ManagedContribution PUBLISHED
@@ -649,7 +665,7 @@ If publication can progress mechanically:
 
 If authored correction or convergence is required and remains within the
   Development System's authority:
-  the main agent performs that work,
+  the requested authored work is performed,
   affected work is revalidated,
   and publication is retried.
 
@@ -668,19 +684,63 @@ The architecture used to satisfy this contract may evolve.
 
 The product promise must remain stable.
 
-## 0.11 Invocation and execution model
+## 0.11 Invocation, workflow, and execution boundary
 
-A `/go` invocation may originate from any eligible main-agent session.
+A `/go` invocation occurs in a main-agent session and is the user-facing entry
+point of a logical proto-go operation. It begins a proto-go workflow execution
+or continues an applicable existing proto-go workflow execution.
 
-The `/go` skill governs the main agent's active proto-go progression.
+proto-go is the implementation-to-publication workflow. It owns:
 
-A `/go` invocation begins from a bounded bootstrap instruction set. The main
-agent must not be required to load the complete proto-go procedural instruction
-corpus before progression begins; additional authoritative procedural
-instructions are resolved and loaded only when they become applicable to the
-current progression state or authorized continuation.
+```text
+what its current business state means
+what authority is available
+which business obligations remain
+which progression is semantically legal
+which execution it requests next
+how returned execution truth affects proto-go business state
+when proto-go is semantically complete
+```
 
-A `/go` invocation enters Invocation Preflight before any logical proto-go
+Generic execution continuity and control-transfer mechanics are provided by
+proto-runtime. proto-runtime owns the reusable execution substrate: mechanical
+execution, main-agent continuation, execution occurrence truth, and
+child-workflow execution with structured return. proto-go does not define
+proto-runtime's generic execution semantics.
+
+Conceptually:
+
+```text
+user invokes /go
+        ↓
+proto-go workflow execution begins or applicable existing execution is continued
+        ↓
+proto-go evaluates its own authoritative workflow/domain state
+        ↓
+proto-go determines the semantically legal next progression
+        ↓
+proto-go requests an execution form
+        ↓
+proto-runtime realizes the requested execution
+        ↓
+execution truth / child result becomes available
+        ↓
+proto-go interprets it according to proto-go semantics
+        ↺
+```
+
+The proto-go workflow may currently request execution such as:
+
+```text
+mechanical execution
+main-agent continuation
+child workflow call to proto-ruu
+```
+
+but proto-go does not define proto-runtime's generic semantics for those
+execution forms.
+
+A `/go` invocation may enter Invocation Preflight before a logical proto-go
 operation is admitted:
 
 ```text
@@ -689,169 +749,54 @@ operation is admitted:
 Invocation Preflight
 ```
 
-Invocation Preflight is itself artifact-driven.
+Invocation Preflight is proto-go business and authority resolution before
+Admission. The main agent derives the best currently available machine-readable
+invocation input from the user request, authoritative context, and relevant
+established proto-go state.
 
-The main agent derives the best currently available machine-readable invocation
-input from the user request, authoritative context, and relevant established
-proto-go state.
-
-A fresh terminating proto-go script invocation may then occur before Admission:
-
-```text
-Invocation Preflight
-        ↓
-current machine-readable input
-+
-sufficient authoritative Progression Context
-        ↓
-fresh proto-go script invocation
-        ↓
-mechanical observation / legal progression
-        ↓
-Continuation Artifact
-        ↓
-script terminates
-        ↓
-/go Continuation Policy
-        ↓
-authorized main-agent continuation
-        ↺
-```
-
-The continuation may include context resolution, user interaction, authority
-acquisition, authored work where semantically permitted, or construction of new
-machine-readable invocation input.
+Pre-Admission progression may itself require execution realized by
+proto-runtime, including mechanical execution, main-agent work, user
+interaction, or child-workflow calls, before an admission-complete Launch
+Contract exists.
 
 If Admission information or authority remains incomplete, Admission is
-forbidden, but another pre-Admission script invocation is not thereby
-forbidden.
-
-Invocation Preflight may therefore contain repeated terminating script
-invocations, Continuation Artifacts, main-agent continuations, and user
-clarification.
+forbidden; pre-Admission progression is not thereby forbidden.
 
 An admission-complete machine-readable Launch Contract is required before
-Admission.
+Admission. Admission begins the logical proto-go operation and its
+`ManagedContribution`. The Launch Contract remains proto-go's business and
+authority contract; its schema, serialization, and storage are not defined
+here.
 
-Launch Contract completeness may be established through that pre-Admission
-artifact-driven progression.
-
-Admission begins the logical proto-go operation and its
-`ManagedContribution`.
-
-After Admission, the first mechanical transition of the admitted logical
-proto-go operation is a fresh terminating proto-go script invocation:
-
-```text
-admission-complete Launch Contract
-        ↓
-Admission
-        ↓
-fresh post-Admission proto-go script invocation
-```
-
-After Admission, before the first managed authored mutation in a participating
-repository, proto-go provisions that repository's managed authoring worktree:
-
-```text
-ManagedContribution
-+
-repository R
-+
-determinate base commit C
-        ↓
-proto-go-created managed Git worktree
-        ↓
-detached HEAD at C
-        ↓
-managed authoring
-```
-
-A pre-Admission invocation is not resumed across Admission.
-
-Every script invocation terminates before any corresponding main-agent
-continuation occurs.
-
-A completed script invocation emits machine-readable Continuation Artifact
-information.
-
-The `/go` skill interprets that information under Continuation Policy.
-
-The main agent executes the authorized continuation.
-
-Continuation Policy also determines which additional procedural instructions
-are currently applicable; only those instructions need to be resolved or loaded
-for the authorized continuation.
-
-A continuation may later lead to another fresh script invocation:
-
-```text
-sufficient authoritative Progression Context
-+
-current invocation input
-        ↓
-fresh script invocation
-        ↓
-Continuation Artifact
-        ↓
-script terminates
-        ↓
-sufficient authoritative Progression Context
-+
-Continuation Artifact
-        ↓
-/go Continuation Policy
-        ↓
-authorized main-agent continuation
-        ↓
-optional fresh script invocation
-```
-
-A later invocation is never a resumption of an earlier invocation:
-
-```text
-later invocation != resumption of earlier invocation
-```
-
-Every transfer of active proto-go control between the main agent and a script
-invocation must provide or make resolvable sufficient machine-readable
-authoritative Progression Context for the receiving actor to continue correctly.
-
-Correct progression must not depend on implicit conversational memory or on a
-previous script process remaining alive.
-
-The artifact-driven progression spans the normal end-to-end proto-go objective.
-
+After Admission, the proto-go workflow owns continued business progression.
 `READY FOR HANDOFF` is an internal intermediate lifecycle boundary and does not
-normally terminate the progression.
+normally terminate the progression. The progression may continue through
+publication, authored correction, revalidation, additional readiness
+occurrences, and other authorized continuations as required.
 
-The progression may continue through publication, authored correction,
-revalidation, additional readiness occurrences, and other authorized
-continuations as required.
+Normal successful completion requires the governing publication outcome and
+satisfaction of all applicable proto-go-owned closure obligations. A later
+local cleanup failure does not revert `PUBLISHED`; it is surfaced as an
+actionable proto-go condition within the same objective.
 
-The governing publication outcome is required for normal successful completion:
+The main agent may perform authored work when the proto-go workflow requests
+it. The main agent is not the global workflow orchestrator merely because it
+performs an agentic continuation.
 
-```text
-PUBLISHED
-```
+Distinct proto-go progressions may advance concurrently. Proto-go does not
+require global serialization of otherwise-independent `/go` progressions.
+Generic control ownership, session-transfer, and execution-continuity
+coordination are provided by proto-runtime.
 
-Normal successful completion additionally requires that all applicable
-proto-go-owned closure obligations, including automatic temporary
-managed-worktree cleanup, are satisfied. A later local cleanup failure does not
-revert `PUBLISHED`; it is surfaced through artifact-driven continuation.
+Transient execution or session loss must not change proto-go business truth
+such as contribution identity, readiness, or managed authoring bindings.
+Generic execution re-entry and correlation are provided by proto-runtime and
+are not proto-go Product Intent.
 
-The proto-go script is not the end-to-end workflow orchestrator.
-
-The main agent, governed by the `/go` skill, executes the active procedural
-continuations.
-
-This execution model does not define a fixed universal sequence of numbered
-stages.
-
-It also does not define the script pathname, language, CLI, invocation-input
-format, Continuation Artifact schema, Progression Context representation,
-persistence mechanism, correlation mechanism, authoring-isolation mechanism,
-workflow engine, or recovery architecture.
+This product-level execution boundary does not define a fixed universal
+sequence of numbered stages. It also does not define the proto-go workflow
+language, workflow artifact syntax, runtime API, invocation-input format,
+execution-status vocabulary, persistence mechanism, or process topology.
 
 ## 0.12 Local procedural evolution and explicit procedural composition
 
@@ -860,13 +805,13 @@ procedural evolution.
 
 A procedural change whose semantic effect is local MUST require changes
 proportional to that semantic effect, rather than unrelated changes across the
-rest of the procedure merely because of how `proto-go` currently transfers
-control between the main agent, mechanical execution, sessions, or other
-execution mechanisms.
+rest of the procedure merely because of how generic execution continuity is
+realized by proto-runtime.
 
-The effective procedure MUST remain explicitly identifiable as a composition of
-independently understandable procedural responsibilities rather than emerging
-implicitly from distributed orchestration plumbing.
+The effective business procedure MUST remain explicitly identifiable as a
+composition of independently understandable procedural responsibilities rather
+than emerging implicitly from distributed orchestration plumbing or generic
+runtime mechanics.
 
 The following consequences are normative:
 
@@ -884,19 +829,20 @@ The following consequences are normative:
 * this requirement does not require `proto-go` to become a general-purpose
   workflow runtime or to reproduce Turnlock capabilities.
 
-Explicit identifiability concerns how the effective procedure is defined and
-composed, not what the main agent must load before progression begins. The
-incremental instruction-loading semantics established in section 0.11 remain
-normative.
+Explicit identifiability concerns how proto-go's business procedure is defined
+and composed, not how proto-runtime realizes its execution mechanics. Generic
+execution plumbing supplied by proto-runtime MUST NOT implicitly define the
+proto-go workflow.
 
 This Product Intent does not yet define:
 
-* where the effective `proto-go` procedure is defined;
+* where the effective proto-go business procedure is defined;
 * what its independently understandable procedural responsibilities are;
 * which dependencies between them are semantically necessary;
 * which dependencies exist only because of current orchestration plumbing;
 * what minimum explicit composition model is required to make local procedural
   changes local;
+* how proto-go's workflow requests execution forms from proto-runtime;
 * whether the procedure is represented as stages, nodes, transitions,
   obligations, rules, capabilities, or another abstraction.
 
@@ -1001,6 +947,16 @@ outcome and satisfaction of all applicable proto-go-owned closure obligations.
 A logical `proto-go` operation is not defined by the lifetime of one chat session,
 agent process, operating-system process, or future execution-engine run.
 
+## proto-go workflow
+
+The implementation-to-publication workflow owned by proto-go. It owns proto-go's
+business state, authority, obligations, semantically legal progression, requested
+execution, interpretation of returned execution truth, and semantic completion.
+
+Its execution is provided by proto-runtime. Its concrete representation
+(stages, rules, obligations, nodes, state machine, DSL, functions, or another
+abstraction) is not defined.
+
 ## ManagedContribution
 
 The single logical implementation contribution owned by one logical `proto-go`
@@ -1021,7 +977,7 @@ The proto-go-created temporary detached Git worktree bound to one
 `ManagedContribution` and participating repository for managed authoring.
 
 The binding belongs to the contribution and repository rather than to a
-conversational session, main-agent process, or script invocation.
+conversational session, execution occurrence, or transient execution context.
 
 Its filesystem path, naming, registry representation, cleanup implementation,
 base-commit selection algorithm, and reconstruction mechanism are not defined.
@@ -1118,31 +1074,45 @@ The exact representation and computation of this set are not yet defined.
 The specialized system responsible for the mechanical version-control
 progression assigned to it after the relevant `proto-go` handoff boundary.
 
+For routine Git versioning, the intended specialized workflow is proto-ruu.
+proto-go supplies the applicable `WorkBoundary` and Git authority and retains
+its own readiness, Repository Publication Obligation, and aggregate `PUBLISHED`
+semantics.
+
 Its concrete implementation and API are not yet selected by this specification.
+
+## proto-runtime
+
+The reusable execution substrate that provides generic workflow execution
+continuity, control transfer, execution occurrence truth, and child-workflow
+call/return for externally defined workflows.
+
+proto-runtime does not know proto-go domain concepts such as
+`ManagedContribution`, readiness, validation obligations, Repository
+Publication Obligations, `PUBLISHED`, or managed worktrees.
+
+Its API and implementation mechanisms are not proto-go Product Intent.
+
+## proto-ruu
+
+The specialized routine-Git-versioning workflow intended to be used by proto-go
+for routine Git version-control progression within the `WorkBoundary` and Git
+authority supplied by proto-go.
+
+proto-ruu does not own proto-go publication semantics. The `WorkBoundary`
+representation is not defined here.
 
 ## `/go` skill
 
-The user-facing skill invoked from a main-agent session to initiate a logical
-proto-go operation.
+The user-facing invocation surface through which a main-agent session begins or
+continues a logical proto-go operation.
 
-The skill supplies the procedure governing the main agent's active proto-go
-progression.
+The invocation begins proto-go workflow execution or continues an applicable
+existing proto-go workflow execution.
 
-The skill is not itself defined as the Product Intent authority; it must execute
-the semantics established by the normative proto-go specification.
-
-## proto-go script
-
-The mechanical script whose terminating invocation is the first mechanical
-transition after Admission of a logical proto-go operation.
-
-The main agent invokes the script, the script runs to completion, and its outputs
-return to the main agent before subsequent proto-go procedure steps continue.
-
-The script is not the end-to-end proto-go workflow orchestrator.
-
-Its pathname, implementation language, CLI, output schema, and internal
-architecture are not yet defined.
+The `/go` skill is not the Product Intent authority; it must not redefine the
+semantics established by the normative proto-go specification. Generic
+execution continuity and continuation mechanics are provided by proto-runtime.
 
 ## Invocation Preflight
 
@@ -1152,9 +1122,9 @@ During Invocation Preflight, the main agent derives the best currently
 available machine-readable invocation input from the user request,
 authoritative context, and relevant established proto-go state.
 
-Invocation Preflight may contain repeated terminating proto-go script
-invocations, Continuation Artifacts, authorized main-agent continuations, and
-user clarification.
+Invocation Preflight may require execution realized by proto-runtime, including
+mechanical execution, main-agent work, user interaction, or child-workflow
+calls, before an admission-complete Launch Contract exists.
 
 Invocation Preflight continues until an admission-complete Launch Contract can
 be established or the attempted progression does not proceed.
@@ -1177,52 +1147,19 @@ The machine-readable representation of sufficiently resolved implementation
 intent, governing authority basis, and launch premises with which one logical
 proto-go operation is admitted.
 
-The Launch Contract may be established through pre-Admission artifact-driven
-progression.
+The Launch Contract may be established through pre-Admission proto-go
+progression, including execution realized by proto-runtime.
 
 The Launch Contract is the initial authority root of the admitted logical
 proto-go operation.
 
-It is not defined as equivalent to script arguments, one concrete serialized
-document, or one persistence record.
-
-## Continuation Artifact
-
-Machine-readable result information emitted by a completed proto-go script
-invocation and consumed under `/go` continuation policy to determine the
-applicable next main-agent continuation.
-
-A Continuation Artifact carries mechanical facts or continuation conditions.
-
-It is not itself procedural authority.
-
-## Continuation Policy
-
-The `/go`-owned rules and bounded heuristics that map recognized Continuation
-Artifact facts or conditions to authorized main-agent continuation behavior.
-
-Continuation Policy remains subordinate to normative proto-go Product Intent
-and applicable governing authority.
-
-## Progression Context
-
-The machine-readable authoritative context sufficient for an actor receiving
-proto-go control to continue the relevant progression correctly without
-depending on implicit conversational memory.
-
-Progression Context represents the current authoritative progression state and
-the relevant provenance, authority, contracts, established facts, and prior
-continuation information necessary for correct subsequent progression.
-
-It does not require retention or replay of irrelevant complete history.
-
-Its concrete representation, storage, transport, persistence, reconstruction,
-snapshotting, event history, and ownership are not defined.
+It is not defined as equivalent to one concrete serialized document or one
+persistence record.
 
 # 4. Required properties and invariants
 
 The following invariants are normative consequences of the accepted Product
-Intent and ADR-001/ADR-002.
+Intent and accepted ADRs.
 
 No implementation mechanism is implied unless an invariant explicitly requires
 one.
@@ -1398,6 +1335,10 @@ ADR-006 supersedes that assertion by establishing a specific main-agent,
 `/go`-skill, and terminating-script execution model as part of proto-go Product
 Intent.
 
+ADR-017 establishes a differently identified independence requirement for the
+new execution boundary as `PROTO-GO-INV-060`; this identity remains superseded
+and is not reactivated.
+
 `PROTO-GO-INV-012` is retained only to preserve invariant identity history.
 
 It is no longer a normative requirement and its identifier MUST NOT be reused
@@ -1557,16 +1498,26 @@ The corrected requirements are represented by `PROTO-GO-INV-054` and
 It is no longer a normative requirement and its identifier MUST NOT be reused
 for a different invariant.
 
-## PROTO-GO-INV-023 — Main-agent skill orchestration
+## PROTO-GO-INV-023 — Main-agent skill orchestration — SUPERSEDED
 
-A proto-go operation MUST be initiated through the user-facing `/go` invocation
-in a main-agent session.
+**Status:** Superseded by ADR-017.
 
-The `/go` skill MUST supply the procedure governing that main agent's active
-proto-go progression.
+This invariant previously required a proto-go operation to be initiated through
+`/go` and required the `/go` skill to supply the procedure governing the main
+agent's active proto-go progression.
 
-The main agent executes the procedure subject to the normative proto-go Product
-Intent; it does not acquire authority to invent missing product semantics.
+ADR-017 assigns generic execution continuity and control transfer to
+proto-runtime. `/go` remains the user-facing invocation, and the main agent
+performs authored work when the proto-go workflow requests it, but the
+main-agent-skill orchestration model is no longer proto-go Product Intent.
+
+The invocation and workflow/runtime boundary is represented by
+`PROTO-GO-INV-040`, `PROTO-GO-INV-059`, and `PROTO-GO-INV-061`.
+
+`PROTO-GO-INV-023` is retained only to preserve invariant identity history.
+
+It is no longer a normative requirement and its identifier MUST NOT be reused
+for a different invariant.
 
 ## PROTO-GO-INV-024 — First procedural step is a terminating proto-go-script invocation — SUPERSEDED
 
@@ -1578,26 +1529,30 @@ the first procedural step after `/go` invocation.
 ADR-008 supersedes that ordering by establishing Invocation Preflight and
 Admission before the first mechanical proto-go script transition.
 
-The terminating-script requirement itself remains part of the current Product
-Intent and is represented by the later normative invariants introduced by
-ADR-008 together with `PROTO-GO-INV-025`.
+The terminating-script model was later removed from proto-go Product Intent by
+ADR-017. This identity remains historical and MUST NOT be reused.
 
 `PROTO-GO-INV-024` is retained only to preserve invariant identity history.
 
 It is no longer a normative requirement and its identifier MUST NOT be reused
 for a different invariant.
 
-## PROTO-GO-INV-025 — Active script execution cannot contain a suspended main-agent continuation
+## PROTO-GO-INV-025 — Active script execution cannot contain a suspended main-agent continuation — SUPERSEDED
 
-An active proto-go script invocation MUST NOT require suspension into a
-main-agent authored continuation followed by resumption of that same script
-execution.
+**Status:** Superseded by ADR-017.
 
-The proto-go script MUST NOT own end-to-end proto-go orchestration.
+This invariant previously prohibited an active proto-go script invocation from
+suspending into a main-agent continuation and later resuming the same script
+execution, and prohibited the script from owning end-to-end orchestration.
 
-Main-agent authored work required by proto-go MUST occur while the main agent
-holds procedural control under the `/go` skill, outside an active proto-go
-script invocation.
+The suspended-execution prohibition was a constraint on a specific execution
+mechanism. ADR-017 removes that mechanism from proto-go Product Intent and
+assigns generic control transfer and execution continuity to proto-runtime.
+
+`PROTO-GO-INV-025` is retained only to preserve invariant identity history.
+
+It is no longer a normative requirement and its identifier MUST NOT be reused
+for a different invariant.
 
 ## PROTO-GO-INV-026 — Authored resumption retires prior readiness publication authority
 
@@ -1683,12 +1638,18 @@ main-agent continuations.
 
 The corrected requirement is represented by `PROTO-GO-INV-039`.
 
+ADR-017 later superseded the script/artifact mechanism through which that
+pre-Admission progression was realized; the business requirement that Admission
+needs an admission-complete Launch Contract remains in `PROTO-GO-INV-039`.
+
 `PROTO-GO-INV-030` is retained only to preserve invariant identity history.
 
 It is no longer a normative requirement and its identifier MUST NOT be reused
 for a different invariant.
 
 ## PROTO-GO-INV-031 — The Launch Contract is the initial authority root
+
+**Status:** Amended by ADR-017; the semantic property is unchanged.
 
 The admitted Launch Contract MUST form the initial authority root of the logical
 proto-go operation.
@@ -1700,8 +1661,8 @@ the operation MUST derive from:
 - authoritative facts resolved under that authority; or
 - explicit additional authority obtained through an authorized continuation.
 
-The main agent, proto-go script, and downstream mechanical systems MUST NOT
-invent missing semantic authority merely because progression requires it.
+The main agent, the execution substrate, and downstream mechanical systems MUST
+NOT invent missing semantic authority merely because progression requires it.
 
 This invariant does not define how later authority additions or amendments are
 represented.
@@ -1719,10 +1680,11 @@ prohibition on pre-Admission script execution.
 
 Missing Admission information or authority still prevents Admission.
 
-It does not by itself prevent a terminating proto-go script invocation during
-Invocation Preflight.
+It does not by itself prevent pre-Admission execution during Invocation
+Preflight. ADR-017 later removed the script-specific mechanism; the preserved
+business fact is represented by `PROTO-GO-INV-062`.
 
-The corrected semantics are represented by `PROTO-GO-INV-038` and
+The corrected semantics are represented by `PROTO-GO-INV-062` and
 `PROTO-GO-INV-039`.
 
 `PROTO-GO-INV-032` is retained only to preserve invariant identity history.
@@ -1730,139 +1692,142 @@ The corrected semantics are represented by `PROTO-GO-INV-038` and
 It is no longer a normative requirement and its identifier MUST NOT be reused
 for a different invariant.
 
-## PROTO-GO-INV-033 — First mechanical transition after admission is a fresh terminating script invocation
+## PROTO-GO-INV-033 — First mechanical transition after admission is a fresh terminating script invocation — SUPERSEDED
 
-After Admission of a logical proto-go operation, its first mechanical transition
-MUST be a fresh invocation of the proto-go script.
+**Status:** Superseded by ADR-017.
 
-That invocation MUST consume machine-readable invocation input derived from the
-admitted Launch Contract and applicable authoritative operation state.
+This invariant previously required the first mechanical transition after
+Admission to be a fresh terminating invocation of the proto-go script.
 
-The invocation MUST terminate before any main-agent continuation based on its
-results occurs.
+ADR-017 removes the proto-go script and terminating-invocation control model
+from proto-go Product Intent. Post-Admission progression is realized by
+proto-runtime under the execution forms requested by the proto-go workflow.
 
-This invariant does not define the script pathname, language, CLI, invocation
-input schema, transport, or internal implementation.
+`PROTO-GO-INV-033` is retained only to preserve invariant identity history.
 
-## PROTO-GO-INV-034 — Completed script invocation emits machine-readable continuation artifacts
+It is no longer a normative requirement and its identifier MUST NOT be reused
+for a different invariant.
 
-Each completed proto-go script invocation MUST emit machine-readable result
-artifact information sufficient for the `/go` procedure to classify the
-mechanical result and determine the applicable continuation rule.
+## PROTO-GO-INV-034 — Completed script invocation emits machine-readable continuation artifacts — SUPERSEDED
 
-Such result artifact information is canonicalized as one or more Continuation
-Artifacts.
+**Status:** Superseded by ADR-017.
 
-This invariant does not define their number, serialization, schema, enum values,
-storage, filenames, or transport.
+This invariant previously required each completed proto-go script invocation to
+emit machine-readable Continuation Artifact information.
 
-## PROTO-GO-INV-035 — Continuation artifacts do not hold procedural authority
+Continuation Artifacts are generic execution-continuity machinery. ADR-017
+assigns that responsibility to proto-runtime.
 
-A Continuation Artifact MUST NOT itself acquire authority to command arbitrary
-main-agent behavior.
+`PROTO-GO-INV-034` is retained only to preserve invariant identity history.
 
-The `/go` skill MUST define the Continuation Policy that interprets recognized
-Continuation Artifact facts or conditions and determines the permitted or
-required main-agent continuation.
+It is no longer a normative requirement and its identifier MUST NOT be reused
+for a different invariant.
 
-The main agent MUST execute continuation under that `/go` policy and applicable
-governing authority rather than treating script output as independent
-procedural authority.
+## PROTO-GO-INV-035 — Continuation artifacts do not hold procedural authority — SUPERSEDED
 
-Continuation Policy MAY contain predefined heuristics, but those heuristics
-MUST NOT authorize invention of missing product semantics or missing authority.
+**Status:** Superseded by ADR-017.
 
-## PROTO-GO-INV-036 — Main-agent continuation occurs only after script termination
+This invariant previously governed the relationship between Continuation
+Artifacts, Continuation Policy, and main-agent procedural authority.
 
-Any main-agent continuation caused by the results of a proto-go script
-invocation MUST occur only after that invocation has terminated.
+Those concepts are no longer proto-go-owned execution machinery.
+`PROTO-GO-INV-061` now establishes that proto-go owns its workflow progression
+decisions and that generic execution truth does not determine proto-go
+semantics.
 
-Such continuation MAY include authored work, context resolution, user
-interaction, authority acquisition, or construction of machine-readable input
-for later mechanical progression when permitted by the governing `/go`
-Continuation Policy.
+`PROTO-GO-INV-035` is retained only to preserve invariant identity history.
 
-No such continuation MAY be modeled as suspension into the main agent followed
-by resumption of the same script invocation.
+It is no longer a normative requirement and its identifier MUST NOT be reused
+for a different invariant.
 
-This invariant preserves and generalizes the terminating boundary already
-required by `PROTO-GO-INV-025`.
+## PROTO-GO-INV-036 — Main-agent continuation occurs only after script termination — SUPERSEDED
 
-## PROTO-GO-INV-037 — Mechanical re-entry uses a fresh script invocation
+**Status:** Superseded by ADR-017.
 
-After an authorized main-agent continuation, proto-go MAY perform another
-mechanical transition by invoking the proto-go script again with newly derived
-machine-readable invocation input.
+This invariant previously required any main-agent continuation caused by script
+results to occur only after that invocation terminated, and prohibited modeling
+continuation as suspension into the main agent followed by resumption of the
+same script invocation.
 
-Every such invocation MUST be a fresh invocation.
+Those requirements constrained the removed proto-go script mechanism. Generic
+control-transfer ordering and continuation are provided by proto-runtime.
 
-A later invocation MUST NOT be treated as resumption of an earlier terminated
-invocation.
+`PROTO-GO-INV-036` is retained only to preserve invariant identity history.
 
-A single logical proto-go operation MAY therefore contain multiple terminating
-proto-go script invocations separated by authorized main-agent continuations.
+It is no longer a normative requirement and its identifier MUST NOT be reused
+for a different invariant.
 
-This invariant does not define workflow persistence, process supervision, or
-recovery mechanics.
+## PROTO-GO-INV-037 — Mechanical re-entry uses a fresh script invocation — SUPERSEDED
 
-## PROTO-GO-INV-038 — Pre-admission progression may invoke the proto-go script
+**Status:** Superseded by ADR-017.
 
-During Invocation Preflight, the main agent MUST derive the best currently
-available machine-readable invocation input from the user request, sufficiently
-authoritative available context, and relevant already-established proto-go
-state.
+This invariant previously required mechanical re-entry to use a fresh script
+invocation and prohibited treating a later invocation as resumption of an
+earlier terminated invocation.
 
-Invocation Preflight MAY invoke the proto-go script before Admission and before
-an admission-complete Launch Contract exists.
+Fresh script re-entry was a constraint of the removed proto-go execution
+mechanism. Execution re-entry and continuation are provided by proto-runtime.
 
-Each such pre-Admission script invocation MUST remain terminating and MUST
-return Continuation Artifact information before any resulting main-agent
-continuation occurs.
+`PROTO-GO-INV-037` is retained only to preserve invariant identity history.
 
-Missing Admission information or authority MUST prevent Admission, but MUST NOT
-by itself prohibit a pre-Admission proto-go script invocation.
+It is no longer a normative requirement and its identifier MUST NOT be reused
+for a different invariant.
 
-This invariant does not define the invocation-input schema, correlation
-mechanism, persistence mechanism, or pre-Admission state representation.
+## PROTO-GO-INV-038 — Pre-admission progression may invoke the proto-go script — SUPERSEDED
+
+**Status:** Superseded by ADR-017.
+
+This invariant previously permitted the proto-go script to be invoked during
+Invocation Preflight before an admission-complete Launch Contract existed, and
+required each such invocation to remain terminating and return Continuation
+Artifact information.
+
+The script-specific form is superseded. The preserved business fact — that
+pre-Admission proto-go progression may use execution before Launch Contract
+completeness — is represented by `PROTO-GO-INV-062`.
+
+`PROTO-GO-INV-038` is retained only to preserve invariant identity history.
+
+It is no longer a normative requirement and its identifier MUST NOT be reused
+for a different invariant.
 
 ## PROTO-GO-INV-039 — Admission requires a Launch Contract established through authoritative progression
+
+**Status:** Amended by ADR-017; the semantic property is unchanged.
 
 A logical proto-go operation MUST NOT be admitted until an admission-complete
 machine-readable Launch Contract has been established.
 
-The Launch Contract MAY be established through repeated pre-Admission
-progression consisting of terminating proto-go script invocations,
-Continuation Artifacts, authorized main-agent continuations, authoritative
+The Launch Contract MAY be established through repeated pre-Admission proto-go
+progression, including execution realized by proto-runtime, authoritative
 context resolution, and user clarification where required.
 
 The Launch Contract MUST represent sufficiently resolved implementation intent,
 governing authority basis, and launch premises for Admission.
 
-Neither the main agent nor the proto-go script MAY invent missing semantic
+Neither the main agent nor the execution substrate MAY invent missing semantic
 authority in order to make the Launch Contract complete.
 
 This invariant does not define which component stores the Launch Contract, its
 schema, serialization, persistence representation, or versioning model.
 
-## PROTO-GO-INV-040 — `/go` re-entry continues an outstanding authorized progression
+## PROTO-GO-INV-040 — `/go` re-entry continues an existing proto-go objective
 
-When `/go` is invoked in response to an outstanding authorized proto-go
-continuation, that invocation MUST continue the relevant existing progression
-rather than create a distinct logical proto-go objective merely because `/go`
-was invoked again.
+**Status:** Amended by ADR-017; the semantic property is unchanged.
 
-Before Admission, such re-entry continues the relevant pre-Admission
-progression without retroactively creating a ManagedContribution.
+A `/go` invocation that continues an existing proto-go objective MUST continue
+the relevant existing progression rather than create a distinct logical
+proto-go objective merely because `/go` was invoked again.
 
-After Admission, such re-entry MUST preserve the same logical proto-go operation
-and ManagedContribution.
+Before Admission, such continuation proceeds within the relevant pre-Admission
+progression without retroactively creating a `ManagedContribution`.
 
-Every resulting proto-go script execution remains a fresh terminating
-invocation.
+After Admission, it MUST preserve the same logical proto-go operation and
+`ManagedContribution`.
 
 This invariant does not define how the relevant progression is identified,
-correlated, rediscovered, persisted, transported across sessions, or selected
-when multiple progressions exist.
+correlated, rediscovered, persisted, or transported; those are provided by
+proto-runtime.
 
 ## PROTO-GO-INV-041 — Artifact-driven progression spans the objective through publication — SUPERSEDED
 
@@ -1878,39 +1843,29 @@ successful completion is reached only after publication and all applicable
 closure obligations have been satisfied.
 
 The corrected continuation semantics are represented by
-`PROTO-GO-INV-052`.
+`PROTO-GO-INV-064`.
 
 `PROTO-GO-INV-041` is retained only to preserve invariant identity history.
 
 It is no longer a normative requirement and its identifier MUST NOT be reused
 for a different invariant.
 
-## PROTO-GO-INV-042 — Control transfer requires sufficient authoritative Progression Context
+## PROTO-GO-INV-042 — Control transfer requires sufficient authoritative Progression Context — SUPERSEDED
 
-Every transfer of active proto-go control between the main agent and a
-proto-go script invocation MUST provide or make resolvable sufficient
-machine-readable authoritative Progression Context for the receiving actor to
-continue the relevant progression correctly.
+**Status:** Superseded by ADR-017.
 
-For a proto-go script invocation, the available Progression Context together
-with current machine-readable invocation input MUST be sufficient to establish
-the relevant current progression state and determine the mechanical transitions
-currently permitted.
+This invariant previously required sufficient machine-readable authoritative
+Progression Context at every main-agent/script control transfer.
 
-For a main-agent continuation, the available Progression Context together with
-the resulting Continuation Artifact MUST be sufficient to establish the
-relevant prior state, the mechanical progression just performed, the
-authoritative facts established, and the continuation condition now applicable.
+Progression Context is generic execution-continuity state. ADR-017 assigns
+explicit execution continuity and control-transfer context to proto-runtime.
+Proto-go retains ownership of its own business state and authority through
+`PROTO-GO-INV-061`.
 
-Correct proto-go progression MUST NOT depend on implicit conversational memory
-of the main agent, the originating session, or a prior script process.
+`PROTO-GO-INV-042` is retained only to preserve invariant identity history.
 
-This requirement does not require retention or replay of irrelevant complete
-history.
-
-This invariant does not select a snapshot representation, event log, artifact
-chain, database, persistence mechanism, workflow engine, context reconstruction
-algorithm, or transport mechanism.
+It is no longer a normative requirement and its identifier MUST NOT be reused
+for a different invariant.
 
 ## PROTO-GO-INV-043 — Managed authoring uses dedicated proto-go-created Git worktrees
 
@@ -1948,49 +1903,56 @@ branches, commits, or another version-control mechanism.
 
 ## PROTO-GO-INV-045 — Managed worktree bindings follow the contribution lifecycle, not the session
 
+**Status:** Amended by ADR-017; the semantic property is unchanged.
+
 The authoritative managed-worktree binding belongs to the relevant
 `ManagedContribution` and participating repository rather than to a
-conversational session, main-agent process, or script invocation.
+conversational session, execution occurrence, or transient execution context.
 
 Session replacement MUST NOT by itself create another managed authoring
 worktree for the same `ManagedContribution` and repository.
 
-The managed worktree MUST remain available as required across script
-termination, session replacement, `READY FOR HANDOFF`, publication attempts,
-readiness fencing, authored correction, revalidation, and later readiness
-occurrences.
+The managed worktree MUST remain available as required across execution-
+occurrence termination, session replacement, `READY FOR HANDOFF`, publication
+attempts, readiness fencing, authored correction, revalidation, and later
+readiness occurrences.
 
 After `PUBLISHED` is established and the worktree is no longer required for
 authored progression, proto-go MUST attempt its normal automatic retirement and
 removal as a proto-go-owned closure obligation.
 
-Failure of that cleanup MUST NOT invalidate `PUBLISHED` and MUST be surfaced
-through the artifact-driven continuation semantics rather than silently ignored.
+Failure of that cleanup MUST NOT invalidate `PUBLISHED` and MUST be surfaced as
+an actionable proto-go condition rather than silently ignored.
 
 No incidental event such as session loss, process loss, elapsed time, `READY`,
-or script termination MAY by itself authorize destruction of the worktree.
+or execution-occurrence termination MAY by itself authorize destruction of the
+worktree.
 
 This invariant does not define abandonment or garbage-collection semantics.
 
-## PROTO-GO-INV-046 — Invocation and continuation are session-agnostic
+## PROTO-GO-INV-046 — Invocation and continuation are session-agnostic — SUPERSEDED
 
-A `/go` invocation MAY originate from any eligible main-agent session.
+**Status:** Superseded by ADR-017.
 
-A proto-go progression MUST NOT depend on continued existence of the session
-that initiated or previously advanced it.
+This invariant previously required proto-go invocation and continuation to be
+session-agnostic, including continuation from a later eligible main-agent
+session without creating a new objective, `ManagedContribution`, or authoring
+worktree, while preserving authoritative Progression Context.
 
-A later eligible main-agent session MAY continue the same relevant
-pre-Admission progression or, after Admission, the same logical proto-go
-operation and `ManagedContribution`.
+Generic session-transfer and continuation mechanics belong to proto-runtime.
+The preserved proto-go business consequences remain normative through
+`PROTO-GO-INV-011`, `PROTO-GO-INV-040`, and `PROTO-GO-INV-045`.
 
-Such session transfer MUST preserve authoritative Progression Context and
-managed authoring bindings and MUST NOT by itself create a new logical
-objective, `ManagedContribution`, or authoring worktree.
+`PROTO-GO-INV-046` is retained only to preserve invariant identity history.
+
+It is no longer a normative requirement and its identifier MUST NOT be reused
+for a different invariant.
 
 ## PROTO-GO-INV-047 — Distinct proto-go progressions may advance concurrently
 
-Distinct proto-go progressions MUST be capable of advancing concurrently from
-different eligible main-agent sessions.
+**Status:** Amended by ADR-017; the semantic property is unchanged.
+
+Distinct proto-go progressions MUST be capable of advancing concurrently.
 
 proto-go MUST NOT require global serialization of otherwise-independent `/go`
 progressions merely because they affect the same repository or because another
@@ -1999,56 +1961,57 @@ progression is active.
 This invariant does not guarantee conflict-free later integration or
 publication.
 
-## PROTO-GO-INV-048 — One progression has at most one independent active main-agent controller
+## PROTO-GO-INV-048 — One progression has at most one independent active main-agent controller — SUPERSEDED
 
-At any given time, one proto-go progression MUST NOT be independently advanced
-by more than one active main-agent procedural controller.
+**Status:** Superseded by ADR-017.
 
-Sequential transfer of control between sessions is permitted.
+This invariant previously required at most one independent active main-agent
+procedural controller per proto-go progression.
 
-This invariant does not prohibit one authoritative controller from causing
-parallel mechanical, validation, analysis, or other activities when otherwise
-permitted.
+Control ownership and prevention of contradictory independent progression are
+generic runtime concerns. ADR-017 assigns control ownership and session
+coordination to proto-runtime.
 
-This invariant does not select the mechanism that enforces single-controller
-authority.
+`PROTO-GO-INV-048` is retained only to preserve invariant identity history.
 
-## PROTO-GO-INV-049 — `/go` procedural instructions are resolved incrementally
+It is no longer a normative requirement and its identifier MUST NOT be reused
+for a different invariant.
 
-A `/go` invocation MUST NOT require the main agent to load the complete
-proto-go procedural instruction corpus before progression begins.
+## PROTO-GO-INV-049 — `/go` procedural instructions are resolved incrementally — SUPERSEDED
 
-The main agent MUST be able to begin from a bounded bootstrap instruction set
-and resolve/load additional authoritative procedural instructions only as they
-become applicable to the current progression state or authorized continuation.
+**Status:** Superseded by ADR-017.
 
-Procedural instruction material not applicable to the current continuation MUST
-NOT be required merely because it may become relevant later.
+This invariant previously required `/go` procedural instructions to be resolved
+incrementally from a bounded bootstrap rather than requiring the complete
+instruction corpus upfront.
 
-Incremental instruction loading MUST NOT transfer procedural authority to the
-proto-go script or Continuation Artifacts.
+That requirement existed to support the removed main-agent-skill orchestration
+model. Instruction loading and execution continuity belong to proto-runtime and
+the surrounding harness, and no independent proto-go domain requirement
+depends on them.
 
-The `/go` skill and its Continuation Policy remain the procedural authority.
+`PROTO-GO-INV-049` is retained only to preserve invariant identity history.
 
-## PROTO-GO-INV-050 — Actionable mechanical conditions preserve the objective through main-agent continuation
+It is no longer a normative requirement and its identifier MUST NOT be reused
+for a different invariant.
 
-When a terminating proto-go script invocation establishes a mechanical problem,
-unsatisfied proto-go-owned obligation, or other continuation condition that
-prevents normal completion, it MUST return sufficient machine-readable
-Continuation Artifact information for the receiving main agent to understand
-the condition under the available Progression Context.
+## PROTO-GO-INV-050 — Actionable mechanical conditions preserve the objective through main-agent continuation — SUPERSEDED
 
-If an authorized main-agent continuation exists that can make further progress
-toward resolving the condition, the same proto-go objective MUST remain in
-force.
+**Status:** Superseded by ADR-017.
 
-The originating script invocation MUST terminate before that main-agent
-continuation occurs.
+This invariant previously required an actionable mechanical condition detected
+by a terminating script invocation to preserve the same proto-go objective
+through an authorized main-agent continuation, and constrained the script
+termination and retry mechanics.
 
-Any later mechanical retry MUST use a fresh script invocation.
+The identity is mechanism-shaped. The preserved semantic core — that actionable
+conditions preserve the same proto-go objective while authorized progress
+remains possible — is represented by `PROTO-GO-INV-063`.
 
-This invariant does not require every condition to be mechanically or
-authorially resolvable and does not define a complete blocked-state taxonomy.
+`PROTO-GO-INV-050` is retained only to preserve invariant identity history.
+
+It is no longer a normative requirement and its identifier MUST NOT be reused
+for a different invariant.
 
 ## PROTO-GO-INV-051 — Publication is necessary but not sufficient for normal successful completion
 
@@ -2069,26 +2032,24 @@ by itself sufficient when such obligations remain.
 
 This invariant supersedes `PROTO-GO-INV-008`.
 
-## PROTO-GO-INV-052 — Artifact-driven progression continues through proto-go-owned closure obligations
+## PROTO-GO-INV-052 — Artifact-driven progression continues through proto-go-owned closure obligations — SUPERSEDED
 
-The `/go` artifact-driven progression MUST remain capable of continuing after
-the governing publication outcome when proto-go-owned closure obligations
-remain.
+**Status:** Superseded by ADR-017.
 
-Such continuation MUST use the same Progression Context, Continuation Artifact,
-terminating-script, Continuation Policy, and fresh-reentry semantics applicable
-elsewhere in proto-go.
+This invariant previously required the `/go` artifact-driven progression to
+continue through proto-go-owned closure obligations using Progression Context,
+Continuation Artifact, terminating-script, Continuation Policy, and
+fresh-reentry semantics.
 
-`PUBLISHED` MUST NOT be reverted merely because a later closure operation fails.
+The identity is mechanism-shaped. The preserved semantic core — that proto-go
+progression continues through closure obligations without reverting `PUBLISHED`
+and reaches normal successful completion only when publication and all
+applicable obligations are satisfied — is represented by `PROTO-GO-INV-064`.
 
-The progression reaches normal successful completion only after `PUBLISHED` has
-been established and all applicable proto-go-owned closure obligations have
-been satisfied.
+`PROTO-GO-INV-052` is retained only to preserve invariant identity history.
 
-This invariant does not define a canonical `CLOSING`, `COMPLETE`, or other
-lifecycle state representation.
-
-This invariant supersedes `PROTO-GO-INV-041`.
+It is no longer a normative requirement and its identifier MUST NOT be reused
+for a different invariant.
 
 ## PROTO-GO-INV-053 — One readiness occurrence defines aggregate repository publication obligations
 
@@ -2183,15 +2144,112 @@ This invariant does not prohibit an implementation from opportunistically
 cancelling an in-flight operation when otherwise safe; cancellation is simply
 not a Product Intent prerequisite for authored resumption.
 
+## PROTO-GO-INV-059 — Proto-go workflow execution is provided by proto-runtime
+
+Proto-go is the implementation-to-publication workflow that owns its domain
+semantics and progression decisions.
+
+Generic execution continuity and control-transfer mechanics required to execute
+that workflow — including mechanical execution, main-agent continuation, and
+child-workflow execution and structured return — are provided by proto-runtime.
+
+Proto-go MUST NOT independently own generic workflow-execution mechanisms as
+part of its Product Intent merely because earlier proto-go generations emulated
+them.
+
+This invariant does not select a runtime API, workflow language, persistence
+model, execution-status vocabulary, or process topology.
+
+## PROTO-GO-INV-060 — Proto-go business semantics are independent of the execution substrate
+
+Proto-go's Product Intent and business semantics MUST NOT depend on the concrete
+generic execution mechanisms used to execute proto-go's workflow.
+
+Changing or replacing the execution substrate provided by proto-runtime MUST NOT
+by itself redefine proto-go domain meaning, canonical terminology, lifecycle
+facts, or domain obligations.
+
+The historical `PROTO-GO-INV-012` identity remains superseded and is not reused
+for this requirement.
+
+This invariant does not select a runtime API, protocol, representation, or
+process topology.
+
+## PROTO-GO-INV-061 — Proto-go owns its workflow progression decisions
+
+Proto-go MUST own the interpretation of its own business state, the authority
+available to it, the business obligations that remain, which progression is
+semantically legal, which execution it requests next, how returned execution
+truth affects proto-go business state, and when proto-go is semantically
+complete.
+
+Execution truth or execution outcomes provided by proto-runtime MUST NOT by
+themselves establish or negate proto-go domain transitions such as validation
+completion, readiness, publication-obligation satisfaction, `PUBLISHED`, or
+normal successful completion.
+
+## PROTO-GO-INV-062 — Pre-admission progression may use execution before Launch Contract completeness
+
+During Invocation Preflight, proto-go's business progression may require
+execution before an admission-complete Launch Contract exists.
+
+Missing Admission information or authority MUST prevent Admission, but MUST NOT
+by itself prohibit proto-go's pre-Admission progression.
+
+This invariant does not define the execution mechanisms, channels, or
+representations used for that progression.
+
+## PROTO-GO-INV-063 — Actionable conditions preserve the same proto-go objective
+
+When proto-go establishes a business or mechanical condition that prevents
+normal completion, and authorized progress toward the same implementation
+objective remains possible, the same proto-go objective MUST remain in force.
+
+Resolving the condition MUST NOT create a new implementation request, logical
+proto-go operation, or `ManagedContribution`.
+
+This invariant does not define the execution form by which the required work is
+performed.
+
+## PROTO-GO-INV-064 — Progression continues through proto-go-owned closure obligations
+
+Proto-go's business progression MUST remain capable of continuing after the
+governing publication outcome when proto-go-owned closure obligations remain.
+
+`PUBLISHED` MUST NOT be reverted merely because a later closure operation fails.
+
+Normal successful completion is reached only after `PUBLISHED` has been
+established and all applicable proto-go-owned closure obligations have been
+satisfied.
+
+This invariant does not define a lifecycle-state representation or execution
+mechanism.
+
+## PROTO-GO-INV-065 — Publication semantics remain proto-go-owned when routine Git progression is delegated to proto-ruu
+
+Proto-go MUST retain ownership of `ManagedContribution` readiness, Repository
+Publication Obligations, aggregate `PUBLISHED` semantics, and publication as
+necessary for normal successful completion.
+
+When proto-go requires specialized routine Git versioning progression, it MUST
+supply the applicable `WorkBoundary` and Git authority to proto-ruu, invoked as
+a child workflow through proto-runtime.
+
+Proto-go MUST NOT absorb proto-ruu's internal Git semantics, and proto-ruu MUST
+NOT own or redefine proto-go publication semantics.
+
+This invariant does not define `WorkBoundary` representation, delegation
+granularity, child-call syntax, or result shape.
+
 # 5. Lifecycle semantics
 
-The artifact-driven proto-go progression begins before Admission and continues
-through the governing publication outcome:
+The proto-go workflow progression begins before Admission and continues through
+the governing publication outcome:
 
 ```text
-/go
+/go invocation
         ↓
-pre-Admission artifact-driven progression
+pre-Admission proto-go workflow progression
         ↺
 admission-complete Launch Contract
         ↓
@@ -2199,13 +2257,13 @@ Admission
         ↓
 ManagedContribution
         ↓
-artifact-driven progression
+managed authoring / validation / business progression
         ↺
 READY
         ↓
-artifact-driven progression continues
+version-control progression through proto-ruu as applicable
         ↺
-possible correction / new READY
+possible correction / revalidation / later READY
         ↺
 PUBLISHED
         ↓
@@ -2215,11 +2273,8 @@ applicable proto-go-owned closure obligations
 normal successful completion
 ```
 
-`READY FOR HANDOFF` is not normal termination of the artifact-driven
+`READY FOR HANDOFF` is not normal termination of the proto-go workflow
 progression.
-
-Each script invocation remains terminating, and each main-agent continuation
-occurs only after the corresponding script invocation has terminated.
 
 The currently established lifecycle ordering is limited to:
 
@@ -2232,7 +2287,7 @@ required implementation / validation obligations satisfied
         ↓
 READY FOR HANDOFF durably established
         ↓
-downstream version-control progression
+version-control progression through proto-ruu as applicable
         ↓
 governing publication outcome
         ↓
@@ -2414,8 +2469,8 @@ The worktree belongs to:
 ManagedContribution × participating repository
 ```
 
-It does not belong to a conversational session, main-agent process, script
-invocation, or transient controller.
+It does not belong to a conversational session, a transient execution
+occurrence, or a generic runtime controller.
 
 The managed authoring worktree is created from a determinate Git commit and
 uses detached HEAD while it serves as proto-go's managed authoring surface.
@@ -2433,9 +2488,10 @@ A repository dynamically added to an existing `ManagedContribution` receives
 its own managed worktree before the first managed authored mutation in that
 repository.
 
-The worktree binding follows the contribution and repository rather than the
-session. Session replacement must not by itself create a replacement worktree
-for the same `ManagedContribution` and repository.
+The worktree binding follows the contribution and repository rather than a
+conversational session or execution context. Session replacement must not by
+itself create a replacement worktree for the same `ManagedContribution` and
+repository.
 
 This worktree selection strengthens the isolation requirement expressed by
 `PROTO-GO-INV-005`; it does not supersede that invariant.
@@ -2581,16 +2637,18 @@ a new applicable readiness occurrence.
 The following failure, interruption, and recovery semantics are currently
 established:
 
-* session loss does not by itself terminate a proto-go progression;
-* sequential session takeover of the same progression is permitted;
-* incidental events such as session loss, process loss, script termination,
-  elapsed time, or `READY` must not by themselves authorize destruction of a
-  managed authoring worktree;
-* an actionable problem detected by a terminating script invocation may
-  continue through an authorized main-agent continuation under the same
-  proto-go objective;
+* transient session or execution loss does not by itself terminate a proto-go
+  objective or change proto-go business truth;
+* incidental events such as session loss, process loss, execution-occurrence
+  termination, elapsed time, or `READY` must not by themselves authorize
+  destruction of a managed authoring worktree;
+* an actionable condition preserves the same proto-go objective while
+  authorized progress remains possible;
 * a post-`PUBLISHED` closure failure preserves the established `PUBLISHED` fact
-  and may continue through artifact-driven repair.
+  and may continue through proto-go progression.
+
+Generic execution recovery and session re-entry are provided by proto-runtime
+and are not selected here.
 
 Abandonment semantics and a complete recovery taxonomy are not yet defined.
 
@@ -2628,51 +2686,57 @@ bound for its repository. Independent repository-local publication outcomes do
 not by themselves establish the `ManagedContribution`'s `PUBLISHED` fact.
 
 Distinct proto-go progressions may run concurrently. That inter-progression
-concurrency is permitted and ordinary.
+concurrency is permitted and ordinary. Proto-go must not require global
+serialization of otherwise-independent proto-go progressions.
 
-Independent simultaneous main-agent control of one progression is prohibited:
-at most one independent active main-agent controller may advance a given
-progression at a time.
-
-Neither rule prohibits internal concurrency caused by one authoritative
-controller, such as parallel mechanical, validation, or analysis activities
-when otherwise permitted.
+Generic control ownership and prevention of contradictory independent
+progression belong to proto-runtime. Proto-go retains the domain requirements
+that distinct contributions preserve mutable-authoring isolation and that
+distinct progressions are not globally serialized.
 
 # 11. Harness-integration boundary
 
 proto-go is invoked within a main-agent session through the user-facing `/go`
-skill.
+surface.
 
-The `/go` skill supplies the procedure governing the main agent's active
-proto-go progression.
+`/go` begins proto-go workflow execution or continues an applicable existing
+proto-go workflow execution.
 
-`/go` procedural authority may be loaded incrementally. The main agent begins
-from a bounded bootstrap instruction set and resolves or loads additional
-authoritative procedural instructions only as they become applicable to the
-current progression state or authorized continuation.
+The main agent may perform authored work when the proto-go workflow requests a
+main-agent continuation. It is not the global workflow orchestrator.
 
-The first mechanical transition after Admission invokes the proto-go script as a
-terminating call.
+Generic execution continuity, control transfer, session re-entry, and
+instruction/execution-continuity mechanics are provided by proto-runtime and
+the surrounding harness. They are not proto-go Product Intent.
 
-After that call returns, the main agent continues the procedure using the state
-and outputs produced by the script.
-
-This product-level execution boundary does not make all surrounding harness
-policy part of proto-go.
+This product-level boundary does not make all surrounding harness policy part
+of proto-go.
 
 In particular, the surrounding harness's permission-enforcement policy about
 whether implementation is allowed outside proto-go remains external to
 proto-go Product Intent.
 
-The concrete skill-discovery, installation, harness, process, and recovery
+The concrete skill-discovery, installation, harness, process, and runtime
 mechanisms remain undecided.
 
 # 12. Version-control-system boundary
 
-Not yet derived.
+proto-go owns readiness, Repository Publication Obligations, aggregate
+`PUBLISHED` semantics, and publication as necessary for normal successful
+completion.
 
-The Product Intent requires a downstream version-control handoff boundary but
-does not yet select or normatively bind a concrete downstream implementation.
+For specialized routine Git versioning progression, proto-go supplies the
+applicable `WorkBoundary` and Git authority to proto-ruu, invoked as a child
+workflow through proto-runtime, and interprets the returned versioning outcome
+under its own publication semantics.
+
+The version-control progression remains a distinct responsibility. proto-go
+does not absorb proto-ruu's internal Git semantics, and proto-ruu does not own
+proto-go publication semantics.
+
+The exact handoff payload, API, identifier mapping, transport, `WorkBoundary`
+representation, delegation granularity, child-call syntax, result shape, and
+route-specific publication semantics remain undecided.
 
 # 13. Architectural implications
 
