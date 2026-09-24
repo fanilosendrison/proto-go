@@ -108,6 +108,15 @@ prevents the retired readiness occurrence from establishing the
 `ManagedContribution`'s `PUBLISHED` fact and from initiating new publication
 work.
 
+ADR-016 establishes that `proto-go`'s implementation-to-publication procedure
+must support local procedural evolution and remain explicitly identifiable as a
+composition of independently understandable procedural responsibilities, so
+that a procedural change whose semantic effect is local does not force
+unrelated changes across the rest of the procedure merely because of how
+control is transferred between the main agent, mechanical execution, sessions,
+or other execution mechanisms. It does not select a concrete composition
+representation.
+
 The current repository intentionally does not yet derive the complete invariant
 set or architecture from this Product Intent. Those derivations must occur
 explicitly rather than being invented during implementation.
@@ -843,6 +852,56 @@ It also does not define the script pathname, language, CLI, invocation-input
 format, Continuation Artifact schema, Progression Context representation,
 persistence mechanism, correlation mechanism, authoring-isolation mechanism,
 workflow engine, or recovery architecture.
+
+## 0.12 Local procedural evolution and explicit procedural composition
+
+`proto-go`'s implementation-to-publication procedure MUST support local
+procedural evolution.
+
+A procedural change whose semantic effect is local MUST require changes
+proportional to that semantic effect, rather than unrelated changes across the
+rest of the procedure merely because of how `proto-go` currently transfers
+control between the main agent, mechanical execution, sessions, or other
+execution mechanisms.
+
+The effective procedure MUST remain explicitly identifiable as a composition of
+independently understandable procedural responsibilities rather than emerging
+implicitly from distributed orchestration plumbing.
+
+The following consequences are normative:
+
+* execution plumbing MUST NOT itself implicitly define the procedure;
+* a procedural responsibility MUST NOT need unrelated knowledge of the complete
+  end-to-end procedure merely to participate in it;
+* adding, removing, replacing, reordering, or refining one procedural capability
+  MUST NOT require unrelated procedural components to change solely to route
+  control through that change;
+* changing how a procedural capability is executed or continued MUST NOT
+  unnecessarily redefine surrounding procedure semantics;
+* genuinely global semantic constraints MAY legitimately couple multiple
+  procedural responsibilities;
+* incidental orchestration mechanics MUST NOT create equivalent global coupling;
+* this requirement does not require `proto-go` to become a general-purpose
+  workflow runtime or to reproduce Turnlock capabilities.
+
+Explicit identifiability concerns how the effective procedure is defined and
+composed, not what the main agent must load before progression begins. The
+incremental instruction-loading semantics established in section 0.11 remain
+normative.
+
+This Product Intent does not yet define:
+
+* where the effective `proto-go` procedure is defined;
+* what its independently understandable procedural responsibilities are;
+* which dependencies between them are semantically necessary;
+* which dependencies exist only because of current orchestration plumbing;
+* what minimum explicit composition model is required to make local procedural
+  changes local;
+* whether the procedure is represented as stages, nodes, transitions,
+  obligations, rules, capabilities, or another abstraction.
+
+Those are downstream derivations forced by this Product Intent. They MUST be
+derived rather than invented during implementation.
 
 # 1. Purpose
 
