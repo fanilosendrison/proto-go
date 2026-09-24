@@ -1,7 +1,7 @@
 # proto-go ADR Index
 
 | ADR | Decision | Status |
-| --- | --- | --- |
+| --- | -------- | ------ |
 | [ADR-001](adr-001-make-publication-the-successful-terminal-outcome-of-proto-go.md) | Make publication the successful terminal outcome of `proto-go` | Accepted |
 | [ADR-002](adr-002-allow-one-managed-contribution-to-span-multiple-repositories.md) | Allow one ManagedContribution to span multiple repositories | Accepted |
 | [ADR-003](adr-003-keep-validation-policy-outside-proto-go-and-fail-closed-on-unknown-obligations.md) | Keep validation policy outside `proto-go` and fail closed on unknown obligations | Accepted |
@@ -17,6 +17,7 @@
 | [ADR-013](adr-013-continue-progression-through-actionable-problems-and-terminal-cleanup.md) | Continue progression through actionable problems and terminal cleanup | Accepted |
 | [ADR-014](adr-014-make-multi-repository-publication-an-aggregate-completion-condition.md) | Make multi-repository publication an aggregate completion condition | Accepted |
 | [ADR-015](adr-015-allow-originated-repository-publication-to-complete-after-readiness-retirement.md) | Allow originated repository publication to complete after readiness retirement | Accepted |
+| [ADR-016](adr-016-require-local-procedural-evolution-and-explicit-composition.md) | Require local procedural evolution and explicit procedural composition | Accepted |
 
 The current normative product meaning is projected in
 [`../specification/proto-go-spec.md`](../specification/proto-go-spec.md).
