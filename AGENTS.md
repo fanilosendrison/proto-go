@@ -355,6 +355,36 @@ failed.
 Do not report normal successful completion while applicable proto-go-owned
 closure obligations, including managed-worktree cleanup, remain unsatisfied.
 
+ADR-016 makes the procedure locally evolvable and explicitly composable:
+
+```text
+procedural change with local semantic effect
+→ changes proportional to that effect
+
+effective procedure
+→ explicitly identifiable composition of independently
+  understandable procedural responsibilities
+→ not emergent from distributed orchestration plumbing
+```
+
+Do not let execution plumbing implicitly define the procedure.
+
+Do not require a procedural responsibility to know the complete end-to-end
+procedure merely to participate in it.
+
+Do not require unrelated procedural components to change solely to route
+control through one procedural capability change.
+
+Do not let incidental orchestration mechanics create global coupling.
+
+Do not turn proto-go into a generic workflow engine, DSL, scheduler,
+orchestration framework, or Turnlock substitute.
+
+Do not select a procedural composition representation, step abstraction,
+workflow graph, state-machine representation, dispatcher, plugin interface,
+module boundary, Continuation Policy architecture, or script-factoring scheme
+from ADR-016; those remain future derivation work.
+
 ## Authority by responsibility
 
 1. `docs/specification/proto-go-spec.md`

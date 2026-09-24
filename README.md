@@ -152,5 +152,14 @@ readiness occurrence from establishing `PUBLISHED` and from initiating new
 publication work, but does not require cancellation or fencing of
 already-originated repository-local publication.
 
+ADR-016 requires proto-go's implementation-to-publication procedure to remain
+locally evolvable and explicitly composable: a procedural change whose semantic
+effect is local must require changes proportional to that effect rather than
+unrelated changes across the rest of the procedure caused by orchestration
+plumbing, and the effective procedure must remain explicitly identifiable as a
+composition of independently understandable procedural responsibilities. It
+does not select a concrete composition representation and does not require
+proto-go to become a general-purpose workflow runtime or a Turnlock substitute.
+
 Implementation must be derived from accepted product semantics rather than
 retroactively defining them.
