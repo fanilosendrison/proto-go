@@ -21,14 +21,24 @@ proto-go
 → manages implementation production
 → establishes required validation
 → establishes durable readiness
-→ invokes downstream version-control progression
+→ requests downstream version-control progression
 → continues authored correction / convergence when the Development System can
-  resolve a mechanical publication block
+  resolve a publication block
 → reaches successful completion only at the governing publication outcome
+
+proto-runtime
+→ provides generic execution continuity for the proto-go workflow
+
+proto-ruu
+→ owns routine Git versioning progression within the supplied WorkBoundary
 
 downstream version-control system
 → owns its specialized mechanical version-control progression
 ```
+
+proto-runtime is the reusable execution substrate intended to execute proto-go's
+workflow. proto-ruu is the specialized routine-Git-versioning workflow intended
+to be used by proto-go for version-control progression.
 
 Today, `git-commits-push` may serve as a temporary downstream mechanical
 publication mechanism.
@@ -36,11 +46,14 @@ publication mechanism.
 Ruu may later serve as a more general agentic Git convergence and
 version-control progression system.
 
-Neither relationship defines `proto-go` Product Intent.
+None of these relationships defines `proto-go` Product Intent.
 
-The current product shape intentionally places active procedural orchestration
-in the main agent under the `/go` skill. Mechanical scripts are terminating
-capabilities used by that procedure rather than resumable workflow engines.
+The current product shape separates proto-go's implementation-to-publication
+workflow semantics from generic execution. proto-go owns its domain progression
+decisions; proto-runtime provides execution continuity and control transfer,
+including mechanical execution, main-agent continuation, and child-workflow
+call/return. proto-go delegates routine Git versioning progression to proto-ruu
+within a supplied `WorkBoundary`.
 
 Future integrations must conform to `proto-go`; `proto-go` semantics must not be written
 as promises that only become true after a future integration exists.
