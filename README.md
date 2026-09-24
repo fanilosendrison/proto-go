@@ -5,14 +5,13 @@ coding-agent Development System.
 
 The user-facing invocation of proto-go is `/go`.
 
-proto-go is executed as a main-agent-orchestrated skill procedure. The `/go`
-skill governs the main agent. A `/go` invocation enters Invocation Preflight,
-which may itself contain terminating proto-go script invocations,
-Continuation Artifacts, and authorized main-agent continuations before an
-admission-complete Launch Contract exists. Admission begins the logical
-proto-go operation; its first mechanical transition is then a fresh terminating
-proto-go script invocation. Every script invocation terminates before the
-corresponding main-agent continuation occurs.
+proto-go is an implementation-to-publication workflow that owns its domain
+semantics and progression decisions. Its generic execution continuity and
+control-transfer mechanics are provided by proto-runtime. A `/go` invocation
+begins or continues a proto-go workflow execution; it may enter Invocation
+Preflight before an admission-complete Launch Contract exists, and Admission
+begins the logical proto-go operation. Routine Git versioning progression is
+delegated to proto-ruu.
 
 The repository is currently in the product-definition phase.
 
@@ -27,7 +26,7 @@ Its authoritative starting point is:
 - [`docs/repository-governance/`](docs/repository-governance/) — repository
   procedure and engineering governance.
 
-No implementation architecture, programming language, runtime, persistence
+No implementation architecture, programming language, runtime API, persistence
 mechanism, registry format, version-control adapter, or formal model is
 established merely by this repository layout.
 
@@ -52,25 +51,22 @@ The normative invariant set is recorded in
 [`docs/specification/proto-go-spec.md`](docs/specification/proto-go-spec.md).
 
 The currently admitted invariant identifiers are `PROTO-GO-INV-001` through
-`PROTO-GO-INV-058`.
+`PROTO-GO-INV-065`.
 
-`PROTO-GO-INV-008` is superseded by ADR-013.
+Superseded identities are historical only:
 
-`PROTO-GO-INV-012` is superseded by ADR-006.
-
-`PROTO-GO-INV-020` is superseded by ADR-014.
-
-`PROTO-GO-INV-021` is superseded by ADR-014.
-
-`PROTO-GO-INV-022` is superseded by ADR-014.
-
-`PROTO-GO-INV-024` is superseded by ADR-008.
-
-`PROTO-GO-INV-030` is superseded by ADR-009.
-
-`PROTO-GO-INV-032` is superseded by ADR-009.
-
-`PROTO-GO-INV-041` is superseded by ADR-013.
+```text
+ADR-013: PROTO-GO-INV-008, PROTO-GO-INV-041
+ADR-006: PROTO-GO-INV-012
+ADR-014: PROTO-GO-INV-020 through PROTO-GO-INV-022
+ADR-008: PROTO-GO-INV-024
+ADR-009: PROTO-GO-INV-030, PROTO-GO-INV-032
+ADR-017: PROTO-GO-INV-023, PROTO-GO-INV-025,
+         PROTO-GO-INV-033 through PROTO-GO-INV-038,
+         PROTO-GO-INV-042, PROTO-GO-INV-046,
+         PROTO-GO-INV-048 through PROTO-GO-INV-050,
+         PROTO-GO-INV-052
+```
 
 ADR-003 establishes that `proto-go` does not own validation policy:
 `READY FOR HANDOFF` requires every applicable governing validation obligation to
@@ -100,44 +96,42 @@ publication may complete after retirement.
 
 An admission-complete machine-readable Launch Contract must exist before a
 logical proto-go operation is admitted. Its completeness may be established
-through pre-Admission artifact-driven progression involving terminating script
-invocations and authorized main-agent continuations.
+through pre-Admission proto-go progression, which may use execution realized by
+proto-runtime.
 
-After Admission, mechanical progression occurs through terminating proto-go
-script invocations that emit machine-readable Continuation Artifacts.
+After Admission, the proto-go workflow owns continued business progression.
+proto-go may request mechanical execution, a main-agent continuation, or a
+child workflow call; proto-runtime realizes the requested execution form and
+returns execution truth.
 
-The `/go` skill owns Continuation Policy; the main agent executes authorized
-continuations and may later invoke the script again as a fresh invocation.
-
-ADR-009 extends artifact-driven progression across Admission and publication.
-Pre-Admission progression may invoke the terminating proto-go script before the
-Launch Contract is complete, and may establish that Launch Contract through
-script invocations and authorized continuations. `/go` may re-enter an
-outstanding continuation without creating a new logical objective. `READY FOR
-HANDOFF` remains intermediate; `PUBLISHED` remains required for normal
-successful completion. Every main-agent/script control transfer requires sufficient
-machine-readable authoritative Progression Context, so correctness does not
-depend on conversational memory.
+ADR-009 established state/authority-driven progression across Admission and
+publication. `READY FOR HANDOFF` remains intermediate and `PUBLISHED` remains
+required for normal successful completion. ADR-017 supersedes the
+script/artifact runtime mechanics while preserving those semantics.
 
 ADR-010 requires managed authored mutation to occur in automatically
 provisioned dedicated temporary detached Git worktrees bound to one
 `ManagedContribution` and participating repository. The invoking checkout and
 other contributions' worktrees are not managed authoring surfaces.
 
-ADR-011 makes progression session-agnostic: `/go` may originate from any
-eligible main-agent session, a progression may be continued sequentially from
-another session, distinct progressions may advance concurrently, and at most
-one independent main-agent controller may advance one progression at a time.
+ADR-011 established concurrent, session-agnostic progression. ADR-017
+preserves the user-visible domain consequences — distinct proto-go operations
+may progress concurrently and proto-go business identity is not owned by a
+conversational session — while generic controller coordination, session
+transfer, and execution re-entry are provided by proto-runtime.
 
-ADR-012 makes `/go` procedural instructions loadable incrementally from a
-bounded bootstrap; unrelated instruction material is not required upfront.
+ADR-012 required `/go` procedural instructions to be loadable incrementally
+from a bounded bootstrap. ADR-017 supersedes that requirement as proto-go
+Product Intent; instruction loading and execution continuity belong to
+proto-runtime and the surrounding harness.
 
-ADR-013 generalizes artifact-driven continuation to actionable mechanical
-problems and proto-go-owned closure obligations. `PUBLISHED` is an
-authoritative historical fact that a later cleanup failure must not revert, and
-normal successful completion requires both publication and satisfaction of all
-applicable closure obligations. Automatic managed-worktree cleanup is one such
-closure obligation.
+ADR-013 generalized continuation to actionable mechanical problems and
+proto-go-owned closure obligations. `PUBLISHED` is an authoritative historical
+fact that a later cleanup failure must not revert, and normal successful
+completion requires both publication and satisfaction of all applicable
+closure obligations. ADR-017 preserves those semantics while superseding the
+artifact/script continuation mechanism. Automatic managed-worktree cleanup is
+one such closure obligation.
 
 ADR-014 makes multi-repository publication an aggregate completion condition:
 one readiness occurrence defines a complete set of independently satisfiable
@@ -160,6 +154,16 @@ plumbing, and the effective procedure must remain explicitly identifiable as a
 composition of independently understandable procedural responsibilities. It
 does not select a concrete composition representation and does not require
 proto-go to become a general-purpose workflow runtime or a Turnlock substitute.
+
+ADR-017 delegates generic workflow execution to proto-runtime. proto-go is the
+implementation-to-publication workflow and owns domain semantics and
+progression decisions; proto-runtime provides generic execution continuity,
+control transfer, execution occurrence truth, and child-workflow call/return.
+proto-go no longer owns script, artifact, continuation-policy, or
+progression-context machinery. proto-ruu is the specialized
+routine-Git-versioning workflow used by proto-go within a supplied
+`WorkBoundary`; proto-go retains ownership of readiness, Repository Publication
+Obligations, aggregate `PUBLISHED` semantics, and normal successful completion.
 
 Implementation must be derived from accepted product semantics rather than
 retroactively defining them.
