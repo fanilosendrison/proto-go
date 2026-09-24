@@ -16,6 +16,10 @@ The repository is currently specification-first.
 Do not infer implementation architecture from the repository name, from the old
 `/go`, or from adjacent projects.
 
+proto-runtime and proto-ruu are adjacent products, not proto-go semantic
+authority. Consult them as context; do not let them redefine proto-go Product
+Intent.
+
 ## Product boundary
 
 `proto-go` is currently defined by the Product Intent in:
@@ -62,37 +66,49 @@ session, agent, process, or mutable authoring-surface identity.
 The currently admitted normative invariant identifiers are:
 
 ```text
-PROTO-GO-INV-001 through PROTO-GO-INV-058
+PROTO-GO-INV-001 through PROTO-GO-INV-065
 ```
 
-`PROTO-GO-INV-008` is superseded by ADR-013 and is no longer normative.
+Superseded invariants are historical identities and are no longer normative:
 
-`PROTO-GO-INV-012` is superseded by ADR-006 and is no longer normative.
+```text
+PROTO-GO-INV-008   superseded by ADR-013
+PROTO-GO-INV-012   superseded by ADR-006
+PROTO-GO-INV-020   superseded by ADR-014
+PROTO-GO-INV-021   superseded by ADR-014
+PROTO-GO-INV-022   superseded by ADR-014
+PROTO-GO-INV-023   superseded by ADR-017
+PROTO-GO-INV-024   superseded by ADR-008
+PROTO-GO-INV-025   superseded by ADR-017
+PROTO-GO-INV-030   superseded by ADR-009
+PROTO-GO-INV-032   superseded by ADR-009
+PROTO-GO-INV-033   superseded by ADR-017
+PROTO-GO-INV-034   superseded by ADR-017
+PROTO-GO-INV-035   superseded by ADR-017
+PROTO-GO-INV-036   superseded by ADR-017
+PROTO-GO-INV-037   superseded by ADR-017
+PROTO-GO-INV-038   superseded by ADR-017
+PROTO-GO-INV-041   superseded by ADR-013
+PROTO-GO-INV-042   superseded by ADR-017
+PROTO-GO-INV-046   superseded by ADR-017
+PROTO-GO-INV-048   superseded by ADR-017
+PROTO-GO-INV-049   superseded by ADR-017
+PROTO-GO-INV-050   superseded by ADR-017
+PROTO-GO-INV-052   superseded by ADR-017
+```
 
-`PROTO-GO-INV-020` is superseded by ADR-014 and is no longer normative.
+Amended by ADR-017 without changing their semantic property:
 
-`PROTO-GO-INV-021` is superseded by ADR-014 and is no longer normative.
+```text
+PROTO-GO-INV-031   Launch Contract authority root
+PROTO-GO-INV-039   Admission requires a Launch Contract
+PROTO-GO-INV-040   /go re-entry continues an existing proto-go objective
+PROTO-GO-INV-045   managed worktree bindings follow the contribution lifecycle
+PROTO-GO-INV-047   distinct proto-go progressions may advance concurrently
+```
 
-`PROTO-GO-INV-022` is superseded by ADR-014 and is no longer normative.
-
-`PROTO-GO-INV-024` is superseded by ADR-008 and is no longer normative.
-
-`PROTO-GO-INV-030` is superseded by ADR-009 and is no longer normative.
-
-`PROTO-GO-INV-032` is superseded by ADR-009 and is no longer normative.
-
-`PROTO-GO-INV-041` is superseded by ADR-013 and is no longer normative.
-
-`PROTO-GO-INV-025` remains normative.
-
-`PROTO-GO-INV-023` and `PROTO-GO-INV-025` remain normative execution-model
-invariants.
-
-`PROTO-GO-INV-024` is retained only as superseded invariant history under
-ADR-008.
-
-Do not create invariants beyond `PROTO-GO-INV-058` or alter the meaning, order, or
-identifiers of the admitted invariants without explicit semantic authority.
+Do not create invariants beyond `PROTO-GO-INV-065` or alter the meaning, order,
+or identifiers of the admitted invariants without explicit semantic authority.
 
 ADR-003 establishes the validation-authority boundary:
 
@@ -116,7 +132,7 @@ establishes that obligation set for the implementation occurrence.
 If the applicable governing validation-obligation set cannot be established
 with sufficient authority, do not establish `READY FOR HANDOFF`.
 
-The currently admitted invariant identifier space ends at `PROTO-GO-INV-058`.
+The currently admitted invariant identifier space ends at `PROTO-GO-INV-065`.
 
 Do not create or imply a later invariant without explicit semantic authority.
 
@@ -156,38 +172,20 @@ all obligations of effective READY satisfied
 → PUBLISHED may be established
 ```
 
-The currently admitted invariant identifier space ends at `PROTO-GO-INV-058`.
+The currently admitted invariant identifier space ends at `PROTO-GO-INV-065`.
 
 Do not create or imply a later invariant without explicit semantic authority.
 
-ADR-006 establishes the proto-go execution boundary:
+ADR-006 established the superseded proto-go execution model. ADR-017
+supersedes main-agent-skill orchestration and terminating proto-go script
+execution as proto-go Product Intent.
 
-```text
-user invokes /go in main-agent session
-        ↓
-/go skill governs main agent
-        ↓
-first mechanical transition after Admission invokes proto-go script
-        ↓
-script runs to completion
-        ↓
-script returns outputs
-        ↓
-main agent continues proto-go procedure
-```
+`/go` remains the user-facing invocation. The proto-go workflow owns domain
+semantics and progression decisions; proto-runtime provides generic execution
+continuity and control transfer.
 
-Do not model the proto-go script as the end-to-end workflow orchestrator.
-
-Do not design a script step that suspends into main-agent authored work and then
-resumes the same script invocation.
-
-`PROTO-GO-INV-012` is superseded and no longer normative.
-
-`PROTO-GO-INV-023` and `PROTO-GO-INV-025` remain normative execution-model
-invariants.
-
-`PROTO-GO-INV-024` is retained only as superseded invariant history under
-ADR-008.
+`PROTO-GO-INV-012`, `PROTO-GO-INV-023`, `PROTO-GO-INV-024`, and
+`PROTO-GO-INV-025` are historical superseded identities.
 
 ADR-007 establishes the authored-resumption publication fence, as narrowed by
 ADR-015:
@@ -221,133 +219,92 @@ Do not select a fencing implementation mechanism from this semantic rule.
 Do not invent distributed atomicity, rollback, or mandatory cancellation.
 
 The currently admitted invariant identifier space ends at
-`PROTO-GO-INV-058`.
+`PROTO-GO-INV-065`.
 
 Do not create or imply a later invariant without explicit semantic authority.
 
-ADR-008 established:
+ADR-008 established Invocation Preflight, Admission, the Launch Contract as the
+initial authority root, and fail-closed Admission.
 
-```text
-fresh terminating script invocation
-→ Continuation Artifact
-→ script termination
-→ /go Continuation Policy
-→ authorized main-agent continuation
-→ optional fresh script invocation
-```
+ADR-009 established state/authority-driven progression, pre-Admission
+progression, re-entry continuing the same objective, READY as intermediate, and
+progression through publication.
 
-ADR-009 supersedes ADR-008's pre-Admission ordering.
+ADR-017 preserves those business boundaries and supersedes the proto-go script,
+Continuation Artifact, Continuation Policy, Progression Context, fresh
+invocation, and main-agent/script control-transfer machinery.
 
-Current execution ordering is:
+Current business ordering is:
 
 ```text
 /go
 → Invocation Preflight
-→ pre-Admission artifact-driven progression
+→ pre-Admission proto-go workflow progression
 → admission-complete Launch Contract
 → Admission
-→ fresh post-Admission script invocation
-→ continued artifact-driven progression
+→ proto-go workflow progression
+→ READY (intermediate)
+→ version-control progression through proto-ruu as applicable
+→ continued progression / correction / revalidation / new READY
 → PUBLISHED
 → applicable proto-go-owned closure obligations
 → normal successful completion
 ```
 
-Do not model Continuation Artifacts as arbitrary commands from the script.
+Do not require Admission completeness before pre-Admission execution.
 
-Do not give the script procedural authority over the main agent.
+Do not depend on main-agent conversational memory for proto-go business state;
+execution continuity is provided by proto-runtime.
 
-Do not perform a main-agent continuation while the originating script
-invocation is active.
+Do not give the execution substrate authority over proto-go domain decisions.
 
-Do not model a later script invocation as resumption of an earlier invocation.
-
-Do not equate Launch Contract with one concrete serialization or script-argument
+Do not equate Launch Contract with one concrete serialization or invocation
 format.
 
 Do not invent authority missing from the Launch Contract or later authorized
 authority resolution.
 
-ADR-009 extends artifact-driven progression across Admission and publication:
-
-```text
-/go
-→ pre-Admission artifact-driven progression
-→ admission-complete Launch Contract
-→ Admission
-→ artifact-driven progression
-→ READY (intermediate)
-→ continued progression / correction / new READY
-→ PUBLISHED
-→ applicable proto-go-owned closure obligations
-→ normal successful completion
-```
-
-Do not require Admission completeness before every pre-Admission script
-invocation.
-
-Do not depend on main-agent conversational memory to determine the current
-proto-go progression.
-
-Do not depend on a prior script process surviving to recover progression state.
-
-At every control transfer, ensure sufficient authoritative Progression Context
-is available or resolvable for the receiving actor.
-
-Do not equate Progression Context with a particular file, database, event log,
-snapshot, artifact chain, or workflow-engine state.
-
-Do not create a new logical objective merely because an outstanding
-continuation is re-entered through another /go invocation.
+Do not create a new logical objective merely because an outstanding workflow
+execution is re-entered through another /go invocation.
 
 Do not treat READY FOR HANDOFF as normal proto-go completion.
 
 Do not invent a fixed universal stage pipeline.
 
-ADR-011 makes progression session-agnostic and single-controller:
+ADR-011 established concurrent, session-agnostic progression. ADR-017
+preserves the user-visible domain consequences:
 
 ```text
-/go may originate from any eligible main-agent session
-progression may transfer sequentially between sessions
-distinct progressions may advance concurrently
-one progression → at most one independent active main-agent controller
+distinct proto-go operations may coexist and progress concurrently
+proto-go business identity is not owned by a conversational session
+a session change creates no new objective, ManagedContribution, or worktree
 ```
 
-Do not require global serialization of otherwise-independent progressions.
+Do not require global serialization of otherwise-independent proto-go
+progressions.
 
-Do not allow two main-agent controllers to independently advance the same
-progression.
+Generic controller coordination, session transfer, and execution re-entry are
+provided by proto-runtime.
 
-ADR-012 makes `/go` procedural instructions loadable incrementally:
+ADR-012 required incremental /go instruction loading. ADR-017 supersedes that
+requirement as proto-go Product Intent; instruction loading and execution
+continuity belong to proto-runtime and the surrounding harness.
 
-```text
-bounded bootstrap
-→ resolve applicable procedural instructions only as needed
-```
-
-Do not require loading the complete procedural instruction corpus before
-progression begins.
-
-Do not transfer procedural authority to the proto-go script or Continuation
-Artifacts.
-
-ADR-013 generalizes actionable-condition continuation and closes terminal
-semantics:
+ADR-013 established actionable-condition continuation and terminal semantics.
+ADR-017 preserves the semantic core:
 
 ```text
-actionable problem / unsatisfied proto-go-owned obligation
-→ Continuation Artifact
-→ script terminates
-→ authorized main-agent continuation opportunity
-→ fresh script invocation
+actionable condition
++ authorized progress remains possible
+→ same proto-go objective remains in force
 
 PUBLISHED
 → required for normal successful completion
 → not sufficient while proto-go-owned closure obligations remain
 ```
 
-Do not allow an actionable script-detected problem to be silently terminal when
-an authorized main-agent continuation can make further progress.
+Do not allow an actionable condition to be silently terminal when authorized
+progress toward the same objective remains possible.
 
 Do not revert an established `PUBLISHED` fact because a later local cleanup
 failed.
@@ -382,8 +339,35 @@ orchestration framework, or Turnlock substitute.
 
 Do not select a procedural composition representation, step abstraction,
 workflow graph, state-machine representation, dispatcher, plugin interface,
-module boundary, Continuation Policy architecture, or script-factoring scheme
-from ADR-016; those remain future derivation work.
+module boundary, or workflow language from ADR-016; those remain future
+derivation work.
+
+ADR-017 delegates generic workflow execution to proto-runtime:
+
+```text
+proto-go
+= implementation-to-publication workflow
+= owns domain semantics and progression decisions
+
+proto-runtime
+= reusable execution substrate
+= owns generic execution continuity and control-transfer mechanics
+
+proto-go decides WHAT progression is semantically required
+proto-runtime realizes HOW execution continues
+```
+
+Do not re-implement generic workflow-runtime mechanisms inside proto-go.
+
+Do not let the execution substrate decide proto-go domain transitions.
+
+Do not absorb proto-ruu internal Git semantics into proto-go.
+
+Do not turn proto-go into a runtime, proto-runtime into proto-go domain logic,
+or proto-ruu into the owner of proto-go publication semantics.
+
+Do not select a runtime API, workflow language, persistence mechanism, or
+process topology from ADR-017; those remain future derivation work.
 
 ## Authority by responsibility
 
@@ -471,6 +455,12 @@ Do not select a registry representation.
 Do not select a concrete Turnlock workflow.
 
 Do not select GCP or Ruu integration mechanics.
+
+Do not implement proto-runtime, proto-ruu, or generic workflow execution inside
+proto-go.
+
+Do not select a proto-runtime API, workflow language, workflow artifact syntax,
+persistence model, execution-status vocabulary, or process topology.
 
 ## ADR discipline
 
