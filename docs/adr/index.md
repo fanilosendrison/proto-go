@@ -19,6 +19,7 @@
 | [ADR-015](adr-015-allow-originated-repository-publication-to-complete-after-readiness-retirement.md) | Allow originated repository publication to complete after readiness retirement | Accepted |
 | [ADR-016](adr-016-require-local-procedural-evolution-and-explicit-composition.md) | Require local procedural evolution and explicit procedural composition | Accepted |
 | [ADR-017](adr-017-delegate-generic-workflow-execution-to-proto-runtime.md) | Delegate generic workflow execution to proto-runtime | Accepted |
+| [ADR-018](adr-018-recognize-proto-runtime-rename-to-prelock.md) | Recognize proto-runtime rename to Prelock | Accepted |
 
 The current normative product meaning is projected in
 [`../specification/proto-go-spec.md`](../specification/proto-go-spec.md).
