@@ -139,7 +139,7 @@ The following projects may be consulted later as implementation context but are
 not semantic authority for `proto-go`:
 
 ```text
-proto-runtime
+Prelock
 proto-ruu
 Turnlock
 Ruu
@@ -149,7 +149,7 @@ permission-enforcer
 the obsolete previous /go workflow
 ```
 
-proto-runtime is the intended generic execution substrate for the proto-go
+Prelock is the intended generic execution substrate for the proto-go
 workflow, and proto-ruu is the intended specialized routine-Git-versioning
 workflow. Their documented semantics do not define proto-go Product Intent.
 
