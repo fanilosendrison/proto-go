@@ -48,7 +48,7 @@ publication completion.
 ADR-006 originally established main-agent skill orchestration and terminating
 proto-go script execution as proto-go's execution model. ADR-017 supersedes
 that execution model. `/go` remains the user-facing invocation, and the
-proto-go workflow owns its domain progression while proto-runtime provides
+proto-go workflow owns its domain progression while Prelock provides
 generic execution continuity. ADR-006's supersession of the
 execution-engine-independence assertion previously recorded as
 `PROTO-GO-INV-012` is unaffected; that identity remains superseded.
@@ -86,12 +86,12 @@ ADR-011 permitted distinct proto-go progressions to advance concurrently and
 established that a progression is not owned by the conversational session that
 initiated it. ADR-017 preserves the user-visible concurrency and
 business-identity consequences; generic session-transfer and controller
-coordination are provided by proto-runtime.
+coordination are provided by Prelock.
 
 ADR-012 required `/go` procedural instructions to be loadable incrementally
 from a bounded bootstrap. ADR-017 supersedes that requirement as proto-go
 Product Intent; instruction loading and execution continuity belong to
-proto-runtime and the surrounding harness.
+Prelock and the surrounding harness.
 
 ADR-013 generalized continuation to actionable mechanical problems and
 proto-go-owned closure obligations, and established that `PUBLISHED` is
@@ -125,7 +125,7 @@ workflow must not emerge implicitly from generic runtime plumbing. It does not
 select a concrete composition representation.
 
 ADR-017 establishes that proto-go is the implementation-to-publication workflow
-that owns domain semantics and progression decisions, while proto-runtime
+that owns domain semantics and progression decisions, while Prelock
 provides generic execution continuity and control-transfer mechanics. proto-go
 no longer owns generic workflow-execution machinery. proto-ruu is the
 specialized routine-Git-versioning workflow used by proto-go through an
@@ -144,7 +144,7 @@ surrounding harness and are not part of `proto-go` product semantics.
 `proto-go` is the **end-to-end implementation-to-publication procedure of the
 coding-agent Development System**.
 
-Its execution is provided by proto-runtime; the proto-go workflow owns its
+Its execution is provided by Prelock; the proto-go workflow owns its
 domain semantics and progression decisions.
 
 One logical `proto-go` operation owns exactly one `ManagedContribution`.
@@ -344,7 +344,7 @@ concurrent implementation
 Distinct proto-go progressions may advance concurrently. `proto-go` must not
 require global serialization of otherwise-independent `/go` progressions.
 Generic session coordination and control ownership for those progressions are
-provided by proto-runtime and are not proto-go Product Intent.
+provided by Prelock and are not proto-go Product Intent.
 
 Distinct progressions must not share a managed authoring worktree.
 
@@ -431,7 +431,7 @@ session that started or previously advanced it. The lifecycle facts, readiness
 state, and managed authoring bindings required for continued proto-go
 progression must survive loss or replacement of any execution context. The
 generic mechanism by which a later execution context discovers and continues
-an active workflow execution is provided by proto-runtime and is not selected
+an active workflow execution is provided by Prelock and is not selected
 here.
 
 ## 0.7 Interrupted work remains incomplete
@@ -703,10 +703,10 @@ when proto-go is semantically complete
 ```
 
 Generic execution continuity and control-transfer mechanics are provided by
-proto-runtime. proto-runtime owns the reusable execution substrate: mechanical
+Prelock. Prelock owns the reusable execution substrate: mechanical
 execution, main-agent continuation, execution occurrence truth, and
 child-workflow execution with structured return. proto-go does not define
-proto-runtime's generic execution semantics.
+Prelock's generic execution semantics.
 
 Conceptually:
 
@@ -721,7 +721,7 @@ proto-go determines the semantically legal next progression
         ↓
 proto-go requests an execution form
         ↓
-proto-runtime realizes the requested execution
+Prelock realizes the requested execution
         ↓
 execution truth / child result becomes available
         ↓
@@ -737,7 +737,7 @@ main-agent continuation
 child workflow call to proto-ruu
 ```
 
-but proto-go does not define proto-runtime's generic semantics for those
+but proto-go does not define Prelock's generic semantics for those
 execution forms.
 
 A `/go` invocation may enter Invocation Preflight before a logical proto-go
@@ -755,7 +755,7 @@ invocation input from the user request, authoritative context, and relevant
 established proto-go state.
 
 Pre-Admission progression may itself require execution realized by
-proto-runtime, including mechanical execution, main-agent work, user
+Prelock, including mechanical execution, main-agent work, user
 interaction, or child-workflow calls, before an admission-complete Launch
 Contract exists.
 
@@ -786,11 +786,11 @@ performs an agentic continuation.
 Distinct proto-go progressions may advance concurrently. Proto-go does not
 require global serialization of otherwise-independent `/go` progressions.
 Generic control ownership, session-transfer, and execution-continuity
-coordination are provided by proto-runtime.
+coordination are provided by Prelock.
 
 Transient execution or session loss must not change proto-go business truth
 such as contribution identity, readiness, or managed authoring bindings.
-Generic execution re-entry and correlation are provided by proto-runtime and
+Generic execution re-entry and correlation are provided by Prelock and
 are not proto-go Product Intent.
 
 This product-level execution boundary does not define a fixed universal
@@ -806,7 +806,7 @@ procedural evolution.
 A procedural change whose semantic effect is local MUST require changes
 proportional to that semantic effect, rather than unrelated changes across the
 rest of the procedure merely because of how generic execution continuity is
-realized by proto-runtime.
+realized by Prelock.
 
 The effective business procedure MUST remain explicitly identifiable as a
 composition of independently understandable procedural responsibilities rather
@@ -830,8 +830,8 @@ The following consequences are normative:
   workflow runtime or to reproduce Turnlock capabilities.
 
 Explicit identifiability concerns how proto-go's business procedure is defined
-and composed, not how proto-runtime realizes its execution mechanics. Generic
-execution plumbing supplied by proto-runtime MUST NOT implicitly define the
+and composed, not how Prelock realizes its execution mechanics. Generic
+execution plumbing supplied by Prelock MUST NOT implicitly define the
 proto-go workflow.
 
 This Product Intent does not yet define:
@@ -842,7 +842,7 @@ This Product Intent does not yet define:
 * which dependencies exist only because of current orchestration plumbing;
 * what minimum explicit composition model is required to make local procedural
   changes local;
-* how proto-go's workflow requests execution forms from proto-runtime;
+* how proto-go's workflow requests execution forms from Prelock;
 * whether the procedure is represented as stages, nodes, transitions,
   obligations, rules, capabilities, or another abstraction.
 
@@ -953,7 +953,7 @@ The implementation-to-publication workflow owned by proto-go. It owns proto-go's
 business state, authority, obligations, semantically legal progression, requested
 execution, interpretation of returned execution truth, and semantic completion.
 
-Its execution is provided by proto-runtime. Its concrete representation
+Its execution is provided by Prelock. Its concrete representation
 (stages, rules, obligations, nodes, state machine, DSL, functions, or another
 abstraction) is not defined.
 
@@ -1081,13 +1081,13 @@ semantics.
 
 Its concrete implementation and API are not yet selected by this specification.
 
-## proto-runtime
+## Prelock
 
 The reusable execution substrate that provides generic workflow execution
 continuity, control transfer, execution occurrence truth, and child-workflow
 call/return for externally defined workflows.
 
-proto-runtime does not know proto-go domain concepts such as
+Prelock does not know proto-go domain concepts such as
 `ManagedContribution`, readiness, validation obligations, Repository
 Publication Obligations, `PUBLISHED`, or managed worktrees.
 
@@ -1112,7 +1112,7 @@ existing proto-go workflow execution.
 
 The `/go` skill is not the Product Intent authority; it must not redefine the
 semantics established by the normative proto-go specification. Generic
-execution continuity and continuation mechanics are provided by proto-runtime.
+execution continuity and continuation mechanics are provided by Prelock.
 
 ## Invocation Preflight
 
@@ -1122,7 +1122,7 @@ During Invocation Preflight, the main agent derives the best currently
 available machine-readable invocation input from the user request,
 authoritative context, and relevant established proto-go state.
 
-Invocation Preflight may require execution realized by proto-runtime, including
+Invocation Preflight may require execution realized by Prelock, including
 mechanical execution, main-agent work, user interaction, or child-workflow
 calls, before an admission-complete Launch Contract exists.
 
@@ -1148,7 +1148,7 @@ intent, governing authority basis, and launch premises with which one logical
 proto-go operation is admitted.
 
 The Launch Contract may be established through pre-Admission proto-go
-progression, including execution realized by proto-runtime.
+progression, including execution realized by Prelock.
 
 The Launch Contract is the initial authority root of the admitted logical
 proto-go operation.
@@ -1507,7 +1507,7 @@ This invariant previously required a proto-go operation to be initiated through
 agent's active proto-go progression.
 
 ADR-017 assigns generic execution continuity and control transfer to
-proto-runtime. `/go` remains the user-facing invocation, and the main agent
+Prelock. `/go` remains the user-facing invocation, and the main agent
 performs authored work when the proto-go workflow requests it, but the
 main-agent-skill orchestration model is no longer proto-go Product Intent.
 
@@ -1547,7 +1547,7 @@ execution, and prohibited the script from owning end-to-end orchestration.
 
 The suspended-execution prohibition was a constraint on a specific execution
 mechanism. ADR-017 removes that mechanism from proto-go Product Intent and
-assigns generic control transfer and execution continuity to proto-runtime.
+assigns generic control transfer and execution continuity to Prelock.
 
 `PROTO-GO-INV-025` is retained only to preserve invariant identity history.
 
@@ -1701,7 +1701,7 @@ Admission to be a fresh terminating invocation of the proto-go script.
 
 ADR-017 removes the proto-go script and terminating-invocation control model
 from proto-go Product Intent. Post-Admission progression is realized by
-proto-runtime under the execution forms requested by the proto-go workflow.
+Prelock under the execution forms requested by the proto-go workflow.
 
 `PROTO-GO-INV-033` is retained only to preserve invariant identity history.
 
@@ -1716,7 +1716,7 @@ This invariant previously required each completed proto-go script invocation to
 emit machine-readable Continuation Artifact information.
 
 Continuation Artifacts are generic execution-continuity machinery. ADR-017
-assigns that responsibility to proto-runtime.
+assigns that responsibility to Prelock.
 
 `PROTO-GO-INV-034` is retained only to preserve invariant identity history.
 
@@ -1750,7 +1750,7 @@ continuation as suspension into the main agent followed by resumption of the
 same script invocation.
 
 Those requirements constrained the removed proto-go script mechanism. Generic
-control-transfer ordering and continuation are provided by proto-runtime.
+control-transfer ordering and continuation are provided by Prelock.
 
 `PROTO-GO-INV-036` is retained only to preserve invariant identity history.
 
@@ -1766,7 +1766,7 @@ invocation and prohibited treating a later invocation as resumption of an
 earlier terminated invocation.
 
 Fresh script re-entry was a constraint of the removed proto-go execution
-mechanism. Execution re-entry and continuation are provided by proto-runtime.
+mechanism. Execution re-entry and continuation are provided by Prelock.
 
 `PROTO-GO-INV-037` is retained only to preserve invariant identity history.
 
@@ -1799,7 +1799,7 @@ A logical proto-go operation MUST NOT be admitted until an admission-complete
 machine-readable Launch Contract has been established.
 
 The Launch Contract MAY be established through repeated pre-Admission proto-go
-progression, including execution realized by proto-runtime, authoritative
+progression, including execution realized by Prelock, authoritative
 context resolution, and user clarification where required.
 
 The Launch Contract MUST represent sufficiently resolved implementation intent,
@@ -1827,7 +1827,7 @@ After Admission, it MUST preserve the same logical proto-go operation and
 
 This invariant does not define how the relevant progression is identified,
 correlated, rediscovered, persisted, or transported; those are provided by
-proto-runtime.
+Prelock.
 
 ## PROTO-GO-INV-041 — Artifact-driven progression spans the objective through publication — SUPERSEDED
 
@@ -1858,7 +1858,7 @@ This invariant previously required sufficient machine-readable authoritative
 Progression Context at every main-agent/script control transfer.
 
 Progression Context is generic execution-continuity state. ADR-017 assigns
-explicit execution continuity and control-transfer context to proto-runtime.
+explicit execution continuity and control-transfer context to Prelock.
 Proto-go retains ownership of its own business state and authority through
 `PROTO-GO-INV-061`.
 
@@ -1939,7 +1939,7 @@ session-agnostic, including continuation from a later eligible main-agent
 session without creating a new objective, `ManagedContribution`, or authoring
 worktree, while preserving authoritative Progression Context.
 
-Generic session-transfer and continuation mechanics belong to proto-runtime.
+Generic session-transfer and continuation mechanics belong to Prelock.
 The preserved proto-go business consequences remain normative through
 `PROTO-GO-INV-011`, `PROTO-GO-INV-040`, and `PROTO-GO-INV-045`.
 
@@ -1970,7 +1970,7 @@ procedural controller per proto-go progression.
 
 Control ownership and prevention of contradictory independent progression are
 generic runtime concerns. ADR-017 assigns control ownership and session
-coordination to proto-runtime.
+coordination to Prelock.
 
 `PROTO-GO-INV-048` is retained only to preserve invariant identity history.
 
@@ -1986,7 +1986,7 @@ incrementally from a bounded bootstrap rather than requiring the complete
 instruction corpus upfront.
 
 That requirement existed to support the removed main-agent-skill orchestration
-model. Instruction loading and execution continuity belong to proto-runtime and
+model. Instruction loading and execution continuity belong to Prelock and
 the surrounding harness, and no independent proto-go domain requirement
 depends on them.
 
@@ -2144,14 +2144,14 @@ This invariant does not prohibit an implementation from opportunistically
 cancelling an in-flight operation when otherwise safe; cancellation is simply
 not a Product Intent prerequisite for authored resumption.
 
-## PROTO-GO-INV-059 — Proto-go workflow execution is provided by proto-runtime
+## PROTO-GO-INV-059 — Proto-go workflow execution is provided by Prelock
 
 Proto-go is the implementation-to-publication workflow that owns its domain
 semantics and progression decisions.
 
 Generic execution continuity and control-transfer mechanics required to execute
 that workflow — including mechanical execution, main-agent continuation, and
-child-workflow execution and structured return — are provided by proto-runtime.
+child-workflow execution and structured return — are provided by Prelock.
 
 Proto-go MUST NOT independently own generic workflow-execution mechanisms as
 part of its Product Intent merely because earlier proto-go generations emulated
@@ -2165,7 +2165,7 @@ model, execution-status vocabulary, or process topology.
 Proto-go's Product Intent and business semantics MUST NOT depend on the concrete
 generic execution mechanisms used to execute proto-go's workflow.
 
-Changing or replacing the execution substrate provided by proto-runtime MUST NOT
+Changing or replacing the execution substrate provided by Prelock MUST NOT
 by itself redefine proto-go domain meaning, canonical terminology, lifecycle
 facts, or domain obligations.
 
@@ -2183,7 +2183,7 @@ semantically legal, which execution it requests next, how returned execution
 truth affects proto-go business state, and when proto-go is semantically
 complete.
 
-Execution truth or execution outcomes provided by proto-runtime MUST NOT by
+Execution truth or execution outcomes provided by Prelock MUST NOT by
 themselves establish or negate proto-go domain transitions such as validation
 completion, readiness, publication-obligation satisfaction, `PUBLISHED`, or
 normal successful completion.
@@ -2233,7 +2233,7 @@ necessary for normal successful completion.
 
 When proto-go requires specialized routine Git versioning progression, it MUST
 supply the applicable `WorkBoundary` and Git authority to proto-ruu, invoked as
-a child workflow through proto-runtime.
+a child workflow through Prelock.
 
 Proto-go MUST NOT absorb proto-ruu's internal Git semantics, and proto-ruu MUST
 NOT own or redefine proto-go publication semantics.
@@ -2647,7 +2647,7 @@ established:
 * a post-`PUBLISHED` closure failure preserves the established `PUBLISHED` fact
   and may continue through proto-go progression.
 
-Generic execution recovery and session re-entry are provided by proto-runtime
+Generic execution recovery and session re-entry are provided by Prelock
 and are not selected here.
 
 Abandonment semantics and a complete recovery taxonomy are not yet defined.
@@ -2690,7 +2690,7 @@ concurrency is permitted and ordinary. Proto-go must not require global
 serialization of otherwise-independent proto-go progressions.
 
 Generic control ownership and prevention of contradictory independent
-progression belong to proto-runtime. Proto-go retains the domain requirements
+progression belong to Prelock. Proto-go retains the domain requirements
 that distinct contributions preserve mutable-authoring isolation and that
 distinct progressions are not globally serialized.
 
@@ -2706,7 +2706,7 @@ The main agent may perform authored work when the proto-go workflow requests a
 main-agent continuation. It is not the global workflow orchestrator.
 
 Generic execution continuity, control transfer, session re-entry, and
-instruction/execution-continuity mechanics are provided by proto-runtime and
+instruction/execution-continuity mechanics are provided by Prelock and
 the surrounding harness. They are not proto-go Product Intent.
 
 This product-level boundary does not make all surrounding harness policy part
@@ -2727,7 +2727,7 @@ completion.
 
 For specialized routine Git versioning progression, proto-go supplies the
 applicable `WorkBoundary` and Git authority to proto-ruu, invoked as a child
-workflow through proto-runtime, and interprets the returned versioning outcome
+workflow through Prelock, and interprets the returned versioning outcome
 under its own publication semantics.
 
 The version-control progression remains a distinct responsibility. proto-go

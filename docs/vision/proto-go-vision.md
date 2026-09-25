@@ -26,7 +26,7 @@ proto-go
   resolve a publication block
 → reaches successful completion only at the governing publication outcome
 
-proto-runtime
+Prelock
 → provides generic execution continuity for the proto-go workflow
 
 proto-ruu
@@ -36,7 +36,7 @@ downstream version-control system
 → owns its specialized mechanical version-control progression
 ```
 
-proto-runtime is the reusable execution substrate intended to execute proto-go's
+Prelock is the reusable execution substrate intended to execute proto-go's
 workflow. proto-ruu is the specialized routine-Git-versioning workflow intended
 to be used by proto-go for version-control progression.
 
@@ -50,7 +50,7 @@ None of these relationships defines `proto-go` Product Intent.
 
 The current product shape separates proto-go's implementation-to-publication
 workflow semantics from generic execution. proto-go owns its domain progression
-decisions; proto-runtime provides execution continuity and control transfer,
+decisions; Prelock provides execution continuity and control transfer,
 including mechanical execution, main-agent continuation, and child-workflow
 call/return. proto-go delegates routine Git versioning progression to proto-ruu
 within a supplied `WorkBoundary`.

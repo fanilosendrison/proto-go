@@ -7,7 +7,7 @@ The user-facing invocation of proto-go is `/go`.
 
 proto-go is an implementation-to-publication workflow that owns its domain
 semantics and progression decisions. Its generic execution continuity and
-control-transfer mechanics are provided by proto-runtime. A `/go` invocation
+control-transfer mechanics are provided by Prelock. A `/go` invocation
 begins or continues a proto-go workflow execution; it may enter Invocation
 Preflight before an admission-complete Launch Contract exists, and Admission
 begins the logical proto-go operation. Routine Git versioning progression is
@@ -97,11 +97,11 @@ publication may complete after retirement.
 An admission-complete machine-readable Launch Contract must exist before a
 logical proto-go operation is admitted. Its completeness may be established
 through pre-Admission proto-go progression, which may use execution realized by
-proto-runtime.
+Prelock.
 
 After Admission, the proto-go workflow owns continued business progression.
 proto-go may request mechanical execution, a main-agent continuation, or a
-child workflow call; proto-runtime realizes the requested execution form and
+child workflow call; Prelock realizes the requested execution form and
 returns execution truth.
 
 ADR-009 established state/authority-driven progression across Admission and
@@ -118,12 +118,12 @@ ADR-011 established concurrent, session-agnostic progression. ADR-017
 preserves the user-visible domain consequences — distinct proto-go operations
 may progress concurrently and proto-go business identity is not owned by a
 conversational session — while generic controller coordination, session
-transfer, and execution re-entry are provided by proto-runtime.
+transfer, and execution re-entry are provided by Prelock.
 
 ADR-012 required `/go` procedural instructions to be loadable incrementally
 from a bounded bootstrap. ADR-017 supersedes that requirement as proto-go
 Product Intent; instruction loading and execution continuity belong to
-proto-runtime and the surrounding harness.
+Prelock and the surrounding harness.
 
 ADR-013 generalized continuation to actionable mechanical problems and
 proto-go-owned closure obligations. `PUBLISHED` is an authoritative historical
@@ -155,9 +155,9 @@ composition of independently understandable procedural responsibilities. It
 does not select a concrete composition representation and does not require
 proto-go to become a general-purpose workflow runtime or a Turnlock substitute.
 
-ADR-017 delegates generic workflow execution to proto-runtime. proto-go is the
+ADR-017 delegates generic workflow execution to Prelock. proto-go is the
 implementation-to-publication workflow and owns domain semantics and
-progression decisions; proto-runtime provides generic execution continuity,
+progression decisions; Prelock provides generic execution continuity,
 control transfer, execution occurrence truth, and child-workflow call/return.
 proto-go no longer owns script, artifact, continuation-policy, or
 progression-context machinery. proto-ruu is the specialized

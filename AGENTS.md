@@ -16,7 +16,7 @@ The repository is currently specification-first.
 Do not infer implementation architecture from the repository name, from the old
 `/go`, or from adjacent projects.
 
-proto-runtime and proto-ruu are adjacent products, not proto-go semantic
+Prelock and proto-ruu are adjacent products, not proto-go semantic
 authority. Consult them as context; do not let them redefine proto-go Product
 Intent.
 
@@ -181,7 +181,7 @@ supersedes main-agent-skill orchestration and terminating proto-go script
 execution as proto-go Product Intent.
 
 `/go` remains the user-facing invocation. The proto-go workflow owns domain
-semantics and progression decisions; proto-runtime provides generic execution
+semantics and progression decisions; Prelock provides generic execution
 continuity and control transfer.
 
 `PROTO-GO-INV-012`, `PROTO-GO-INV-023`, `PROTO-GO-INV-024`, and
@@ -254,7 +254,7 @@ Current business ordering is:
 Do not require Admission completeness before pre-Admission execution.
 
 Do not depend on main-agent conversational memory for proto-go business state;
-execution continuity is provided by proto-runtime.
+execution continuity is provided by Prelock.
 
 Do not give the execution substrate authority over proto-go domain decisions.
 
@@ -284,11 +284,11 @@ Do not require global serialization of otherwise-independent proto-go
 progressions.
 
 Generic controller coordination, session transfer, and execution re-entry are
-provided by proto-runtime.
+provided by Prelock.
 
 ADR-012 required incremental /go instruction loading. ADR-017 supersedes that
 requirement as proto-go Product Intent; instruction loading and execution
-continuity belong to proto-runtime and the surrounding harness.
+continuity belong to Prelock and the surrounding harness.
 
 ADR-013 established actionable-condition continuation and terminal semantics.
 ADR-017 preserves the semantic core:
@@ -342,19 +342,19 @@ workflow graph, state-machine representation, dispatcher, plugin interface,
 module boundary, or workflow language from ADR-016; those remain future
 derivation work.
 
-ADR-017 delegates generic workflow execution to proto-runtime:
+ADR-017 delegates generic workflow execution to Prelock:
 
 ```text
 proto-go
 = implementation-to-publication workflow
 = owns domain semantics and progression decisions
 
-proto-runtime
+Prelock
 = reusable execution substrate
 = owns generic execution continuity and control-transfer mechanics
 
 proto-go decides WHAT progression is semantically required
-proto-runtime realizes HOW execution continues
+Prelock realizes HOW execution continues
 ```
 
 Do not re-implement generic workflow-runtime mechanisms inside proto-go.
@@ -363,7 +363,7 @@ Do not let the execution substrate decide proto-go domain transitions.
 
 Do not absorb proto-ruu internal Git semantics into proto-go.
 
-Do not turn proto-go into a runtime, proto-runtime into proto-go domain logic,
+Do not turn proto-go into a runtime, Prelock into proto-go domain logic,
 or proto-ruu into the owner of proto-go publication semantics.
 
 Do not select a runtime API, workflow language, persistence mechanism, or
@@ -456,10 +456,10 @@ Do not select a concrete Turnlock workflow.
 
 Do not select GCP or Ruu integration mechanics.
 
-Do not implement proto-runtime, proto-ruu, or generic workflow execution inside
+Do not implement Prelock, proto-ruu, or generic workflow execution inside
 proto-go.
 
-Do not select a proto-runtime API, workflow language, workflow artifact syntax,
+Do not select a Prelock API, workflow language, workflow artifact syntax,
 persistence model, execution-status vocabulary, or process topology.
 
 ## ADR discipline
