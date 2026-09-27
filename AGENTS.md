@@ -374,6 +374,32 @@ or proto-ruu into the owner of proto-go publication semantics.
 Do not select a runtime API, workflow language, persistence mechanism, or
 process topology from ADR-017; those remain future derivation work.
 
+```text
+ADR-020 establishes Interactive Main-Agent Visibility.
+
+While an eligible user-facing interactive coding-harness context carries a
+proto-go progression, proto-go-requested main-agent work must retain the
+ordinary class of user-visible main-agent activity that the harness exposes for
+equivalent main-agent work outside proto-go.
+
+Do not treat an internal execution/control boundary as permission to turn a
+main-agent continuation into an opaque background operation.
+
+Do not confuse visibility with orchestration authority. The main agent does not
+become the global workflow orchestrator.
+
+Do not require the originating session to survive. If it disappears,
+session-independent workflow continuity remains controlling; a later eligible
+interactive context may carry subsequent visible main-agent work.
+
+Do not expose or require private chain-of-thought, hidden model state, secrets,
+system/developer prompts, Prelock internals, infrastructure internals, or
+low-level environment logs as part of this guarantee.
+
+Do not select a streaming protocol, PTY mechanism, event bus, transport, remote
+session protocol, or Prelock API from ADR-020.
+```
+
 ## Authority by responsibility
 
 1. `docs/specification/proto-go-spec.md`

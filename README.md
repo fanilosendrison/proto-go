@@ -13,6 +13,13 @@ Preflight before an admission-complete Launch Contract exists, and Admission
 begins the logical proto-go operation. Routine Git versioning progression is
 delegated to proto-ruu.
 
+`/go` also preserves the ordinary interactive visibility of proto-go-requested
+main-agent work. While an eligible user-facing coding-harness interaction
+carries the progression, crossing internal execution boundaries does not by
+itself turn main-agent activity into an opaque background job. This visibility
+guarantee does not transfer workflow authority to the main agent or expose
+private/runtime internals.
+
 The repository is currently in the product-definition phase.
 
 Its authoritative starting point is:
@@ -169,6 +176,10 @@ progression-context machinery. proto-ruu is the specialized
 routine-Git-versioning workflow used by proto-go within a supplied
 `WorkBoundary`; proto-go retains ownership of readiness, Repository Publication
 Obligations, aggregate `PUBLISHED` semantics, and normal successful completion.
+
+ADR-020 establishes Interactive Main-Agent Visibility across proto-go execution
+boundaries while preserving the ADR-017 workflow/execution authority split and
+session-independent continuation.
 
 Implementation must be derived from accepted product semantics rather than
 retroactively defining them.
