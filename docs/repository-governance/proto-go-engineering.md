@@ -49,7 +49,7 @@ No implementation language has been selected yet.
 
 No persistence mechanism has been selected yet.
 
-No worktree mechanism has been normatively selected yet.
+No concrete managed-authoring mechanism has been normatively selected yet.
 
 No concrete downstream version-control integration has been normatively selected
 yet.
