@@ -3,14 +3,15 @@
 > Working product specification derived from the current product discussion.
 >
 > This document intentionally starts from product intent before fixing
-> implementation mechanisms. Managed Git authoring isolation is product-mandated:
-> proto-go provisions dedicated temporary detached Git worktrees. Their
-> filesystem path, naming, registry representation, cleanup implementation,
-> base-commit selection algorithm, and reconstruction mechanism remain
-> unspecified. Terms such as persistence engine, database, process model, agent
-> topology, harness API, version-control adapter, programming language, and
-> runtime remain deliberately unspecified unless the product contract later
-> requires them.
+> implementation mechanisms. Managed authoring guarantees are product-mandated:
+> managed authoring must be isolated from unrelated mutable authoring state, begin
+> from authoritative development state rather than incidental residue, expose the
+> complete available development workspace, support dynamic repository
+> participation, and preserve continuity independently of any concrete authoring
+> environment. Their realization remains unspecified. Terms such as persistence
+> engine, database, process model, agent topology, harness API, version-control
+> adapter, programming language, and runtime remain deliberately unspecified
+> unless the product contract later requires them.
 
 # 0. Product intent — governing user experience
 
@@ -77,10 +78,10 @@ supersedes Progression Context and the script/artifact runtime mechanics.
 ADR-009 superseded `PROTO-GO-INV-030` and `PROTO-GO-INV-032`; those identities
 remain superseded.
 
-ADR-010 requires proto-go-managed authored mutation to occur in dedicated
-temporary detached Git worktrees bound to one `ManagedContribution` and
-participating repository, provisioned automatically before the first managed
-authored mutation in that repository.
+ADR-010 historically selected dedicated temporary detached Git worktrees for
+managed authoring. ADR-019 supersedes that mechanism selection while preserving
+ADR-010's historical record. The current Product Intent instead requires the
+abstract managed-authoring guarantees defined below.
 
 ADR-011 permitted distinct proto-go progressions to advance concurrently and
 established that a progression is not owned by the conversational session that
@@ -163,21 +164,46 @@ ManagedContribution != Repository
 
 Repository boundaries do not determine contribution identity.
 
-Managed authored mutation is performed only in proto-go-managed authoring
-worktrees.
+Managed authored mutation is performed through a Managed Authoring Environment
+that satisfies the managed-authoring guarantees in this Product Intent. No
+particular checkout, branch, process, filesystem, version-control object, or
+other concrete mechanism is selected as that environment.
 
-For every participating repository in which the admitted contribution requires
-managed authored mutation, proto-go automatically establishes a dedicated
-temporary detached Git worktree before the first such mutation.
+Before managed authored mutation begins for an admitted `ManagedContribution`,
+the Development System must make available a Managed Authoring Environment that
+satisfies those guarantees and the applicable managed authoring authority.
 
-The invoking checkout, the user's ordinary checkout, and another contribution's
-managed authoring worktree are not managed authoring surfaces.
+The Managed Authoring Environment must provide all of the following:
 
-It exists so that, once the user and Development System have determined what
-should be implemented, that implementation can be carried through managed
-authoring, validation, durable readiness, and publication without requiring the
-user to manually provision or coordinate the mutable development environment or
-manually bridge the normal implementation-to-publication lifecycle.
+- managed authoring for one `ManagedContribution` must not accidentally observe
+  or depend on mutable authoring state belonging to an unrelated
+  `ManagedContribution`, even when the contributions concern the same
+  repository, several repositories, or the same logical files;
+- the relevant starting state must come from an authoritative development state,
+  while authoritative state intentionally belonging to the same
+  `ManagedContribution` may be retained and used to continue that contribution;
+- incidental mutable residue must not become an implicit input or authority
+  merely because it exists in an environment or elsewhere;
+- the complete development workspace that the Development System authoritatively
+  makes available for this work must be inspectable and usable for managed
+  authoring, rather than a repository subset predicted from the initial task;
+- repository participation may be discovered during authoring, and a newly
+  participating repository must enter the `ManagedContribution`'s managed
+  authoring authority before its first managed authored mutation; and
+- contribution identity, lifecycle facts, and authoritative authored state
+  required for continuation must not depend on the survival of one concrete
+  authoring environment.
+
+A repository being visible or inspectable in the available development workspace
+does not by itself make that repository a participant in the
+`ManagedContribution`.
+
+The Managed Authoring Environment exists so that, once the user and Development
+System have determined what should be implemented, that implementation can be
+carried through managed authoring, validation, durable readiness, and
+publication without requiring the user to manually provision or coordinate the
+mutable development environment or manually bridge the normal
+implementation-to-publication lifecycle.
 
 A `proto-go` operation owns the user-facing implementation objective from the
 beginning of managed authoring until the contribution either:
@@ -294,7 +320,7 @@ The governing promise is:
 Ordinary `proto-go` use must not require the user to manually perform setup such as:
 
 ```text
-create a worktree
+create or select a Managed Authoring Environment
 choose an implementation directory
 register that directory with another system
 record a publication destination
@@ -303,10 +329,10 @@ mark the contribution as ready
 remember which session created it
 ```
 
-`proto-go` automatically establishes the managed authoring worktree required for
-each participating repository, together with durable identity, lifecycle
-registration, version-control handoff metadata, and any other pre-authoring
-state required as part of the managed implementation lifecycle.
+`proto-go` automatically establishes or makes available the Managed Authoring
+Environment required for managed authoring, together with durable identity,
+lifecycle registration, version-control handoff metadata, and any other
+pre-authoring state required as part of the managed implementation lifecycle.
 
 Those mechanisms are product plumbing, not separate user-facing preparation
 steps.
@@ -346,7 +372,8 @@ require global serialization of otherwise-independent `/go` progressions.
 Generic session coordination and control ownership for those progressions are
 provided by Prelock and are not proto-go Product Intent.
 
-Distinct progressions must not share a managed authoring worktree.
+Distinct progressions must not accidentally share mutable authoring state or
+observe mutable residue belonging to an unrelated contribution.
 
 This requirement concerns authoring isolation.
 
@@ -428,11 +455,11 @@ Forgetting to invoke the downstream version-control command immediately after
 
 A proto-go progression's business identity is not owned by the conversational
 session that started or previously advanced it. The lifecycle facts, readiness
-state, and managed authoring bindings required for continued proto-go
-progression must survive loss or replacement of any execution context. The
-generic mechanism by which a later execution context discovers and continues
-an active workflow execution is provided by Prelock and is not selected
-here.
+state, and authoritative managed-authoring state required for continued proto-go
+progression must survive loss or replacement of any execution context or
+concrete authoring environment. The generic mechanism by which a later
+execution context discovers and continues an active workflow execution is
+provided by Prelock and is not selected here.
 
 ## 0.7 Interrupted work remains incomplete
 
@@ -533,8 +560,10 @@ Publication Obligation established for it is authoritatively satisfied. No
 cross-repository atomic publication visibility is required.
 
 After the governing publication outcome is established, proto-go performs or
-attempts its remaining proto-go-owned closure obligations, including normal
-automatic retirement and removal of temporary managed worktrees. A later local
+attempts its remaining proto-go-owned closure obligations. Such obligations may
+include retirement or cleanup of resources or effects established by proto-go
+when their applicable lifecycle requires it; the Product Intent does not assume
+that a Managed Authoring Environment has a removable object. A later local
 cleanup failure does not revert `PUBLISHED`; it is surfaced as an actionable
 proto-go condition so repair can be attempted within the same proto-go
 objective.
@@ -604,13 +633,25 @@ or main agent to perform avoidable implementation-environment orchestration such
 as:
 
 ```text
-manually create or select an isolation worktree
+manually create or select a Managed Authoring Environment
 manually register the contribution before implementation
-manually remember which mutable checkout belongs to which proto-go
+manually remember which mutable authoring state belongs to which proto-go
 manually protect concurrent in-progress work from another proto-go
 manually record completion somewhere after successful implementation
 keep the originating chat session alive so completed work can later be found
 reconstruct a completed contribution from filesystem archaeology
+managed authoring for one contribution can accidentally observe or depend on
+mutable authoring residue from an unrelated contribution
+managed authoring starts from incidental mutable ambient state rather than
+authoritative development state
+the available development workspace is restricted merely because a caller
+predicted a narrower repository scope before the work began
+discovering that another repository must participate requires abandoning the same
+`ManagedContribution` solely because that repository was not predicted initially
+loss or replacement of the concrete Managed Authoring Environment loses required
+authoritative authored state or changes `ManagedContribution` identity
+continuation requires the same concrete authoring environment to survive merely
+because it was used for earlier managed authoring
 allow downstream publication to infer readiness from dirty/clean Git state
 manually remember to invoke normal downstream publication after proto-go declares success
 treat READY FOR HANDOFF as equivalent to successful proto-go completion
@@ -618,9 +659,12 @@ treat a failed mechanical publication attempt as publication success
 define a universal built-in validation checklist as the authority for READY FOR HANDOFF
 declare READY FOR HANDOFF while the applicable governing validation-obligation set is unknown
 treat successful execution of only the validations it happened to discover as proof that no other governing obligation applies
-managed authoring mutates the invoking or current ordinary checkout
-managed authoring requires the user to create or select a worktree
-session replacement creates a second worktree for the same contribution and repository
+managed authoring relies on an ambient mutable authoring surface in a way that
+allows unrelated residue to affect the contribution
+managed authoring requires the user to create or select the environment
+session or environment replacement creates a second `ManagedContribution`, loses
+the existing contribution's authoritative state, or silently substitutes another
+state
 different progressions are globally serialized without semantic need
 actionable proto-go conditions terminate without allowing the same proto-go objective to continue when authorized progress remains possible
 PUBLISHED cleanup failure is silently ignored
@@ -640,6 +684,10 @@ The following are conformant and must not be classified as non-conformant:
 repository A is published while B remains unpublished
 an already-originated repository publication completes after readiness retirement
 a later readiness finds an identical publication obligation already satisfied by authoritative current reality
+a concrete Managed Authoring Environment is reused or replaced while the
+Product Intent guarantees and authoritative authored state remain satisfied
+a newly discovered repository enters the same ManagedContribution before its
+first managed authored mutation
 ```
 
 Likewise, a design is non-conformant if successful `proto-go` work can become
@@ -657,6 +705,11 @@ A completes its implementation and validation.
 Its contribution reaches READY FOR HANDOFF.
 
 B is still being modified.
+
+While A is being authored, the agent can inspect the complete available
+development workspace. If A discovers that repository C must participate, C
+enters A's managed authoring authority before the first managed mutation in C;
+A remains the same `ManagedContribution`.
 
 A enters downstream version-control progression.
 
@@ -789,8 +842,9 @@ Generic control ownership, session-transfer, and execution-continuity
 coordination are provided by Prelock.
 
 Transient execution or session loss must not change proto-go business truth
-such as contribution identity, readiness, or managed authoring bindings.
-Generic execution re-entry and correlation are provided by Prelock and
+such as contribution identity, readiness, managed authoring authority, or
+authoritative authored state. Generic execution re-entry and correlation are
+provided by Prelock and
 are not proto-go Product Intent.
 
 This product-level execution boundary does not define a fixed universal
@@ -884,10 +938,10 @@ It is not equivalent to:
 ```text
 repository
 branch
-worktree
 session
 agent
 process
+Managed Authoring Environment
 mutable authoring surface
 ```
 
@@ -911,11 +965,10 @@ ManagedContribution B
 The existence, name, identity, lifecycle, or representation of any subordinate
 repository-local object is not yet defined.
 
-Managed authoring uses a proto-go-created temporary detached Git worktree bound
-to one `ManagedContribution` and participating repository. That binding is a
-subordinate managed authoring resource; it does not define
-`ManagedContribution` identity and `ManagedContribution` must not be equated
-with a worktree.
+Managed authoring is performed through a Managed Authoring Environment that is
+available to the Development System for the contribution. The environment is a
+subordinate product context; it does not define `ManagedContribution` identity,
+and `ManagedContribution` must not be equated with it.
 
 One readiness occurrence establishes the complete set of Repository
 Publication Obligations applicable to its bound authored state and repository
@@ -966,21 +1019,57 @@ A `ManagedContribution` may contain managed authoring effects in one or more
 repositories.
 
 Its identity is not repository identity and is not defined by a branch,
-worktree, session, agent, process, or mutable authoring surface.
+session, agent, process, Managed Authoring Environment, or mutable authoring
+surface.
 
 The concrete representation of `ManagedContribution` identity is not yet
 defined.
 
-## Managed Authoring Worktree
+## Managed Authoring Environment
 
-The proto-go-created temporary detached Git worktree bound to one
-`ManagedContribution` and participating repository for managed authoring.
+The product-level managed authoring context made available by the Development
+System for managed authored mutation. It must provide isolation from unrelated
+mutable authoring state, begin relevant work from authoritative development
+state rather than incidental mutable residue, expose the complete Available
+Development Workspace, permit repository participation to be discovered during
+authoring, and preserve continuation independently of the environment's
+survival.
 
-The binding belongs to the contribution and repository rather than to a
-conversational session, execution occurrence, or transient execution context.
+The term does not select a VM, container, process, filesystem, Git worktree,
+snapshot, clone, image, cache, provider, provisioning system, or other concrete
+realization. It does not define `ManagedContribution` identity and does not
+require one concrete environment to survive for the contribution's lifetime.
 
-Its filesystem path, naming, registry representation, cleanup implementation,
-base-commit selection algorithm, and reconstruction mechanism are not defined.
+Its representation, replacement, reuse, lifecycle, and cleanup semantics remain
+undecided except for the observable guarantees established by this Product
+Intent.
+
+## Authoritative Development State
+
+The development state intentionally belonging to the same
+`ManagedContribution` and authoritatively selected or established by the
+Development System as the relevant state for managed authoring or continuation.
+It may be retained and reused for the same contribution. Its representation and
+storage mechanism are not defined.
+
+## Incidental Mutable Residue
+
+Mutable state that has not been authoritatively established as belonging to the
+same `ManagedContribution` and as relevant to its current managed authoring.
+Examples include temporary files, unattached local mutations, abandoned
+checkouts or branches, residual processes, temporary configuration, artifacts
+from another contribution, and other ambient state from an earlier execution.
+Its mere existence does not make it an input, authority, or continuation state
+for managed authoring.
+
+## Available Development Workspace
+
+The complete development workspace that the Development System authoritatively
+makes available for this managed authoring. It is the workspace the agent may
+inspect, understand, compare, and use to discover required repository
+participation. It is not a repository subset predicted solely from the initial
+task, and visibility or inspectability does not itself establish participation.
+Its materialization and representation are not defined.
 
 ## READY FOR HANDOFF
 
@@ -1089,7 +1178,9 @@ call/return for externally defined workflows.
 
 Prelock does not know proto-go domain concepts such as
 `ManagedContribution`, readiness, validation obligations, Repository
-Publication Obligations, `PUBLISHED`, or managed worktrees.
+Publication Obligations, `PUBLISHED`, Managed Authoring Environments, Available
+Development Workspaces, Authoritative Development State, or Incidental Mutable
+Residue.
 
 Its API and implementation mechanisms are not proto-go Product Intent.
 
@@ -1208,7 +1299,7 @@ already begun but the product cannot distinguish those mutations as belonging to
 the managed contribution.
 
 This invariant does not select a persistence engine, identifier format, registry,
-or worktree mechanism.
+or managed-authoring mechanism.
 
 ## PROTO-GO-INV-005 — Concurrent contributions do not share an ordinary mutable authoring surface
 
@@ -1219,8 +1310,8 @@ They MAY affect the same repository and MAY logically overlap the same files,
 but their ordinary concurrent authoring MUST remain isolated at the mutable
 authoring boundary.
 
-This invariant establishes isolation semantics without selecting Git worktrees
-or another isolation mechanism.
+This invariant establishes isolation semantics without selecting a concrete
+managed-authoring mechanism.
 
 ## PROTO-GO-INV-006 — Readiness is authoritative, not inferred from incidental state
 
@@ -1867,68 +1958,44 @@ Proto-go retains ownership of its own business state and authority through
 It is no longer a normative requirement and its identifier MUST NOT be reused
 for a different invariant.
 
-## PROTO-GO-INV-043 — Managed authoring uses dedicated proto-go-created Git worktrees
+## PROTO-GO-INV-043 — Managed authoring uses dedicated proto-go-created Git worktrees — SUPERSEDED
 
-For every participating repository in which an admitted `ManagedContribution`
-requires managed authored mutation, proto-go MUST automatically establish a
-dedicated Git worktree for that `ManagedContribution` and repository before the
-first such mutation occurs.
+**Status:** Superseded by ADR-019.
 
-Managed authored mutation MUST NOT occur in the invoking checkout, an ordinary
-user checkout, or another `ManagedContribution`'s managed authoring worktree.
+This invariant previously selected a dedicated Git worktree before managed
+authored mutation for each participating repository. ADR-019 replaces that
+mechanism selection with the mechanism-independent Managed Authoring Environment
+guarantees in the Product Intent.
 
-Distinct concurrently authored `ManagedContribution` instances MUST NOT share
-the same managed authoring worktree.
+`PROTO-GO-INV-043` is retained only to preserve invariant identity history. It
+is no longer a normative requirement and its identifier MUST NOT be reused.
 
-A repository dynamically entering the `ManagedContribution`'s authoring scope
-MUST receive its managed worktree before its first managed authored mutation.
+## PROTO-GO-INV-044 — Managed authoring worktrees are detached at determinate commits — SUPERSEDED
 
-This invariant does not define worktree path, naming, registry representation,
-or provisioning command sequence.
+**Status:** Superseded by ADR-019.
 
-## PROTO-GO-INV-044 — Managed authoring worktrees are detached at determinate commits
+This invariant previously required a determinate Git commit and detached HEAD
+for the selected managed authoring worktree. ADR-019 removes that
+worktree-specific requirement from the Product Intent and does not replace it
+with another concrete realization.
 
-Each managed authoring worktree MUST be provisioned from a determinate Git
-commit.
+`PROTO-GO-INV-044` is retained only to preserve invariant identity history. It
+is no longer a normative requirement and its identifier MUST NOT be reused.
 
-The managed authoring worktree MUST use detached HEAD while it serves as
-proto-go's managed authoring surface.
+## PROTO-GO-INV-045 — Managed worktree bindings follow the contribution lifecycle, not the session — SUPERSEDED
 
-Managed authoring MUST NOT rely on mutation of an ordinary checked-out branch
-as its authoring surface.
+**Status:** Superseded by ADR-019; the worktree-specific identity is historical.
 
-This invariant does not define how the authoritative base commit is selected or
-how downstream publication later realizes the authored state through refs,
-branches, commits, or another version-control mechanism.
+This invariant previously coupled managed authoring continuity, session
+replacement, lifetime, and cleanup to a managed worktree. ADR-019 replaces that
+coupling with the Product Intent guarantees that contribution identity,
+lifecycle facts, and authoritative authored state remain independent of a
+concrete authoring environment. General lifecycle and isolation properties
+remain governed by the mechanism-independent Product Intent and applicable
+invariants.
 
-## PROTO-GO-INV-045 — Managed worktree bindings follow the contribution lifecycle, not the session
-
-**Status:** Amended by ADR-017; the semantic property is unchanged.
-
-The authoritative managed-worktree binding belongs to the relevant
-`ManagedContribution` and participating repository rather than to a
-conversational session, execution occurrence, or transient execution context.
-
-Session replacement MUST NOT by itself create another managed authoring
-worktree for the same `ManagedContribution` and repository.
-
-The managed worktree MUST remain available as required across execution-
-occurrence termination, session replacement, `READY FOR HANDOFF`, publication
-attempts, readiness fencing, authored correction, revalidation, and later
-readiness occurrences.
-
-After `PUBLISHED` is established and the worktree is no longer required for
-authored progression, proto-go MUST attempt its normal automatic retirement and
-removal as a proto-go-owned closure obligation.
-
-Failure of that cleanup MUST NOT invalidate `PUBLISHED` and MUST be surfaced as
-an actionable proto-go condition rather than silently ignored.
-
-No incidental event such as session loss, process loss, elapsed time, `READY`,
-or execution-occurrence termination MAY by itself authorize destruction of the
-worktree.
-
-This invariant does not define abandonment or garbage-collection semantics.
+`PROTO-GO-INV-045` is retained only to preserve invariant identity history. It
+is no longer a normative requirement and its identifier MUST NOT be reused.
 
 ## PROTO-GO-INV-046 — Invocation and continuation are session-agnostic — SUPERSEDED
 
@@ -1941,7 +2008,8 @@ worktree, while preserving authoritative Progression Context.
 
 Generic session-transfer and continuation mechanics belong to Prelock.
 The preserved proto-go business consequences remain normative through
-`PROTO-GO-INV-011`, `PROTO-GO-INV-040`, and `PROTO-GO-INV-045`.
+`PROTO-GO-INV-011`, `PROTO-GO-INV-040`, and the current Managed Authoring
+Environment guarantees.
 
 `PROTO-GO-INV-046` is retained only to preserve invariant identity history.
 
@@ -2300,8 +2368,10 @@ normal successful completion
 
 The governing publication outcome is required for normal successful terminal
 completion. Normal successful completion additionally requires every applicable
-proto-go-owned closure obligation, such as managed worktree cleanup, to be
-satisfied.
+proto-go-owned closure obligation to be satisfied. Such an obligation may cover
+retirement or cleanup of a resource or effect established by proto-go when its
+applicable lifecycle requires it; no concrete managed-authoring cleanup object
+is assumed.
 
 If downstream progression becomes mechanically blocked while authored progress
 remains within Development System authority, the logical `proto-go` objective
@@ -2312,10 +2382,14 @@ The exact lifecycle-state machine, state names beyond currently canonical terms,
 persistence representation, retry representation, blocking taxonomy, recovery
 API, and process topology remain undecided.
 
-A `ManagedContribution` may expand its repository participation while managed
-authoring is active.
+Managed authoring begins with access to the complete Available Development
+Workspace that the Development System authoritatively makes available for the
+work. The workspace is not reduced merely because a caller predicted a narrower
+repository scope. A visible or inspectable repository does not automatically
+participate in the `ManagedContribution`.
 
-For each newly included repository:
+A `ManagedContribution` may expand its repository participation while managed
+authoring is active. For each newly included repository:
 
 ```text
 repository required
@@ -2451,60 +2525,99 @@ ManagedContribution PUBLISHED
 evaluates its own Repository Publication Obligations against current
 authoritative publication reality.
 
-# 6. Isolation semantics
+# 6. Managed authoring guarantees
 
-Managed authored mutation requires isolated ordinary mutable authoring
-surfaces, as required by `PROTO-GO-INV-005`.
+Managed authored mutation must take place through a Managed Authoring Environment
+that satisfies the product-level guarantees in this section. These guarantees
+are observable properties of managed authoring; they do not select an
+implementation mechanism.
 
-This specification selects dedicated Git worktrees as the managed authoring
-isolation mechanism.
+## 6.1 Isolation from unrelated mutable authoring state
 
-For each participating repository in which an admitted `ManagedContribution`
-requires managed authored mutation, proto-go provisions a dedicated temporary
-Git worktree before the first managed authored mutation in that repository.
+Managed authoring for one `ManagedContribution` must not accidentally observe or
+depend on mutable authoring state belonging to an unrelated
+`ManagedContribution`. This remains true when concurrent contributions concern
+the same repository, several repositories, or the same logical files.
 
-The worktree belongs to:
+A conforming design may use any realization that preserves this isolation. It
+must not rely on coordination by convention or on the absence of concurrent
+work. No particular checkout, branch, process, filesystem, version-control
+object, or environment topology is selected.
+
+## 6.2 Authoritative state and incidental residue
+
+The relevant starting state for managed authoring must be an Authoritative
+Development State. Authoritative authored state intentionally belonging to the
+same `ManagedContribution` must be preservable and usable to continue that
+contribution.
+
+Incidental Mutable Residue must not become an implicit input or authority merely
+because it exists. This includes temporary files, unattached local mutations,
+checkouts or branches left in an accidental state, residual processes,
+temporary configuration, artifacts of another contribution, and other mutable
+state left by an earlier or unrelated execution.
+
+Fresh managed authoring is therefore a semantic property: it is independent of
+incidental mutable residue and grounded in authoritative development state. It
+does not require physically creating a new environment.
+
+## 6.3 Complete available development workspace
+
+Managed authoring must have access to the complete Available Development
+Workspace that the Development System authoritatively makes available for the
+work. It must not be restricted merely to a repository subset predicted from
+the initial task.
+
+The complete workspace requirement concerns what can be inspected, understood,
+compared, or used for managed authoring. A repository being visible or
+inspectable does not by itself make it a participating repository.
+
+## 6.4 Dynamic repository participation
+
+The repository scope of a `ManagedContribution` may expand during authoring.
+When managed authoring discovers that another repository must participate, that
+repository may enter the existing contribution. Before the first managed
+authored mutation belonging to the contribution occurs in that repository, the
+repository must enter the contribution's managed authoring authority.
+
+Discovering that a repository was not predicted initially must not by itself
+require abandoning the same `ManagedContribution` or creating a new logical
+operation. The existing readiness-occurrence rules continue to apply when the
+resulting authored state or repository participation changes.
+
+## 6.5 Continuity independent of environment survival
+
+`ManagedContribution` identity, lifecycle facts, and authoritative authored
+state required for correct continuation must not depend on the survival of one
+concrete Managed Authoring Environment.
+
+Conceptually:
 
 ```text
-ManagedContribution × participating repository
+ManagedContribution continuity
+!=
+managed-authoring environment survival
 ```
 
-It does not belong to a conversational session, a transient execution
-occurrence, or a generic runtime controller.
+Loss, destruction, replacement, or non-reuse of an environment must not by
+itself:
 
-The managed authoring worktree is created from a determinate Git commit and
-uses detached HEAD while it serves as proto-go's managed authoring surface.
+- create a new `ManagedContribution`;
+- lose authoritative authored state required to continue the same contribution;
+- silently substitute another authored state;
+- erase an established lifecycle fact; or
+- transform incomplete work into complete work, or complete work into nonexistent
+  work.
 
-Managed authoring must remain detached from an ordinary checked-out branch.
+The same mutable environment is not required to survive for the contribution's
+lifetime. A future design may reuse or replace a concrete environment when the
+Product Intent guarantees and authoritative-state requirements remain satisfied.
 
-The invoking checkout, the user's ordinary checkout, and another
-`ManagedContribution`'s managed authoring worktree are not managed authoring
-surfaces.
-
-Distinct concurrently authored `ManagedContribution` instances must not share
-the same managed authoring worktree.
-
-A repository dynamically added to an existing `ManagedContribution` receives
-its own managed worktree before the first managed authored mutation in that
-repository.
-
-The worktree binding follows the contribution and repository rather than a
-conversational session or execution context. Session replacement must not by
-itself create a replacement worktree for the same `ManagedContribution` and
-repository.
-
-This worktree selection strengthens the isolation requirement expressed by
-`PROTO-GO-INV-005`; it does not supersede that invariant.
-
-Git-worktree isolation provides managed authoring isolation only. It does not by
-itself solve every shared-Git-repository concurrency concern such as refs,
-downstream publication, or convergence. Those downstream concerns are not
-assigned to proto-go merely because worktrees are selected for authoring
-isolation.
-
-The worktree filesystem path, naming, registry representation, base-commit
-selection algorithm, reconstruction mechanism, forced-removal policy, and
-garbage-collection semantics remain undecided.
+The mechanisms that preserve authoritative authored state, materialize the
+workspace, isolate mutable authoring, or establish environment lifecycle remain
+undecided. No VM, Spot VM, container, microVM, snapshot, clone, filesystem
+copy-on-write mechanism, image, cache, workspace synchronization protocol, or
+provisioning system is selected by this specification.
 
 # 7. Completion and validation semantics
 
@@ -2639,9 +2752,10 @@ established:
 
 * transient session or execution loss does not by itself terminate a proto-go
   objective or change proto-go business truth;
-* incidental events such as session loss, process loss, execution-occurrence
-  termination, elapsed time, or `READY` must not by themselves authorize
-  destruction of a managed authoring worktree;
+* loss, replacement, or destruction of a concrete Managed Authoring Environment
+  must not by itself erase authoritative authored state, change contribution
+  identity, or authorize retirement of any managed-authoring resource whose
+  applicable lifecycle still requires it;
 * an actionable condition preserves the same proto-go objective while
   authorized progress remains possible;
 * a post-`PUBLISHED` closure failure preserves the established `PUBLISHED` fact
@@ -2657,7 +2771,9 @@ Abandonment semantics and a complete recovery taxonomy are not yet defined.
 Multiple logical `proto-go` operations may exist concurrently.
 
 Distinct concurrently authored `ManagedContribution` instances must preserve
-the mutable-authoring isolation required by `PROTO-GO-INV-005`.
+the managed-authoring guarantees in Section 6, including the mutable-authoring
+isolation required by `PROTO-GO-INV-005` and independence from incidental
+mutable residue.
 
 Concurrency may occur even when contributions:
 
@@ -2708,6 +2824,12 @@ main-agent continuation. It is not the global workflow orchestrator.
 Generic execution continuity, control transfer, session re-entry, and
 instruction/execution-continuity mechanics are provided by Prelock and
 the surrounding harness. They are not proto-go Product Intent.
+
+The managed-authoring guarantees in Section 6 belong to proto-go. They do not
+become universal properties of every Prelock `ExecutionOccurrence`, and they do
+not assign Prelock responsibility for managed-authoring environments, available
+repositories, complete workspaces, authoring isolation, freshness, snapshots,
+VMs, containers, or filesystem mechanisms.
 
 This product-level boundary does not make all surrounding harness policy part
 of proto-go.
