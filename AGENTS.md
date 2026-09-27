@@ -61,7 +61,8 @@ ManagedContribution
 ```
 
 Do not define contribution identity in terms of repository, branch, worktree,
-session, agent, process, or mutable authoring-surface identity.
+session, agent, process, Managed Authoring Environment, or mutable
+authoring-surface identity.
 
 The currently admitted normative invariant identifiers are:
 
@@ -90,6 +91,9 @@ PROTO-GO-INV-037   superseded by ADR-017
 PROTO-GO-INV-038   superseded by ADR-017
 PROTO-GO-INV-041   superseded by ADR-013
 PROTO-GO-INV-042   superseded by ADR-017
+PROTO-GO-INV-043   superseded by ADR-019
+PROTO-GO-INV-044   superseded by ADR-019
+PROTO-GO-INV-045   superseded by ADR-019
 PROTO-GO-INV-046   superseded by ADR-017
 PROTO-GO-INV-048   superseded by ADR-017
 PROTO-GO-INV-049   superseded by ADR-017
@@ -103,7 +107,6 @@ Amended by ADR-017 without changing their semantic property:
 PROTO-GO-INV-031   Launch Contract authority root
 PROTO-GO-INV-039   Admission requires a Launch Contract
 PROTO-GO-INV-040   /go re-entry continues an existing proto-go objective
-PROTO-GO-INV-045   managed worktree bindings follow the contribution lifecycle
 PROTO-GO-INV-047   distinct proto-go progressions may advance concurrently
 ```
 
@@ -277,7 +280,8 @@ preserves the user-visible domain consequences:
 ```text
 distinct proto-go operations may coexist and progress concurrently
 proto-go business identity is not owned by a conversational session
-a session change creates no new objective, ManagedContribution, or worktree
+a session change creates no new objective or ManagedContribution and does not
+lose the contribution's authoritative managed-authoring state
 ```
 
 Do not require global serialization of otherwise-independent proto-go
@@ -310,7 +314,8 @@ Do not revert an established `PUBLISHED` fact because a later local cleanup
 failed.
 
 Do not report normal successful completion while applicable proto-go-owned
-closure obligations, including managed-worktree cleanup, remain unsatisfied.
+closure obligations remain unsatisfied. Such obligations are abstract and apply
+only when their governing lifecycle makes them applicable.
 
 ADR-016 makes the procedure locally evolvable and explicitly composable:
 
@@ -430,7 +435,7 @@ scripts/
 package manifests
 runtime configuration
 database schemas
-worktree registries
+managed-authoring environment registries
 public APIs
 ```
 
@@ -441,14 +446,18 @@ Do not select a programming language.
 
 Do not select a persistence engine.
 
-Git worktree authoring isolation is product-mandated.
+Managed-authoring isolation, authoritative starting state, complete available
+workspace, dynamic repository participation, and continuity independent of a
+concrete authoring environment are product-mandated.
 
-Managed authored mutation must occur in the proto-go-managed detached worktree,
-not in the invoking or current ordinary checkout.
+Managed authored mutation must occur through a Managed Authoring Environment
+that satisfies the Product Intent. Do not require or select a VM, container,
+process, filesystem, Git materialization, snapshot, image, cache, provisioning
+system, or other concrete mechanism.
 
-Do not invent unspecified details such as worktree filesystem path, naming,
-registry representation, base-commit selection algorithm, reconstruction
-mechanism, forced-removal policy, or garbage collection.
+Do not invent unspecified details such as environment filesystem path, naming,
+registry representation, authoritative-state storage, reconstruction mechanism,
+retirement policy, or garbage collection.
 
 Do not select a registry representation.
 
