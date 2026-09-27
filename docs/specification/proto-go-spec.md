@@ -83,6 +83,15 @@ managed authoring. ADR-019 supersedes that mechanism selection while preserving
 ADR-010's historical record. The current Product Intent instead requires the
 abstract managed-authoring guarantees defined below.
 
+ADR-020 establishes Interactive Main-Agent Visibility: while an eligible
+user-facing interactive coding-harness context carries a proto-go progression,
+proto-go-requested main-agent work retains the ordinary class of user-visible
+main-agent activity exposed by that harness. Internal execution-boundary
+changes must not by themselves turn that main-agent work into an opaque
+background operation. This does not transfer workflow authority to the main
+agent, expose private/internal state, require the originating session to
+survive, or change the Prelock boundary.
+
 ADR-011 permitted distinct proto-go progressions to advance concurrently and
 established that a progression is not owned by the conversational session that
 initiated it. ADR-017 preserves the user-visible concurrency and
@@ -270,6 +279,11 @@ User invokes:
 
   /go
 
+While the current interactive harness context remains available,
+main-agent work requested during proto-go progression remains visible
+through that interaction with the ordinary user-visible activity
+provided for equivalent main-agent work outside proto-go.
+
 The implementation proceeds in an isolated managed authoring context.
 
 Other implementation work may proceed concurrently elsewhere.
@@ -313,7 +327,10 @@ The governing promise is:
 > terminate `proto-go` when the Development System can perform the required authored
 > work and retry. Work that has not reached the readiness boundary remains
 > distinguishable from ready work, and ready work remains distinguishable from
-> published work.**
+> published work. When the proto-go progression requests main-agent work while
+> an eligible interactive user-facing harness context exists, internal execution
+> boundaries do not make that work opaque: its ordinary harness-visible activity
+> remains observable through the current user-facing interaction.**
 
 ## 0.3 Implementation plumbing is not a user workflow
 
@@ -327,6 +344,8 @@ record a publication destination
 mark the contribution as active
 mark the contribution as ready
 remember which session created it
+open an infrastructure-specific or proto-go-specific monitoring interface
+merely to observe ordinary main-agent activity during /go
 ```
 
 `proto-go` automatically establishes or makes available the Managed Authoring
@@ -336,6 +355,10 @@ pre-authoring state required as part of the managed implementation lifecycle.
 
 Those mechanisms are product plumbing, not separate user-facing preparation
 steps.
+
+Execution or infrastructure plumbing may relocate or mediate work without
+requiring the user to leave the current eligible interactive harness merely to
+retain ordinary visibility into proto-go-requested main-agent activity.
 
 Diagnostic, recovery, or administrative interfaces may expose lower-level
 mechanisms without making them part of ordinary `proto-go` use.
@@ -676,6 +699,15 @@ a retired readiness initiates new repository-local publication work
 a retired readiness becomes PUBLISHED merely because all of its already-originated repository operations later finish
 repository-local publication facts are erased merely because their originating readiness was retired
 a later readiness blindly inherits prior obligation satisfaction without checking its own exact authored-state and publication requirement
+a proto-go-requested main-agent continuation becomes opaque solely because an
+internal execution or control boundary was crossed while an eligible
+user-facing interactive harness context remains available
+ordinary observation of current main-agent work requires the user to leave the
+active coding harness for an infrastructure console, raw remote log viewer, or
+proto-go-specific monitoring UI
+preserving user-visible main-agent activity is implemented by exposing private
+chain-of-thought, secrets, hidden model state, or low-level runtime/infrastructure
+internals that are not ordinarily user-visible
 ```
 
 The following are conformant and must not be classified as non-conformant:
@@ -688,6 +720,13 @@ a concrete Managed Authoring Environment is reused or replaced while the
 Product Intent guarantees and authoritative authored state remain satisfied
 a newly discovered repository enters the same ManagedContribution before its
 first managed authored mutation
+the originating interactive session disappears and proto-go continues
+session-independently until a later eligible interactive context re-enters
+mechanical execution, child-workflow internals, runtime transitions, or
+infrastructure operations remain non-user-visible when they are not ordinary
+main-agent activity
+the concrete execution context changes while ordinary main-agent activity
+remains visible through the current eligible user-facing harness interaction
 ```
 
 Likewise, a design is non-conformant if successful `proto-go` work can become
@@ -836,6 +875,19 @@ The main agent may perform authored work when the proto-go workflow requests
 it. The main agent is not the global workflow orchestrator merely because it
 performs an agentic continuation.
 
+When such main-agent work is carried by an eligible user-facing interactive
+coding-harness context, proto-go requires Interactive Main-Agent Visibility.
+The ordinary class of user-visible main-agent activity exposed by that harness
+for equivalent work outside proto-go must remain observable through the current
+interaction. Crossing an internal execution or control boundary does not by
+itself authorize replacing that interactive activity with an opaque background
+operation.
+
+This visibility requirement is independent of workflow-control ownership. It
+does not make the main agent the orchestrator, does not require the originating
+session to survive, and does not define Prelock execution semantics or a
+transport mechanism.
+
 Distinct proto-go progressions may advance concurrently. Proto-go does not
 require global serialization of otherwise-independent `/go` progressions.
 Generic control ownership, session-transfer, and execution-continuity
@@ -902,6 +954,77 @@ This Product Intent does not yet define:
 
 Those are downstream derivations forced by this Product Intent. They MUST be
 derived rather than invented during implementation.
+
+## 0.13 Interactive main-agent visibility survives execution boundaries
+
+Invoking `/go` from an interactive coding-harness context must preserve the
+ordinary user-facing visibility of main-agent work requested during proto-go
+progression while an eligible interactive context currently carries that
+user-facing continuation.
+
+The governing distinction is:
+
+```text
+execution / control location may change
+        ↓
+proto-go-requested main-agent work occurs
+        ↓
+ordinary harness-visible main-agent activity remains observable
+through the current eligible user-facing interaction
+```
+
+not:
+
+```text
+execution / control location changes
+        ↓
+main-agent work silently becomes an opaque background task
+```
+
+Interactive Main-Agent Visibility concerns the class of activity that the
+active harness ordinarily exposes for equivalent main-agent work, including
+user-facing messages, progress/status communication, tool invocation surfaces,
+tool-result surfaces, and other ordinary user-visible main-agent activity.
+
+It does not require exposure of private chain-of-thought, hidden model state,
+system/developer prompts, credentials, secrets, private runtime state, Prelock
+internal state transitions, workflow persistence internals, low-level
+infrastructure/environment logs, or internal telemetry.
+
+The user must not need to move to an infrastructure-specific or
+proto-go-specific monitoring interface merely to retain ordinary visibility into
+current main-agent work. Diagnostic, administrative, recovery, infrastructure,
+and debugging interfaces may exist independently of this ordinary interaction
+contract.
+
+Visibility does not imply orchestration authority:
+
+```text
+Interactive Main-Agent Visibility
+!=
+main-agent ownership of proto-go progression
+```
+
+The proto-go workflow retains its existing business authority and progression
+ownership.
+
+If the originating interactive context disappears, this Product Intent does not
+require output to continue appearing in a nonexistent session. Existing
+session-independent proto-go continuity remains controlling. When a later
+eligible interactive context re-enters and carries the user-facing continuation,
+subsequent proto-go-requested main-agent work receives the same visibility
+guarantee in that context.
+
+This requirement does not preserve one process, agent instance, model process,
+execution occurrence, or cognitive lineage.
+
+It also does not require every mechanical execution, child-workflow event,
+proto-ruu transition, Prelock event, workflow-state transition, or
+environment-management operation to become user-visible.
+
+The concrete activity transport, streaming, routing, buffering, replay,
+reconnection, process topology, and harness integration mechanisms remain
+undecided.
 
 # 1. Purpose
 
@@ -1204,6 +1327,22 @@ existing proto-go workflow execution.
 The `/go` skill is not the Product Intent authority; it must not redefine the
 semantics established by the normative proto-go specification. Generic
 execution continuity and continuation mechanics are provided by Prelock.
+
+## Interactive Main-Agent Visibility
+
+The proto-go Product Intent guarantee that, while an eligible user-facing
+interactive coding-harness context currently carries a proto-go progression,
+main-agent work requested by that progression retains the ordinary class of
+user-visible main-agent activity exposed by the harness for equivalent
+main-agent work outside proto-go.
+
+It concerns user-facing visibility, not workflow-control ownership.
+
+It does not require exposure of private reasoning or internal runtime,
+infrastructure, workflow, or credential state, and it does not require one
+originating session, process, model instance, or execution occurrence to survive.
+
+Its transport and implementation mechanism are not defined.
 
 ## Invocation Preflight
 
@@ -2824,6 +2963,18 @@ main-agent continuation. It is not the global workflow orchestrator.
 Generic execution continuity, control transfer, session re-entry, and
 instruction/execution-continuity mechanics are provided by Prelock and
 the surrounding harness. They are not proto-go Product Intent.
+
+When the current harness interaction is an eligible user-facing interactive
+context for proto-go-requested main-agent work, the harness integration must
+preserve Interactive Main-Agent Visibility across internal execution/control
+boundaries. The user-facing requirement concerns ordinary main-agent activity;
+it does not expose generic Prelock internals or make harness presentation state
+authoritative for proto-go business truth.
+
+If that interactive context disappears, proto-go business continuity remains
+independent of it. A later eligible context may carry subsequent user-facing
+main-agent activity without creating a new logical proto-go objective solely
+because the interaction context changed.
 
 The managed-authoring guarantees in Section 6 belong to proto-go. They do not
 become universal properties of every Prelock `ExecutionOccurrence`, and they do
