@@ -30,18 +30,21 @@ No implementation architecture, programming language, runtime API, persistence
 mechanism, registry format, version-control adapter, or formal model is
 established merely by this repository layout.
 
-The current Product Intent does select managed Git authoring isolation:
-proto-go automatically provisions dedicated temporary detached Git worktrees
-for managed authoring. Lower-level worktree topology and representation, such
-as filesystem path, naming, registry, base-commit selection, cleanup
-implementation, and reconstruction, remain undecided.
+The current Product Intent establishes abstract managed-authoring guarantees:
+managed authoring must be isolated from unrelated mutable authoring state, begin
+from authoritative development state rather than incidental residue, expose the
+complete development workspace made available by the Development System, allow
+repository participation to be discovered during authoring, and preserve
+contribution continuity independently of any concrete authoring environment.
+No VM, container, process, filesystem, Git materialization, snapshot, image,
+cache, provisioning system, or other realization is selected.
 
 The current Product Intent does establish that `READY FOR HANDOFF` is an
 internal durable lifecycle boundary and that publication is mandatory for
 normal successful completion of `proto-go`. Normal successful completion
-additionally requires every applicable proto-go-owned closure obligation,
-including automatic temporary managed-worktree cleanup, to be satisfied.
-The current `proto-go` must satisfy that contract.
+additionally requires every applicable proto-go-owned closure obligation to be
+satisfied. Such obligations remain abstract and apply only when their governing
+lifecycle makes them applicable.
 
 ADR-002 further establishes that one logical `proto-go` operation owns one
 `ManagedContribution`, and that a `ManagedContribution` may span one or more
@@ -66,6 +69,7 @@ ADR-017: PROTO-GO-INV-023, PROTO-GO-INV-025,
          PROTO-GO-INV-042, PROTO-GO-INV-046,
          PROTO-GO-INV-048 through PROTO-GO-INV-050,
          PROTO-GO-INV-052
+ADR-019: PROTO-GO-INV-043 through PROTO-GO-INV-045
 ```
 
 ADR-003 establishes that `proto-go` does not own validation policy:
@@ -109,10 +113,10 @@ publication. `READY FOR HANDOFF` remains intermediate and `PUBLISHED` remains
 required for normal successful completion. ADR-017 supersedes the
 script/artifact runtime mechanics while preserving those semantics.
 
-ADR-010 requires managed authored mutation to occur in automatically
-provisioned dedicated temporary detached Git worktrees bound to one
-`ManagedContribution` and participating repository. The invoking checkout and
-other contributions' worktrees are not managed authoring surfaces.
+ADR-010 historically selected dedicated temporary detached Git worktrees for
+managed authoring. ADR-019 supersedes that mechanism selection while preserving
+ADR-010's historical record. The current Product Intent instead requires the
+abstract Managed Authoring Environment guarantees in the specification.
 
 ADR-011 established concurrent, session-agnostic progression. ADR-017
 preserves the user-visible domain consequences — distinct proto-go operations
@@ -130,8 +134,9 @@ proto-go-owned closure obligations. `PUBLISHED` is an authoritative historical
 fact that a later cleanup failure must not revert, and normal successful
 completion requires both publication and satisfaction of all applicable
 closure obligations. ADR-017 preserves those semantics while superseding the
-artifact/script continuation mechanism. Automatic managed-worktree cleanup is
-one such closure obligation.
+artifact/script continuation mechanism. Closure remains an applicable,
+mechanism-independent proto-go-owned obligation when proto-go establishes a
+resource or effect whose lifecycle requires retirement or cleanup.
 
 ADR-014 makes multi-repository publication an aggregate completion condition:
 one readiness occurrence defines a complete set of independently satisfiable
