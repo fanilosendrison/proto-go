@@ -20,6 +20,7 @@
 | [ADR-016](adr-016-require-local-procedural-evolution-and-explicit-composition.md) | Require local procedural evolution and explicit procedural composition | Accepted |
 | [ADR-017](adr-017-delegate-generic-workflow-execution-to-proto-runtime.md) | Delegate generic workflow execution to proto-runtime | Accepted |
 | [ADR-018](adr-018-recognize-proto-runtime-rename-to-prelock.md) | Recognize proto-runtime rename to Prelock | Accepted |
+| [ADR-019](adr-019-replace-worktree-selection-with-managed-authoring-guarantees.md) | Replace worktree selection with managed authoring guarantees | Accepted |
 
 The current normative product meaning is projected in
 [`../specification/proto-go-spec.md`](../specification/proto-go-spec.md).
@@ -51,6 +52,14 @@ relationship to the execution substrate.
 ADR-017 supersedes `PROTO-GO-INV-023`, `PROTO-GO-INV-025`, `PROTO-GO-INV-033`
 through `PROTO-GO-INV-038`, `PROTO-GO-INV-042`, `PROTO-GO-INV-046`,
 `PROTO-GO-INV-048` through `PROTO-GO-INV-050`, and `PROTO-GO-INV-052`. It
-amends `PROTO-GO-INV-031`, `PROTO-GO-INV-039`, `PROTO-GO-INV-040`,
-`PROTO-GO-INV-045`, and `PROTO-GO-INV-047` without changing their semantic
-property, and introduces `PROTO-GO-INV-059` through `PROTO-GO-INV-065`.
+amends `PROTO-GO-INV-031`, `PROTO-GO-INV-039`, `PROTO-GO-INV-040`, and
+`PROTO-GO-INV-047` without changing their semantic property, and introduces
+`PROTO-GO-INV-059` through `PROTO-GO-INV-065`.
+
+ADR-019 supersedes ADR-010's selection of dedicated temporary detached Git
+worktrees and the worktree-specific requirements represented by
+`PROTO-GO-INV-043` through `PROTO-GO-INV-045`. The historical ADR-010 body and
+invariant identities remain unchanged as historical records. ADR-019 preserves
+ADR-004's dynamic repository participation rule, generalizes closure obligations
+without selecting a cleanup mechanism, and does not modify Prelock Product
+Intent.
