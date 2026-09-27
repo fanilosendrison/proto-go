@@ -21,6 +21,7 @@
 | [ADR-017](adr-017-delegate-generic-workflow-execution-to-proto-runtime.md) | Delegate generic workflow execution to proto-runtime | Accepted |
 | [ADR-018](adr-018-recognize-proto-runtime-rename-to-prelock.md) | Recognize proto-runtime rename to Prelock | Accepted |
 | [ADR-019](adr-019-replace-worktree-selection-with-managed-authoring-guarantees.md) | Replace worktree selection with managed authoring guarantees | Accepted |
+| [ADR-020](adr-020-preserve-interactive-main-agent-visibility-through-go.md) | Preserve interactive main-agent visibility through `/go` | Accepted |
 
 The current normative product meaning is projected in
 [`../specification/proto-go-spec.md`](../specification/proto-go-spec.md).
@@ -63,3 +64,10 @@ invariant identities remain unchanged as historical records. ADR-019 preserves
 ADR-004's dynamic repository participation rule, generalizes closure obligations
 without selecting a cleanup mechanism, and does not modify Prelock Product
 Intent.
+
+ADR-020 amends the user-facing execution-boundary consequences of ADR-017 by
+requiring Interactive Main-Agent Visibility for proto-go-requested main-agent
+work while an eligible interactive harness context carries the progression. It
+does not transfer workflow authority to the main agent, require the originating
+session to survive, expose private/internal state, select an activity transport,
+or modify Prelock Product Intent.

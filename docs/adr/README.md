@@ -24,3 +24,16 @@ silently decided by implementation.
 
 Accepted ADRs record decision history. The synchronized normative specification
 remains the current product-meaning projection.
+
+## Decision history
+
+```text
+ADR-020 — Preserve interactive main-agent visibility through /go
+— Accepted
+— establishes Interactive Main-Agent Visibility across internal execution
+  boundaries while preserving ADR-017 control ownership and session-independent
+  continuation
+```
+
+ADR-020 amends ADR-017 only with respect to the user-facing consequence of
+main-agent work crossing execution/control boundaries.
